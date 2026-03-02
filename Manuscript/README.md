@@ -19,6 +19,7 @@ R scripts for generating all manuscript figures, tables, and analyses.
 | `create_model_misspecification_figs.R` | Creates model misspecification analysis figures. Compares true nominal p-values against median simulated parametric p-values for three misspecification scenarios (STMS, LTMS, SIMS), stratified by MAF. |
 | `compute_true_upper_bound.R` | Computes MRGN's "true upper bound" performance by running `infer.trio()` with ground-truth confounders (bypassing confounder selection). Calculates class-based, edge-based, and T1–T2 edge-based metrics. |
 | `updated_main_results_table2025.R` | Generates the main manuscript results tables by computing all performance metrics across simulation scenarios. Assembles a master table combining MRGN, MRPC, and GMAC inferences with computation times. |
+| `create_combined_T1T2_edge_table.R` | Standalone script that combines the ≤15 and 15–50 confounder T1–T2 edge results into a single 1800-trio table with confusion matrices, precision, recall, Type I error, and Type II error for each method. Saves to `supplementary_tables/T1.T2.Edge.Results.Combined.csv`. |
 | `check_mrpc_comp_times.R` | Analyzes MRPC-ADDIS computation times. Plots time vs. number of confounders, identifies problematic trios (>4 hours), and benchmarks against MRGN/GMAC. |
 | `gmac_valid_res_6_27_2023.R` | Loads GMAC validation results and creates supplementary figure SF9: GMAC Type I error rate vs. number of confounders at 0.01 and 0.05 significance cutoffs. |
 | `Plot_dist_rare_genotype_trios.R` | Generates supplementary figures showing gene expression distributions for GTEx WholeBlood trios with rare MAF (<10%). Includes scatter plots and histograms with skewness/kurtosis statistics. |
@@ -86,7 +87,7 @@ Supplementary CSV/Excel tables:
 | `ST10_Model_miss_Type_II_error_rates.csv` | Type II error rates under model misspecification. |
 | `S7_GTEx_comp_MRGN_MRPC_GMAC.csv` | GTEx comparison of MRGN, MRPC, and GMAC. |
 | `S8_GTEx_comp_MRGN_GMAC_perm_all.csv` | GTEx comparison with permutation test results. |
-| `T1.T2.edge.results*.csv` | T1–T2 edge-based metrics for standard and many-confounder simulations. |
+| `T1.T2.Edge.Results.Combined.csv` | Combined T1–T2 edge-based confusion matrices for all 1800 trios (both ≤15 and 15–50 confounder scenarios) with precision, recall, Type I error, and Type II error for MRGN, MRPC, and GMAC. |
 | `Results-class-based.csv` / `Results-edge-based.csv` | Class-based and edge-based metric summaries. |
 
 ### `supplementary_text/`
@@ -101,7 +102,7 @@ Helper functions, intermediate data, and auxiliary outputs.
 
 | File | Description |
 |---|---|
-| `helpers.R` | Reusable functions for generating class-based and edge-based performance metric tables. Defines `generate_class_based_metrics()` and `generate_edge_based_metrics()`. |
+| `helpers.R` | Reusable functions for generating class-based and edge-based performance metric tables. Defines `generate_class_based_metrics()`, `generate_edge_based_metrics()`, and `generate_t1_t2_results()` (which produces the combined T1–T2 edge table with Type I/II error). |
 | `results_all_gmac.RData` | Aggregated GMAC results. |
 | `results_all_MRPC-ADDIS.RData` | Aggregated MRPC-ADDIS results. |
 | `results_all_MRPC-LOND.RData` | Aggregated MRPC-LOND results. |

@@ -223,13 +223,18 @@ generate_t1_t2_results <- function(params,
   gmac.edge.ind.at05.sc <- apply(gmac.05, 1, ind.gmac)
   gmac.edge.ind.at01.sc <- apply(gmac.01, 1, ind.gmac)
   
-  # Helper to build confusion matrix with PR
+  # Helper to build confusion matrix with PR + Type I/II error
   build_table <- function(pred, truth, add_zero = FALSE) {
     t <- if (add_zero) rbind(c(0, 0), table(pred, truth)) else table(pred, truth)
     colnames(t) <- c("T1-T2 Absent", "T1-T2 Present")
     rownames(t) <- c("T1-T2 Pred. Absent", "T1-T2 Pred. Present")
     t2 <- rbind(t, Total = colSums(t), Recall = round(diag(t)/colSums(t), 4))
     t3 <- cbind(t2, Total = c(rowSums(t2)[1:3], NA), Precision = c(round(diag(t)/rowSums(t), 4), rep("", 2)))
+    # Type I Error = FP / (FP + TN) = t[2,1] / colSums(t)[1]
+    # Type II Error = FN / (FN + TP) = t[1,2] / colSums(t)[2]
+    t3 <- rbind(t3,
+                `Type I Error` = c(round(t[2,1]/colSums(t)[1], 4), "", "", ""),
+                `Type II Error` = c("", round(t[1,2]/colSums(t)[2], 4), "", ""))
     return(list(raw = t, formatted = t3))
   }
   
@@ -241,28 +246,34 @@ generate_t1_t2_results <- function(params,
   t31 <- build_table(gmac.edge.ind.at05.sc, true.score)
   t32 <- build_table(gmac.edge.ind.at01.sc, true.score)
   
+  # Each formatted table now has 6 rows: Absent, Present, Total, Recall, Type I Error, Type II Error
+  nr <- nrow(t1$formatted)  # should be 6
+  
   # Combine all into final display table
+  # Label appears at row 3 (Total) of each block.
+  # Between labels: (nr - 3) remaining rows + 1 separator + 2 pre-label rows = nr
+  # After last label: (nr - 3) remaining rows
   final.t123 <- cbind(
     `Inference Method` = c(rep(NA, 2), "MRGN", 
-                           rep(NA, 4), "MRGN",
-                           rep(NA, 4), "MRPC", 
-                           #rep(NA, 4), "GMAC",
-                           rep(NA, 4), "GMAC", 
-                           rep(NA, 4), "GMAC", NA),
+                           rep(NA, nr), "MRGN",
+                           rep(NA, nr), "MRPC", 
+                           #rep(NA, nr), "GMAC",
+                           rep(NA, nr), "GMAC", 
+                           rep(NA, nr), "GMAC", rep(NA, nr - 3)),
     
     `Inference Correction` = c(rep(NA, 2), "None: $\\alpha < 0.01$", 
-                               rep(NA, 4), "None: $\\alpha < 0.01$",
-                               rep(NA, 4), "ADDIS", 
-                               #rep(NA, 4), "FDR $< 0.1$",
-                               rep(NA, 4), "None: $\\alpha < 0.05$", 
-                               rep(NA, 4), "None: $\\alpha < 0.01$", NA),
+                               rep(NA, nr), "None: $\\alpha < 0.01$",
+                               rep(NA, nr), "ADDIS", 
+                               #rep(NA, nr), "FDR $< 0.1$",
+                               rep(NA, nr), "None: $\\alpha < 0.05$", 
+                               rep(NA, nr), "None: $\\alpha < 0.01$", rep(NA, nr - 3)),
     
     `Confounder Selection Correction` = c(rep(NA, 2), "FDR $<0.05$", 
-                                          rep(NA, 4), "None: $\\alpha < 0.01$",
-                                          rep(NA, 4), "FDR $<0.05$", 
-                                          #rep(NA, 4), "FDR $<0.05$",
-                                          rep(NA, 4), "FDR $<0.05$", 
-                                          rep(NA, 4), "FDR $<0.05$", NA),
+                                          rep(NA, nr), "None: $\\alpha < 0.01$",
+                                          rep(NA, nr), "FDR $<0.05$", 
+                                          #rep(NA, nr), "FDR $<0.05$",
+                                          rep(NA, nr), "FDR $<0.05$", 
+                                          rep(NA, nr), "FDR $<0.05$", rep(NA, nr - 3)),
     Description = c(rownames(t1$formatted), NA, 
                     rownames(t12$formatted), NA,
                     rownames(t2$formatted), NA, 
@@ -278,7 +289,7 @@ generate_t1_t2_results <- function(params,
   )
   
   # Save T1-T2 confusion matrix
-  write.csv(final.t123, file = paste0(path_supptabs, "T1.T2.edge.results.csv"), row.names = FALSE)
+  write.csv(final.t123, file = paste0(path_supptabs, "T1.T2.Edge.Results.Combined.csv"), row.names = FALSE)
   
   # Compute summary metrics
   # compute_pr_summary <- function(table, metrics = NULL) {

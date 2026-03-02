@@ -507,7 +507,7 @@ final.t123 = cbind(`Inference Method` = c(rep(" ", 2), "MRGN",
 
 kable(final.t123, caption = "Confusion matrices and precision/recall for MRGN, MRPC, and GMAC showing T1-T2 edge prediction performance on simulated trios of all model types. All methods use the GMAC confounder selection procedure with filtering. Columns represent the true case and rows represent the inferred case", row.names = F, booktabs = T, escape = FALSE)%>%column_spec(1, width = "4em")%>%column_spec(2:3, width = "5em")
 
-write.csv(final.t123, paste0(path_supptabs, "T1.T2.edge.results.15confs.csv"), row.names = F)
+write.csv(final.t123, paste0(path_tablescraps, "T1.T2.edge.results.15confs.csv"), row.names = F)
 
 
 

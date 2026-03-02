@@ -1,6 +1,6 @@
 # MRGN Manuscript Repository
 
-This repository contains all code, data, and manuscript materials for the **MRGN (Mendelian Randomization with Graph-based Nuisance-variable selection)** method paper. It includes simulation studies comparing MRGN to GMAC and MRPC, real-data application to GTEx gene-expression trios, permutation test analyses, and all scripts for generating manuscript figures and tables.
+This repository contains all code, data, and manuscript materials for the **MRGN (Mendelian Randomization Genomic Network)** method paper. It includes simulation studies comparing MRGN to GMAC and MRPC, real-data application to GTEx gene-expression trios, permutation test analyses, and all scripts for generating manuscript figures and tables.
 
 ## Repository Structure
 

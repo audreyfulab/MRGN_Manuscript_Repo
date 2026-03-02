@@ -125,6 +125,14 @@ library("caret")
 #read in helper functions
 source('Manuscript/scripts/MRGN_write_up_helper_functions.R')
 
+library(kableExtra)
+library(knitr)
+path_supptabs = "Manuscript/supplementary_tables/"
+path_suppfigs = "Manuscript/supplementary_figures/"
+path_figs = "Manuscript/figures/"
+path_tabs = "Manuscript/tables/"
+path_tablescraps = "Manuscript/other/tablescraps/"
+
 #======================================================================================
 #This section compares MRGN, MRPC, and GMAC using the GMAC procedure for confounder selection and filtering
 #simulations include between 1-15 confounders with 1 intermediate and 1 common child variable
@@ -188,6 +196,14 @@ datasets_new = lapply(datasets, function(x) x$data)
 
 
 ```{r, fig.cap = "This plot gives a visualization of the performance of the two implementations of the confounder selection procedure - the regression based method of GMAC - i.e the version implemented in the MRGN package vs the version implemented in the GMAC package. Results focus only on the selection of \"Unknown Confounders\" and any selection of the common child and intermediate variables are automatically considered to be false positives. In all plots, the x-axis represents the number of \"Unknown Confounders\" simulated and the y-axis give the precision or recall.", echo=FALSE, message=FALSE, warning=FALSE}
+library("MRGN")
+source('Manuscript/scripts/MRGN_write_up_helper_functions.R')
+gmac.cis = loadRData(file="Simulation/data/gmac_5k_cis_results_all_mods_all_conf_types_proproc.RData")
+datasets = loadRData(file="Simulation/data/mrgn_v_gmac_v_mrpc_5k_datasets_all_mods_conf_types.RData")
+datasets_new = lapply(datasets, function(x) x$data)
+conf.list.mrgn = loadRData(file="Simulation/data/int_and_child_filtered_data/mrgn_5k_conf_list_all_confs_filtered_all_mods.RData")
+conf.mat = loadRData(file = "Simulation/data/mrgn_v_gmac_v_mrpc_5k_datasets_all_mods_conf_types_conf_mat.RData")
+
 gmac.conf.list = apply(gmac.cis$cov.indicator.list, 1, list)
 conf.select.scores = calc.css(true.datasets = datasets_new, gmac.confs.list = gmac.conf.list, 
                               mrgn.confs.list = conf.list.mrgn, conf.names = colnames(conf.mat), plot.graphs = T)
@@ -195,6 +211,15 @@ conf.select.scores = calc.css(true.datasets = datasets_new, gmac.confs.list = gm
 
 
 ```{r, fig.cap = "Confounder selection performance given in precision (# correct confounders / # selected confounders) and recall (# correct confounders / # true confounders). Plots give a comparison of our (MRGNtrio's) implementation when no FDR correction (confounders selected at threshold $\\alpha < 0.01$) is used. When compared with the Yang et al., 2017 confounder selection procedure provided in the GMAC software there is a noticable improvement in recall. ", echo=FALSE, message=FALSE, warning=FALSE}
+library("MRGN")
+source('Manuscript/scripts/MRGN_write_up_helper_functions.R')
+gmac.cis = loadRData(file="Simulation/data/gmac_5k_cis_results_all_mods_all_conf_types_proproc.RData")
+datasets = loadRData(file="Simulation/data/mrgn_v_gmac_v_mrpc_5k_datasets_all_mods_conf_types.RData")
+datasets_new = lapply(datasets, function(x) x$data)
+conf.list.alpha01 = loadRData('Simulation/data/int_and_child_filtered_data/alpha_01_selected_confs_results/MRGN_15confs_liberal_alpha01_conf_list.RData')
+conf.mat = loadRData(file = "Simulation/data/mrgn_v_gmac_v_mrpc_5k_datasets_all_mods_conf_types_conf_mat.RData")
+gmac.conf.list = apply(gmac.cis$cov.indicator.list, 1, list)
+
 conf.select.scores2 = calc.css(true.datasets = datasets_new, gmac.confs.list = gmac.conf.list, 
                               mrgn.confs.list = conf.list.alpha01, conf.names = colnames(conf.mat), plot.graphs = T)
 #save(conf.select.scores, file = 'Manuscript/conf.select.scores.15confs.RData')
@@ -209,6 +234,25 @@ conf.select.scores2 = calc.css(true.datasets = datasets_new, gmac.confs.list = g
 
 
 ```{r, eval=TRUE,fig.cap="This plot gives a visualization of the performance of the two implementations of the confounder selection procedure - the regression based method of GMAC - i.e the version implemented in the MRGN package vs the version implemented in the GMAC package. Results focus only on the selection of \"Unknown Confounders\" and any selection of the common child and intermediate variables are automatically considered to be false positives. In all plots, the x-axis represents the number of \"Unknown Confounders\" simulated and the y-axis give the precision or recall.", echo=FALSE, warning=FALSE, message=FALSE}
+
+library("MRGN")
+library("qvalue")
+library("caret")
+library(kableExtra)
+library(knitr)
+source('Manuscript/scripts/MRGN_write_up_helper_functions.R')
+path_supptabs = "Manuscript/supplementary_tables/"
+path_suppfigs = "Manuscript/supplementary_figures/"
+path_figs = "Manuscript/figures/"
+path_tabs = "Manuscript/tables/"
+path_tablescraps = "Manuscript/other/tablescraps/"
+params = loadRData(file="Simulation/data/mrpc_v_mrgn_v_gmac_5k_params_all_mods_conf_types.RData")
+master.table = loadRData(file="Simulation/data/master_table_all_confs_all_mods.RData")
+gmac.trans = loadRData(file="Simulation/data/gmac_5k_trans_results_all_all_mods_conf_types_preproc.RData")
+gmac.cis = loadRData(file="Simulation/data/gmac_5k_cis_results_all_mods_all_conf_types_proproc.RData")
+mrgn.inf = loadRData("Simulation/data/int_and_child_filtered_data/mrgn_5k_inf_results_all_confs_filtered_all_mods.RData")
+mrpc.inf = loadRData(file="Simulation/data/int_and_child_filtered_data/mrpc_5k_small_results_all_confs_filtered_all_mods.RData")
+mrgn.inf.alpha01 = loadRData('Simulation/data/int_and_child_filtered_data/alpha_01_selected_confs_results/MRGN_15confs_liberal_alpha01_inference_results.RData')
 
 #==========================================
 #-----------Class-Based-Metrics------------
@@ -380,56 +424,74 @@ t1.1 = table(MRGN = mrgn.edge.ind, Truth = params$true.score)
 colnames(t1.1) = row.names(t1.1)=c("T1-T2 Absent", "T1-T2 Present")
 t1.2 = rbind(t1.1, Total = colSums(t1.1), Recall = round(diag(t1.1)/colSums(t1.1),4))
 t1.3 = cbind(t1.2, Total = c(rowSums(t1.2)[1:3], " "), Precision = c(round(diag(t1.1)/rowSums(t1.1),4), rep("",2)))
+t1.3 = rbind(t1.3,
+             `Type I Error` = c(round(t1.1[2,1]/colSums(t1.1)[1],4), " ", " ", " "),
+             `Type II Error` = c(" ", round(t1.1[1,2]/colSums(t1.1)[2],4), " ", " "))
 
 #mrgn with confs sel at alpha < 0.01
 t12.1 = table(MRGN = mrgn.edge.ind.alpha01, Truth = params$true.score)
 colnames(t12.1) = row.names(t12.1)=c("T1-T2 Absent", "T1-T2 Present")
 t12.2 = rbind(t12.1, Total = colSums(t12.1), Recall = round(diag(t12.1)/colSums(t12.1),4))
 t12.3 = cbind(t12.2, Total = c(rowSums(t12.2)[1:3], " "), Precision = c(round(diag(t12.1)/rowSums(t12.1),4), rep("",2)))
+t12.3 = rbind(t12.3,
+              `Type I Error` = c(round(t12.1[2,1]/colSums(t12.1)[1],4), " ", " ", " "),
+              `Type II Error` = c(" ", round(t12.1[1,2]/colSums(t12.1)[2],4), " ", " "))
 
 #mrpc
 t2.1 = table(MRPC = mrpc.edge.ind, Truth = params$true.score)
 colnames(t2.1) = row.names(t2.1)=c("T1-T2 Absent", "T1-T2 Present")
 t2.2 = rbind(t2.1, Total = colSums(t2.1), Recall = round(diag(t2.1)/colSums(t2.1),4))
-t2.3 = cbind(t2.2, Total = c(rowSums(t2.2)[1:3], " "), Precision = c(round(diag(t2.1)/rowSums(t2.1),4), rep("",2)))  
+t2.3 = cbind(t2.2, Total = c(rowSums(t2.2)[1:3], " "), Precision = c(round(diag(t2.1)/rowSums(t2.1),4), rep("",2)))
+t2.3 = rbind(t2.3,
+             `Type I Error` = c(round(t2.1[2,1]/colSums(t2.1)[1],4), " ", " ", " "),
+             `Type II Error` = c(" ", round(t2.1[1,2]/colSums(t2.1)[2],4), " ", " "))
 #gmac
 t3.1 = rbind(c(0,0),table(GMAC = gmac.edge.ind, Truth = params$true.score))
 colnames(t3.1) = row.names(t3.1)=c("T1-T2 Absent", "T1-T2 Present")
 t3.2 = rbind(t3.1, Total = colSums(t3.1), Recall = round(diag(t3.1)/colSums(t3.1),4))
 t3.3 = cbind(t3.2, Total = c(rowSums(t3.2)[1:3], " "), Precision = c(round(diag(t3.1)/rowSums(t3.1),4), rep("",2)))
+t3.3 = rbind(t3.3,
+             `Type I Error` = c(round(t3.1[2,1]/colSums(t3.1)[1],4), " ", " ", " "),
+             `Type II Error` = c(" ", round(t3.1[1,2]/colSums(t3.1)[2],4), " ", " "))
 
 #gmac with significance at alpha < 0.01
 t31.1 = table(GMAC = gmac.edge.ind.at05.sc, Truth = params$true.score)
 colnames(t31.1) = row.names(t31.1)=c("T1-T2 Absent", "T1-T2 Present")
 t31.2 = rbind(t31.1, Total = colSums(t31.1), Recall = round(diag(t31.1)/colSums(t31.1),4))
 t31.3 = cbind(t31.2, Total = c(rowSums(t31.2)[1:3], " "), Precision = c(round(diag(t31.1)/rowSums(t31.1),4),
-rep("",2))) 
+rep("",2)))
+t31.3 = rbind(t31.3,
+              `Type I Error` = c(round(t31.1[2,1]/colSums(t31.1)[1],4), " ", " ", " "),
+              `Type II Error` = c(" ", round(t31.1[1,2]/colSums(t31.1)[2],4), " ", " "))
 
 #gmac with significance at alpha < 0.01
 t32.1 = table(GMAC = gmac.edge.ind.at01.sc, Truth = params$true.score)
 colnames(t32.1) = row.names(t32.1)=c("T1-T2 Absent", "T1-T2 Present")
 t32.2 = rbind(t32.1, Total = colSums(t32.1), Recall = round(diag(t32.1)/colSums(t32.1),4))
-t32.3 = cbind(t32.2, Total = c(rowSums(t32.2)[1:3], " "), Precision = c(round(diag(t32.1)/rowSums(t32.1),4), rep("",2))) 
+t32.3 = cbind(t32.2, Total = c(rowSums(t32.2)[1:3], " "), Precision = c(round(diag(t32.1)/rowSums(t32.1),4), rep("",2)))
+t32.3 = rbind(t32.3,
+              `Type I Error` = c(round(t32.1[2,1]/colSums(t32.1)[1],4), " ", " ", " "),
+              `Type II Error` = c(" ", round(t32.1[1,2]/colSums(t32.1)[2],4), " ", " "))
 
 #combine
 final.t123 = cbind(`Inference Method` = c(rep(" ", 2), "MRGN", 
-                                          rep(" ", 4), "MRGN",
-                                          rep(" ", 4), "MRPC", 
-                                          rep(" ", 4), "GMAC", 
-                                          rep(" ", 4), "GMAC",
-                                          rep(" ", 4), "GMAC", " "),
+                                          rep(" ", 6), "MRGN",
+                                          rep(" ", 6), "MRPC", 
+                                          rep(" ", 6), "GMAC", 
+                                          rep(" ", 6), "GMAC",
+                                          rep(" ", 6), "GMAC", rep(" ", 3)),
                    `Inference Correction` = c(rep(" ", 2), "None: $\\alpha < 0.01$", 
-                                              rep(" ", 4), "None: $\\alpha < 0.01$",
-                                              rep(" ", 4), "ADDIS", 
-                                              rep(" ", 4), "FDR $< 0.1$", 
-                                              rep(" ", 4), "None: $\\alpha < 0.05$",
-                                              rep(" ", 4), "None: $\\alpha < 0.01$", " "),
+                                              rep(" ", 6), "None: $\\alpha < 0.01$",
+                                              rep(" ", 6), "ADDIS", 
+                                              rep(" ", 6), "FDR $< 0.1$", 
+                                              rep(" ", 6), "None: $\\alpha < 0.05$",
+                                              rep(" ", 6), "None: $\\alpha < 0.01$", rep(" ", 3)),
                    `Confounder Selection Correction` = c(rep(" ", 2), "FDR $<0.05$", 
-                                                         rep(" ", 4), "None: $\\alpha < 0.01$",
-                                                         rep(" ", 4), "FDR $<0.05$", 
-                                                         rep(" ", 4), "FDR $<0.05$", 
-                                                         rep(" ", 4), "FDR $<0.05$",
-                                                         rep(" ", 4), "FDR $<0.05$", " "),
+                                                         rep(" ", 6), "None: $\\alpha < 0.01$",
+                                                         rep(" ", 6), "FDR $<0.05$", 
+                                                         rep(" ", 6), "FDR $<0.05$", 
+                                                         rep(" ", 6), "FDR $<0.05$",
+                                                         rep(" ", 6), "FDR $<0.05$", rep(" ", 3)),
                    Description = c(row.names(t1.3), " ", 
                                    row.names(t12.3), " ", 
                                    row.names(t2.3)," ", 
@@ -529,6 +591,22 @@ write.csv(MainT.combined.res.final,paste0(path_tabs, "MT2_Combined_ALL_METICS_15
 ```{r, eval = FALSE, fig.cap="Plot comparing the performance of MRGN, MRPC, and GMAC inference on the T1 - T2 edge across simulation values of the standard deviation of the residuals (noise). All simulated trios are simulated with confounding variables of all types and confounding variable selection for all methods includes the GMAC method using common child and intermediate variable filtering", message=FALSE, warning=FALSE, echo=FALSE}
 
 
+library("MRGN")
+source('Manuscript/scripts/MRGN_write_up_helper_functions.R')
+path_suppfigs = "Manuscript/supplementary_figures/"
+params = loadRData(file="Simulation/data/mrpc_v_mrgn_v_gmac_5k_params_all_mods_conf_types.RData")
+gmac.trans = loadRData(file="Simulation/data/gmac_5k_trans_results_all_all_mods_conf_types_preproc.RData")
+gmac.cis = loadRData(file="Simulation/data/gmac_5k_cis_results_all_mods_all_conf_types_proproc.RData")
+mrgn.inf = loadRData("Simulation/data/int_and_child_filtered_data/mrgn_5k_inf_results_all_confs_filtered_all_mods.RData")
+mrpc.inf = loadRData(file="Simulation/data/int_and_child_filtered_data/mrpc_5k_small_results_all_confs_filtered_all_mods.RData")
+mrpc.adj = lapply(mrpc.inf, function(x) x$Adj)
+mrgn.adj = lapply(mrgn.inf, get.adj.from.class)
+true.adj = lapply(convert.truth(params$model), get.adj.from.class)
+params$true.score = unlist(lapply(true.adj, ind.med.edge))
+mrgn.edge.ind = unlist(lapply(mrgn.adj, ind.med.edge))
+mrpc.edge.ind = unlist(lapply(mrpc.adj, ind.med.edge))
+gmac.edge.ind = apply(cbind(gmac.cis$output.table$Cis_Sig, gmac.trans$output.table$Trans_Sig), 1, ind.gmac)
+
 colnames(params)[-c(1,7)]=c("Residual SD", "Minor Allele Frequency", "SNP Signal", "T1 - T2 Edge Signal", "Number of Unknown Confounders")
 #T1 - T2 edge metrics
 mrgn.metrics = cbind.data.frame(Method = rep("MRGN", 1500), 
@@ -568,6 +646,26 @@ A=plot.sim.metrics(metrics.mrgn = mrgn.metrics,
 
 ```{r, eval=FALSE, fig.cap="Plot comparing the performance of MRGN, MRPC, and GMAC inference on the T1 - T2 edge across simulation values of the minor allele frequency. All simulated trios are simulated with confounding variables of all types and confounding variable selection for all methods includes common child and intermediate variable filtering", echo=FALSE, warning=FALSE, message=FALSE}
 
+library("MRGN")
+source('Manuscript/scripts/MRGN_write_up_helper_functions.R')
+path_suppfigs = "Manuscript/supplementary_figures/"
+params = loadRData(file="Simulation/data/mrpc_v_mrgn_v_gmac_5k_params_all_mods_conf_types.RData")
+gmac.trans = loadRData(file="Simulation/data/gmac_5k_trans_results_all_all_mods_conf_types_preproc.RData")
+gmac.cis = loadRData(file="Simulation/data/gmac_5k_cis_results_all_mods_all_conf_types_proproc.RData")
+mrgn.inf = loadRData("Simulation/data/int_and_child_filtered_data/mrgn_5k_inf_results_all_confs_filtered_all_mods.RData")
+mrpc.inf = loadRData(file="Simulation/data/int_and_child_filtered_data/mrpc_5k_small_results_all_confs_filtered_all_mods.RData")
+mrpc.adj = lapply(mrpc.inf, function(x) x$Adj)
+mrgn.adj = lapply(mrgn.inf, get.adj.from.class)
+true.adj = lapply(convert.truth(params$model), get.adj.from.class)
+params$true.score = unlist(lapply(true.adj, ind.med.edge))
+mrgn.edge.ind = unlist(lapply(mrgn.adj, ind.med.edge))
+mrpc.edge.ind = unlist(lapply(mrpc.adj, ind.med.edge))
+gmac.edge.ind = apply(cbind(gmac.cis$output.table$Cis_Sig, gmac.trans$output.table$Trans_Sig), 1, ind.gmac)
+colnames(params)[-c(1,7)] = c("Residual SD", "Minor Allele Frequency", "SNP Signal", "T1 - T2 Edge Signal", "Number of Unknown Confounders")
+mrgn.metrics = cbind.data.frame(Method = rep("MRGN", 1500), truth = params$true.score, inf = mrgn.edge.ind)
+mrpc.metrics = cbind.data.frame(Method = rep("MRPC", 1500), truth = params$true.score, inf = mrpc.edge.ind)
+gmac.metrics = cbind.data.frame(Method = rep("GMAC", 1500), truth = params$true.score, inf = gmac.edge.ind)
+
 B=plot.sim.metrics(metrics.mrgn = mrgn.metrics, 
                    metrics.mrpc = mrpc.metrics, 
                    metrics.gmac = gmac.metrics,
@@ -592,6 +690,26 @@ B=plot.sim.metrics(metrics.mrgn = mrgn.metrics,
 
 
 ```{r, eval=FALSE, fig.cap="Plot comparing the performance of MRGN, MRPC, and GMAC inference on the T1 - T2 edge across simulation values of the signal for the V1 - T1 and V1 - T2 edges. All simulated trios are simulated with confounding variables of all types and confounding variable selection for all methods includes common child and intermediate variable filtering", echo=FALSE, warning=FALSE, message=FALSE}
+
+library("MRGN")
+source('Manuscript/scripts/MRGN_write_up_helper_functions.R')
+path_suppfigs = "Manuscript/supplementary_figures/"
+params = loadRData(file="Simulation/data/mrpc_v_mrgn_v_gmac_5k_params_all_mods_conf_types.RData")
+gmac.trans = loadRData(file="Simulation/data/gmac_5k_trans_results_all_all_mods_conf_types_preproc.RData")
+gmac.cis = loadRData(file="Simulation/data/gmac_5k_cis_results_all_mods_all_conf_types_proproc.RData")
+mrgn.inf = loadRData("Simulation/data/int_and_child_filtered_data/mrgn_5k_inf_results_all_confs_filtered_all_mods.RData")
+mrpc.inf = loadRData(file="Simulation/data/int_and_child_filtered_data/mrpc_5k_small_results_all_confs_filtered_all_mods.RData")
+mrpc.adj = lapply(mrpc.inf, function(x) x$Adj)
+mrgn.adj = lapply(mrgn.inf, get.adj.from.class)
+true.adj = lapply(convert.truth(params$model), get.adj.from.class)
+params$true.score = unlist(lapply(true.adj, ind.med.edge))
+mrgn.edge.ind = unlist(lapply(mrgn.adj, ind.med.edge))
+mrpc.edge.ind = unlist(lapply(mrpc.adj, ind.med.edge))
+gmac.edge.ind = apply(cbind(gmac.cis$output.table$Cis_Sig, gmac.trans$output.table$Trans_Sig), 1, ind.gmac)
+colnames(params)[-c(1,7)] = c("Residual SD", "Minor Allele Frequency", "SNP Signal", "T1 - T2 Edge Signal", "Number of Unknown Confounders")
+mrgn.metrics = cbind.data.frame(Method = rep("MRGN", 1500), truth = params$true.score, inf = mrgn.edge.ind)
+mrpc.metrics = cbind.data.frame(Method = rep("MRPC", 1500), truth = params$true.score, inf = mrpc.edge.ind)
+gmac.metrics = cbind.data.frame(Method = rep("GMAC", 1500), truth = params$true.score, inf = gmac.edge.ind)
 
 C=plot.sim.metrics(metrics.mrgn = mrgn.metrics, 
                    metrics.mrpc = mrpc.metrics, 
@@ -619,6 +737,26 @@ C=plot.sim.metrics(metrics.mrgn = mrgn.metrics,
 
 ```{r, eval=FALSE, fig.cap="Plot comparing the performance of MRGN, MRPC, and GMAC inference on the T1 - T2 edge across simulation values of the signal of the T1 - T2 edge. All simulated trios are simulated with confounding variables of all types and confounding variable selection for all methods includes common child and intermediate variable filtering", echo=FALSE, warning=FALSE, message=FALSE}
 
+library("MRGN")
+source('Manuscript/scripts/MRGN_write_up_helper_functions.R')
+path_suppfigs = "Manuscript/supplementary_figures/"
+params = loadRData(file="Simulation/data/mrpc_v_mrgn_v_gmac_5k_params_all_mods_conf_types.RData")
+gmac.trans = loadRData(file="Simulation/data/gmac_5k_trans_results_all_all_mods_conf_types_preproc.RData")
+gmac.cis = loadRData(file="Simulation/data/gmac_5k_cis_results_all_mods_all_conf_types_proproc.RData")
+mrgn.inf = loadRData("Simulation/data/int_and_child_filtered_data/mrgn_5k_inf_results_all_confs_filtered_all_mods.RData")
+mrpc.inf = loadRData(file="Simulation/data/int_and_child_filtered_data/mrpc_5k_small_results_all_confs_filtered_all_mods.RData")
+mrpc.adj = lapply(mrpc.inf, function(x) x$Adj)
+mrgn.adj = lapply(mrgn.inf, get.adj.from.class)
+true.adj = lapply(convert.truth(params$model), get.adj.from.class)
+params$true.score = unlist(lapply(true.adj, ind.med.edge))
+mrgn.edge.ind = unlist(lapply(mrgn.adj, ind.med.edge))
+mrpc.edge.ind = unlist(lapply(mrpc.adj, ind.med.edge))
+gmac.edge.ind = apply(cbind(gmac.cis$output.table$Cis_Sig, gmac.trans$output.table$Trans_Sig), 1, ind.gmac)
+colnames(params)[-c(1,7)] = c("Residual SD", "Minor Allele Frequency", "SNP Signal", "T1 - T2 Edge Signal", "Number of Unknown Confounders")
+mrgn.metrics = cbind.data.frame(Method = rep("MRGN", 1500), truth = params$true.score, inf = mrgn.edge.ind)
+mrpc.metrics = cbind.data.frame(Method = rep("MRPC", 1500), truth = params$true.score, inf = mrpc.edge.ind)
+gmac.metrics = cbind.data.frame(Method = rep("GMAC", 1500), truth = params$true.score, inf = gmac.edge.ind)
+
 C=plot.sim.metrics(metrics.mrgn = mrgn.metrics, 
                    metrics.mrpc = mrpc.metrics, 
                    metrics.gmac = gmac.metrics,
@@ -642,6 +780,26 @@ C=plot.sim.metrics(metrics.mrgn = mrgn.metrics,
 ```
 
 ```{r, eval=FALSE, fig.cap="Plot comparing the performance of MRGN, MRPC, and GMAC inference on the T1 - T2 edge across simulation values of the number of confounding variables present. All simulated trios are simulated with confounding variables of all types and confounding variable selection for all methods includes common child and intermediate variable filtering", echo=FALSE, warning=FALSE, message=FALSE}
+
+library("MRGN")
+source('Manuscript/scripts/MRGN_write_up_helper_functions.R')
+path_suppfigs = "Manuscript/supplementary_figures/"
+params = loadRData(file="Simulation/data/mrpc_v_mrgn_v_gmac_5k_params_all_mods_conf_types.RData")
+gmac.trans = loadRData(file="Simulation/data/gmac_5k_trans_results_all_all_mods_conf_types_preproc.RData")
+gmac.cis = loadRData(file="Simulation/data/gmac_5k_cis_results_all_mods_all_conf_types_proproc.RData")
+mrgn.inf = loadRData("Simulation/data/int_and_child_filtered_data/mrgn_5k_inf_results_all_confs_filtered_all_mods.RData")
+mrpc.inf = loadRData(file="Simulation/data/int_and_child_filtered_data/mrpc_5k_small_results_all_confs_filtered_all_mods.RData")
+mrpc.adj = lapply(mrpc.inf, function(x) x$Adj)
+mrgn.adj = lapply(mrgn.inf, get.adj.from.class)
+true.adj = lapply(convert.truth(params$model), get.adj.from.class)
+params$true.score = unlist(lapply(true.adj, ind.med.edge))
+mrgn.edge.ind = unlist(lapply(mrgn.adj, ind.med.edge))
+mrpc.edge.ind = unlist(lapply(mrpc.adj, ind.med.edge))
+gmac.edge.ind = apply(cbind(gmac.cis$output.table$Cis_Sig, gmac.trans$output.table$Trans_Sig), 1, ind.gmac)
+colnames(params)[-c(1,7)] = c("Residual SD", "Minor Allele Frequency", "SNP Signal", "T1 - T2 Edge Signal", "Number of Unknown Confounders")
+mrgn.metrics = cbind.data.frame(Method = rep("MRGN", 1500), truth = params$true.score, inf = mrgn.edge.ind)
+mrpc.metrics = cbind.data.frame(Method = rep("MRPC", 1500), truth = params$true.score, inf = mrpc.edge.ind)
+gmac.metrics = cbind.data.frame(Method = rep("GMAC", 1500), truth = params$true.score, inf = gmac.edge.ind)
 
 D=plot.sim.metrics(metrics.mrgn = mrgn.metrics, 
                    metrics.mrpc = mrpc.metrics, 
@@ -677,6 +835,18 @@ D=plot.sim.metrics(metrics.mrgn = mrgn.metrics,
 #both methods use regression conf selection with int and child filtering::
 #300 total trios each simulated with 15-50 confounding variables
 #===============================================
+library("MRGN")
+library("qvalue")
+library("caret")
+library(kableExtra)
+library(knitr)
+source('Manuscript/scripts/MRGN_write_up_helper_functions.R')
+path_supptabs = "Manuscript/supplementary_tables/"
+path_suppfigs = "Manuscript/supplementary_figures/"
+path_figs = "Manuscript/figures/"
+path_tabs = "Manuscript/tables/"
+path_tablescraps = "Manuscript/other/tablescraps/"
+
 #many.conf.datasets=loadRData(file="Simulation/data/many_conf_data/mrgn_v_gmac_v_mrpc_300_datasets_all_mods_conf_types.RData")
 many.conf.params=loadRData(file="Simulation/data/many_conf_data/mrpc_v_mrgn_v_gmac_300_params_all_mods_conf_types.RData")
 
@@ -720,6 +890,14 @@ colnames(times) = c("Est. Time to Compute 300 trios (mins)", "Est. Time to Compu
 
 
 ```{r, eval=TRUE, fig.cap="This plot gives a visualization of the performance of the two implementations of the regression-based confounder selection procedure proposed by Yang et al., 2017. The performance curves represent the version implemented in the MRGN package vs the version implemented in the GMAC package. Results are given for the simulations with many confounding variables and focus only on the selection of \"Unknown Confounders\". Any selection of the common child and intermediate variables are automatically considered to be false positives. In all plots, the x-axis represents the number of \"Unknown Confounders\" simulated and the y-axis give the precision or recall.", echo=FALSE, warning=FALSE, message=FALSE}
+library("MRGN")
+source('Manuscript/scripts/MRGN_write_up_helper_functions.R')
+many.conf.data = loadRData(file = "Simulation/data/many_conf_data/mrgn_v_gmac_v_mrpc_300_datasets_all_mods_conf_types.RData")
+many.conf.data2 = lapply(many.conf.data, function(x) x$data)
+many.conf.conf.mat = loadRData("Simulation/data/many_conf_data/mrgn_v_gmac_v_mrpc_300_datasets_all_mods_conf_types_conf_mat.RData")
+many.conf.mrgn.conf.list = loadRData("Simulation/data/many_conf_data/mrgn_300_conf_list_all_confs_all_mods_REG.RData")
+gmac.cis.many.conf = loadRData("Simulation/data/many_conf_data/gmac_300_cis_results_all_mods_all_conf_types_proproc.RData")
+
 #==========================================
 #-------confounder-selection-scoring-------
 #==========================================
@@ -730,6 +908,15 @@ conf.select.scores.mc = calc.css(true.datasets = many.conf.data2, gmac.confs.lis
 ```
 
 ```{r, eval=TRUE, fig.cap="This plot gives a visualization of the performance of the two implementations of the regression-based confounder selection procedure proposed by Yang et al., 2017. The performance curves represent the version implemented in the MRGN package vs the version implemented in the GMAC package. In addition, the MRGN implementation here represents results when no FDR is used to correct the multiple tests for selecting confounders. Instead confounders are selected at the significance threshold of $\\alpha < 0.01$. Results are given for the simulations with many confounding variables and focus only on the selection of \"Unknown Confounders\". Any selection of the common child and intermediate variables are automatically considered to be false positives. In all plots, the x-axis represents the number of \"Unknown Confounders\" simulated and the y-axis give the precision or recall.", echo=FALSE, warning=FALSE, message=FALSE}
+library("MRGN")
+source('Manuscript/scripts/MRGN_write_up_helper_functions.R')
+many.conf.data = loadRData(file = "Simulation/data/many_conf_data/mrgn_v_gmac_v_mrpc_300_datasets_all_mods_conf_types.RData")
+many.conf.data2 = lapply(many.conf.data, function(x) x$data)
+many.conf.conf.mat = loadRData("Simulation/data/many_conf_data/mrgn_v_gmac_v_mrpc_300_datasets_all_mods_conf_types_conf_mat.RData")
+mrgn.mc.confs.alpha01 = loadRData(file = "Simulation/data/many_conf_data/alpha_01_selected_confs_results/MRGN_many_conf_liberal_sel_alpha01_conf_list.RData")
+gmac.cis.many.conf = loadRData("Simulation/data/many_conf_data/gmac_300_cis_results_all_mods_all_conf_types_proproc.RData")
+gmac.conf.list = apply(gmac.cis.many.conf$cov.indicator.list, 1, list)
+
 conf.select.scores.mc.alpha01 = calc.css(true.datasets = many.conf.data2, gmac.confs.list = gmac.conf.list, 
                               mrgn.confs.list = mrgn.mc.confs.alpha01, 
                               conf.names = colnames(many.conf.conf.mat))
@@ -742,6 +929,47 @@ conf.select.scores.mc.alpha01 = calc.css(true.datasets = many.conf.data2, gmac.c
 
 
 ```{r, eval=TRUE, fig.cap="Performance for MRGN and GMAC on $T_1 - T_2$ edge prediction when the number of confounders is very large (15 - 50). ", echo=FALSE, warning=FALSE, message=FALSE}
+library("MRGN")
+library("qvalue")
+library("caret")
+library(kableExtra)
+library(knitr)
+source('Manuscript/scripts/MRGN_write_up_helper_functions.R')
+path_supptabs = "Manuscript/supplementary_tables/"
+path_suppfigs = "Manuscript/supplementary_figures/"
+path_figs = "Manuscript/figures/"
+path_tabs = "Manuscript/tables/"
+path_tablescraps = "Manuscript/other/tablescraps/"
+
+# Data loads for many-conf scenario
+many.conf.params = loadRData(file="Simulation/data/many_conf_data/mrpc_v_mrgn_v_gmac_300_params_all_mods_conf_types.RData")
+many.conf.data = loadRData(file = "Simulation/data/many_conf_data/mrgn_v_gmac_v_mrpc_300_datasets_all_mods_conf_types.RData")
+many.conf.data2 = lapply(many.conf.data, function(x) x$data)
+many.conf.conf.mat = loadRData("Simulation/data/many_conf_data/mrgn_v_gmac_v_mrpc_300_datasets_all_mods_conf_types_conf_mat.RData")
+many.conf.mrgn.conf.list = loadRData("Simulation/data/many_conf_data/mrgn_300_conf_list_all_confs_all_mods_REG.RData")
+mrgn.many.conf.inf = loadRData(file= "Simulation/data/many_conf_data/mrgn_300_inf_results_all_confs_all_mods.RData")
+master.table.many.conf = loadRData(file="Simulation/data/many_conf_data/master_table_MANY_CONF_all_confs_all_mods.RData")
+params.with.mrgn.comp.time = loadRData("Simulation/data/diagnostics/mrgn_many_conf_with_comp_times.RData")
+gmac.trans.many.conf = loadRData("Simulation/data/many_conf_data/gmac_300_trans_results_all_all_mods_conf_types_preproc.RData")
+gmac.cis.many.conf = loadRData("Simulation/data/many_conf_data/gmac_300_cis_results_all_mods_all_conf_types_proproc.RData")
+mrgn.mc.inf.alpha01 = loadRData(file = "Simulation/data/many_conf_data/alpha_01_selected_confs_results/mrgn_many_conf_liberal_alpha01_inf_results.RData")
+mrgn.mc.confs.alpha01 = loadRData(file = "Simulation/data/many_conf_data/alpha_01_selected_confs_results/MRGN_many_conf_liberal_sel_alpha01_conf_list.RData")
+
+# Compute times
+times = t(cbind.data.frame(MRGN = c(sum(params.with.mrgn.comp.time$Time.to.compute.mrgn),
+                                   mean(params.with.mrgn.comp.time$Time.to.compute.mrgn)*60), 
+          GMAC = c(20.83,(20.83/300)*60)))
+colnames(times) = c("Est. Time to Compute 300 trios (mins)", "Est. Time to Compute Each Trio (sec)")
+
+# Confounder selection scores
+gmac.conf.list = apply(gmac.cis.many.conf$cov.indicator.list, 1, list)
+conf.select.scores.mc = calc.css(true.datasets = many.conf.data2, gmac.confs.list = gmac.conf.list, 
+                              mrgn.confs.list = many.conf.mrgn.conf.list, 
+                              conf.names = colnames(many.conf.conf.mat))
+conf.select.scores.mc.alpha01 = calc.css(true.datasets = many.conf.data2, gmac.confs.list = gmac.conf.list, 
+                              mrgn.confs.list = mrgn.mc.confs.alpha01, 
+                              conf.names = colnames(many.conf.conf.mat))
+
 conf.selscores.comb = cbind.data.frame(Method = c(rep("MRGN+CSplusFDR",300), rep('MRGN+CSnoFDR.alpha01', 300)),
                                                   conf.select.scores.mc$data, conf.select.scores.mc.alpha01$data)
 save(conf.selscores.comb, file = paste0(path_tablescraps,'confounder.select.scores.many.confs.RData'))
@@ -1030,9 +1258,102 @@ write.csv(MainT2.combined.res.final,paste0(path_tabs, "MT3_Combined_ALL_METICS_M
 
 
 ```{r, eval=TRUE, fig.cap="", echo=FALSE, warning=FALSE, message=FALSE}
+# -- Standalone imports for this block --
+library("MRGN")
 library(ggthemes)
 library(gridExtra)
 library(grid)
+library(ggpubr)
+library(latex2exp)
+source('Manuscript/scripts/MRGN_write_up_helper_functions.R')
+path_suppfigs = "Manuscript/supplementary_figures/"
+
+# -- 15-conf data loads --
+params = loadRData(file="Simulation/data/mrpc_v_mrgn_v_gmac_5k_params_all_mods_conf_types.RData")
+gmac.cis = loadRData(file="Simulation/data/gmac_5k_cis_results_all_mods_all_conf_types_proproc.RData")
+datasets = loadRData(file="Simulation/data/mrgn_v_gmac_v_mrpc_5k_datasets_all_mods_conf_types.RData")
+datasets_new = lapply(datasets, function(x) x$data)
+conf.list.mrgn = loadRData(file="Simulation/data/int_and_child_filtered_data/mrgn_5k_conf_list_all_confs_filtered_all_mods.RData")
+conf.list.alpha01 = loadRData('Simulation/data/int_and_child_filtered_data/alpha_01_selected_confs_results/MRGN_15confs_liberal_alpha01_conf_list.RData')
+conf.mat = loadRData(file = "Simulation/data/mrgn_v_gmac_v_mrpc_5k_datasets_all_mods_conf_types_conf_mat.RData")
+mrgn.inf = loadRData("Simulation/data/int_and_child_filtered_data/mrgn_5k_inf_results_all_confs_filtered_all_mods.RData")
+mrgn.inf.alpha01 = loadRData('Simulation/data/int_and_child_filtered_data/alpha_01_selected_confs_results/MRGN_15confs_liberal_alpha01_inference_results.RData')
+
+# -- many-conf data loads --
+many.conf.params = loadRData(file="Simulation/data/many_conf_data/mrpc_v_mrgn_v_gmac_300_params_all_mods_conf_types.RData")
+many.conf.data = loadRData(file = "Simulation/data/many_conf_data/mrgn_v_gmac_v_mrpc_300_datasets_all_mods_conf_types.RData")
+many.conf.data2 = lapply(many.conf.data, function(x) x$data)
+many.conf.conf.mat = loadRData("Simulation/data/many_conf_data/mrgn_v_gmac_v_mrpc_300_datasets_all_mods_conf_types_conf_mat.RData")
+many.conf.mrgn.conf.list = loadRData("Simulation/data/many_conf_data/mrgn_300_conf_list_all_confs_all_mods_REG.RData")
+mrgn.many.conf.inf = loadRData(file= "Simulation/data/many_conf_data/mrgn_300_inf_results_all_confs_all_mods.RData")
+gmac.cis.many.conf = loadRData("Simulation/data/many_conf_data/gmac_300_cis_results_all_mods_all_conf_types_proproc.RData")
+mrgn.mc.inf.alpha01 = loadRData(file = "Simulation/data/many_conf_data/alpha_01_selected_confs_results/mrgn_many_conf_liberal_alpha01_inf_results.RData")
+mrgn.mc.confs.alpha01 = loadRData(file = "Simulation/data/many_conf_data/alpha_01_selected_confs_results/MRGN_many_conf_liberal_sel_alpha01_conf_list.RData")
+
+# -- Compute conf.select.scores (15-conf, FDR) --
+gmac.conf.list.15 = apply(gmac.cis$cov.indicator.list, 1, list)
+conf.select.scores = calc.css(true.datasets = datasets_new, gmac.confs.list = gmac.conf.list.15,
+                              mrgn.confs.list = conf.list.mrgn, conf.names = colnames(conf.mat))
+
+# -- Compute conf.select.scores2 (15-conf, noFDR alpha01) --
+conf.select.scores2 = calc.css(true.datasets = datasets_new, gmac.confs.list = gmac.conf.list.15,
+                              mrgn.confs.list = conf.list.alpha01, conf.names = colnames(conf.mat))
+
+# -- Compute conf.select.scores.mc (many-conf, FDR) --
+gmac.conf.list.mc = apply(gmac.cis.many.conf$cov.indicator.list, 1, list)
+conf.select.scores.mc = calc.css(true.datasets = many.conf.data2, gmac.confs.list = gmac.conf.list.mc,
+                              mrgn.confs.list = many.conf.mrgn.conf.list,
+                              conf.names = colnames(many.conf.conf.mat))
+
+# -- Compute conf.select.scores.mc.alpha01 (many-conf, noFDR alpha01) --
+conf.select.scores.mc.alpha01 = calc.css(true.datasets = many.conf.data2, gmac.confs.list = gmac.conf.list.mc,
+                              mrgn.confs.list = mrgn.mc.confs.alpha01,
+                              conf.names = colnames(many.conf.conf.mat))
+
+# -- Compute edge.perf and edge.perf.alpha01 (15-conf, 1500-trio loop) --
+mrgn.adj = lapply(mrgn.inf, get.adj.from.class)
+mrgn.adj.alpha01 = lapply(mrgn.inf.alpha01, get.adj.from.class)
+edge.metrics.mrgn = as.data.frame(matrix(0, nrow = 1500, ncol = 4))
+colnames(edge.metrics.mrgn) = c("prec_edge", "recall","EW_prec_edge", "EW_recall")
+edge.metrics.mrgn.alpha01 = as.data.frame(matrix(0, nrow = 1500, ncol = 4))
+colnames(edge.metrics.mrgn.alpha01) = c("prec_edge", "recall","EW_prec_edge", "EW_recall")
+for(i in 1:1500){
+  edge.metrics.mrgn[i,] = c(get.metrics(Truth = convert.truth(params$model)[i],
+                                      Inferred = mrgn.adj[[i]], get.adj.truth = TRUE),
+                            get.metrics(Truth = convert.truth(params$model)[i],
+                                      Inferred = mrgn.adj[[i]], get.adj.truth = TRUE,
+                                      weight.edge.directed.present = 1, weight.edge.present.only = 1))
+  edge.metrics.mrgn.alpha01[i,] = c(get.metrics(Truth = convert.truth(params$model)[i],
+                                      Inferred = mrgn.adj.alpha01[[i]], get.adj.truth = TRUE),
+                                    get.metrics(Truth = convert.truth(params$model)[i],
+                                      Inferred = mrgn.adj.alpha01[[i]], get.adj.truth = TRUE,
+                                      weight.edge.directed.present = 1, weight.edge.present.only = 1))
+}
+edge.perf = edge.metrics.mrgn
+edge.perf.alpha01 = edge.metrics.mrgn.alpha01
+
+# -- Compute edge.perf.mc and edge.perf.mc.alpha01 (many-conf, 300-trio loop) --
+mrgn.adj.mc = lapply(mrgn.many.conf.inf, get.adj.from.class)
+mrgn.adj.mc.alpha01 = lapply(mrgn.mc.inf.alpha01, get.adj.from.class)
+edge.metrics.mrgn.mc = as.data.frame(matrix(0, nrow = 300, ncol = 4))
+colnames(edge.metrics.mrgn.mc) = c("prec_edge", "recall", "EW_prec_edge", "EW_recall")
+edge.metrics.mrgn.mc.alpha01 = as.data.frame(matrix(0, nrow = 300, ncol = 4))
+colnames(edge.metrics.mrgn.mc.alpha01) = c("prec_edge", "recall", "EW_prec_edge", "EW_recall")
+for(i in 1:300){
+  edge.metrics.mrgn.mc[i,] = c(get.metrics(Truth = convert.truth(many.conf.params$model)[i],
+                                        Inferred = mrgn.adj.mc[[i]], get.adj.truth = TRUE),
+                            get.metrics(Truth = convert.truth(many.conf.params$model)[i],
+                                        Inferred = mrgn.adj.mc[[i]], get.adj.truth = TRUE,
+                                        weight.edge.directed.present = 1, weight.edge.present.only = 1))
+  edge.metrics.mrgn.mc.alpha01[i,] = c(get.metrics(Truth = convert.truth(many.conf.params$model)[i],
+                                        Inferred = mrgn.adj.mc.alpha01[[i]], get.adj.truth = TRUE),
+                            get.metrics(Truth = convert.truth(many.conf.params$model)[i],
+                                        Inferred = mrgn.adj.mc.alpha01[[i]], get.adj.truth = TRUE,
+                                        weight.edge.directed.present = 1, weight.edge.present.only = 1))
+}
+edge.perf.mc = edge.metrics.mrgn.mc
+edge.perf.mc.alpha01 = edge.metrics.mrgn.mc.alpha01
+
 #Updated: Confounder Selection performance combining noFDR (alpha < 0.01) and FDR procedures 
 #Plot to show the relationship between false positive confs and prediction performance
 #===========================================================================================
@@ -1342,6 +1663,8 @@ dev.off()
 
 
 ```{r, eval = FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="Edge-based performance of MRGN and MRPC across the frequency of the minor alle of the genetic variant. Notice that MRGN has a $\\approx 10\\%$ increase in power for rare alleles (frequencies $\\leq 5\\%$)."}
+# -- Standalone imports for this block --
+library("MRGN")
 
 datasets=loadRData(file="Simulation/data/int_and_child_filtered_data/mrgn_data_with_SELECTED_CONFS_filtered.RData")
 #read in simulation parameters and truth
@@ -1380,13 +1703,13 @@ dev.off()
 
 
 ```{r, eval = FALSE, echo=FALSE, warning=FALSE, message=FALSE}
-
-
+# -- Standalone imports for this block --
 library("MRGN")
 library("qvalue")
 library("caret")
 #read in helper functions
 source('Manuscript/scripts/MRGN_write_up_helper_functions.R')
+sp = "Manuscript/supplementary_figures/"
 
 #=========================================================================
 #read in many conf data: simulations with >= 15 confounders
@@ -1452,6 +1775,11 @@ dev.off()
 
 
 ```{r, eval = TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+# -- Standalone imports for this block --
+library("MRGN")
+source('Manuscript/scripts/MRGN_write_up_helper_functions.R')
+sp = "Manuscript/supplementary_figures/"
+
 #=========================================================================
 #evidence for permutation not helping inference in simulation
 

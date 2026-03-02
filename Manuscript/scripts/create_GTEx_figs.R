@@ -14,8 +14,6 @@ path_tabs = "Manuscript/tables/"
 
 reg.res.L = loadRData(file = "GTEx/results/MRGN/reg.res.wo.pseudo.list.all.tissues.RData")
 reg.res.libconf = loadRData(file = 'GTEx/trios_data_prlnc_liberal_conf_sel/infer_trio_results/infer.trio.results.WholeBlood.RData')
-perm.all = loadRData(file = "Permutation_test_analysis/results/perm.all.trios.WB.RData")
-perm.all.libconf = loadRData(file = "Permutation_test_analysis/results/perm.all.trios.WB.liberal.confs.alpha05.RData")
 
 source('Manuscript/scripts/MRGN_write_up_helper_functions.R')
 mrgn.tab = loadRData("GTEx/data/WholeBloodmaster_table.RData")
@@ -29,42 +27,36 @@ write.csv(mrgn.tab, file = paste0(path_supptabs, 'ST_GTEx_all_trios_master.csv')
 #for plots showing freqency of 5 models
 sum.mrgn = summary(as.factor(convert.cats(mrgn.tab$MRGN.Inferred.Model)))
 sum.mrgn.libconf = summary(as.factor(convert.cats(mrgn.tab$ MRGN.Inferred.Model.libconf.alpha05)))
-sum.mrgn.all.perm = summary(as.factor(convert.cats(unlist(perm.all[14,]))))
-sum.mrgn.all.perm.libconf = summary(as.factor(convert.cats(unlist(perm.all.libconf[14,]))))
 sum.mrpc = summary(as.factor(convert.cats(mrgn.tab$MRPC.Addis.Inferred.Model)))
 models = names(sum.mrgn)
 #bind to table
-model.res = cbind.data.frame(Method = c(rep("MRGN", 6), rep("MRGN (All Perm)", 6),
-                                        #rep("MRGN + noFDRSC", 6), rep("MRGN + noFDRSC (All Perm)", 6),
+model.res = cbind.data.frame(Method = c(rep("MRGN", 6),
                                         rep("GMAC", 6), rep("MRPC-ADDIS", 6)),
                              Count = c(sum.mrgn.libconf,
-                                       sum.mrgn.all.perm.libconf, 
                                        rep(0, 6), sum.mrpc),
-                             `Inferred Model` = rep(models, 4))
+                             `Inferred Model` = rep(models, 3))
 
 
 #for cis mediation trans mediation breakdown
 m1.mrgn = subset(mrgn.tab, MRGN.Inferred.Model.libconf.alpha05 == "M1.1" | MRGN.Inferred.Model.libconf.alpha05 == "M1.2")$MRGN.Inferred.Model.libconf.alpha05
-x = which(unlist(perm.all.libconf[14,]) == "M1.1" | unlist(perm.all.libconf[14,]) == "M1.2")
-m1.mrgn.perm.all = unlist(perm.all.libconf[14,])[x]
 m1.mrpc = subset(mrgn.tab, MRPC.Addis.Inferred.Model == "M1.1" | MRPC.Addis.Inferred.Model == "M1.2")$MRPC.Addis.Inferred.Model
 #bind to table
-model.res2 = cbind.data.frame(Method = c(rep("MRGN", 2), rep("MRGN (All Perm)", 2), 
+model.res2 = cbind.data.frame(Method = c(rep("MRGN", 2),
                                          rep("GMAC", 2), rep("MRPC-ADDIS", 2)),
-                             Count = c(summary(as.factor(m1.mrgn)), summary(as.factor(m1.mrgn.perm.all)), 
+                             Count = c(summary(as.factor(m1.mrgn)),
                                        rep(0, 2), summary(as.factor(m1.mrpc))),
                              `Inferred Model` = c("Via The Cis Gene", "Via the Trans Gene"))
 
-model.res$Method = factor(model.res$Method, levels = c("MRGN", "MRGN (All Perm)", "GMAC", "MRPC-ADDIS"))
-model.res2$Method = factor(model.res2$Method, levels = c("MRGN", "MRGN (All Perm)", "GMAC", "MRPC-ADDIS"))
+model.res$Method = factor(model.res$Method, levels = c("MRGN", "GMAC", "MRPC-ADDIS"))
+model.res2$Method = factor(model.res2$Method, levels = c("MRGN", "GMAC", "MRPC-ADDIS"))
 
 
 #5models mrgn and mrpc
-color.codes = c("#0073C2FF", "#7AA6DCFF", "#EFC000FF", "#868686FF")
+color.codes = c("#0073C2FF", "#EFC000FF", "#868686FF")
 A = ggplot(data=subset(model.res, Method != 'GMAC'), aes(x=`Inferred Model`, y=Count, fill=Method)) +
   geom_bar(stat="identity", position = position_dodge(), color = 'black')+
-  scale_fill_manual(values = color.codes[-3])+
-  scale_color_manual(values = color.codes[-3])+
+  scale_fill_manual(values = color.codes[-2])+
+  scale_color_manual(values = color.codes[-2])+
   theme_hc()+
   theme(legend.position = 'top',legend.title = element_blank(),
         legend.text = element_text(size = 16),
@@ -77,8 +69,8 @@ plot(A)
 
 B = ggplot(data=subset(model.res2, Method != 'GMAC'), aes(x=`Inferred Model`, y=Count, fill=Method)) +
   geom_bar(stat="identity", position = position_dodge(), color = 'black')+
-  scale_fill_manual(values = color.codes[-3])+
-  scale_color_manual(values = color.codes[-3])+
+  scale_fill_manual(values = color.codes[-2])+
+  scale_color_manual(values = color.codes[-2])+
   theme_hc()+
   theme(legend.position = 'top',legend.title = element_blank(),
         legend.text = element_text(size = 16),
@@ -90,21 +82,17 @@ plot(B)
 
 
 mrgn.adj = list()
-mrgn.perm.all.adj = list()
 mrpc.adj=lapply(mrgn.tab$MRPC.Addis.Inferred.Model, get.adj.from.class)
 for(i in 1:dim(mrgn.tab)[1]){
   
   #get the adjacency for MRGN and the truth
   mrgn.adj[[i]]=get.adj.from.class(mrgn.tab$MRGN.Inferred.Model.libconf.alpha05[i], 
                                    reg.vec = unlist(reg.res.L$WholeBlood[1:6, i]))
-  mrgn.perm.all.adj[[i]] = get.adj.from.class(model = unlist(perm.all.libconf[14,])[i], 
-                                              reg.vec = unlist(perm.all.libconf[1:6,i]))
 }
 
 
 
 mrgn.edge.ind = unlist(lapply(mrgn.adj, ind.med.edge))
-mrgn.perm.all.ind = unlist(lapply(mrgn.perm.all.adj, ind.med.edge))
 mrpc.edge.ind = unlist(lapply(mrpc.adj, ind.med.edge))
 gmac.edge.ind = apply(cbind(gmac.tab$cis.sig.at.01.cutoff,
                             gmac.tab$trans.sig.at.01.cutoff),
@@ -115,21 +103,19 @@ gmac.edge.ind = apply(cbind(gmac.tab$cis.sig.at.01.cutoff,
 #                      1, ind.gmac)
 
 summ.t1t2.mrgn = summary(as.factor(mrgn.edge.ind))
-summ.t1t2.mrgn.perm.all = summary(as.factor(mrgn.edge.ind))
 summ.t1t2.mrpc = summary(as.factor(mrpc.edge.ind))
 summ.t1t2.gmac = summary(as.factor(gmac.edge.ind))
 
-t1t2.res = cbind.data.frame(Method = c(rep("MRGN",2), rep("MRGN (All Perm)",2), rep("GMAC",2), rep("MRPC-ADDIS",2)),
-                            Count = c(summ.t1t2.mrgn, summ.t1t2.mrgn.perm.all, summ.t1t2.gmac, summ.t1t2.mrpc),
-                            `T1 T2 Edge Prediction` = rep(c("Absent", "Present"), 4))
+t1t2.res = cbind.data.frame(Method = c(rep("MRGN",2), rep("GMAC",2), rep("MRPC-ADDIS",2)),
+                            Count = c(summ.t1t2.mrgn, summ.t1t2.gmac, summ.t1t2.mrpc),
+                            `T1 T2 Edge Prediction` = rep(c("Absent", "Present"), 3))
 
-t1t2.res$Method = factor(t1t2.res$Method, levels = c("MRGN", "MRGN (All Perm)", "GMAC", "MRPC-ADDIS"))
+t1t2.res$Method = factor(t1t2.res$Method, levels = c("MRGN", "GMAC", "MRPC-ADDIS"))
 
-color.codes2 = c("#0073C2FF", "#7AA6DCFF", "#EFC000FF", "#868686FF")
 C = ggplot(data=t1t2.res, aes(x=`T1 T2 Edge Prediction`, y=Count, fill=Method)) +
   geom_bar(stat="identity", position = position_dodge(), color = 'black')+
-  scale_fill_manual(values = color.codes2)+
-  scale_color_manual(values = color.codes2)+
+  scale_fill_manual(values = color.codes)+
+  scale_color_manual(values = color.codes)+
   theme_hc()+
   theme(legend.position = 'top',legend.title = element_blank(),
         legend.text = element_text(size = 16),

@@ -1,0 +1,1756 @@
+---
+title: 'MRGN Simulation Set 3: Procedure and Results'
+author: "Jarred Kvamme, University of Idaho"
+output:
+  pdf_document:
+    keep_tex: true
+    number_sections: true
+  html_document:
+    df_print: paged
+subtitle: BCB|Audrey Fu Lab
+header-includes: \usepackage{float} \usepackage{tikz}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.pos = "H")
+#knitr::opts_chunk$set(list(echo = FALSE, eval = FALSE))
+library(kableExtra)
+library(knitr)
+library(latex2exp)
+library(gridExtra)
+
+
+#sp = 'Manuscript/SuppFigures/'
+
+path_supptabs = "Manuscript/supplementary_tables/"
+path_suppfigs ="Manuscript/supplementary_figures/"
+path_figs = "Manuscript/figures/"
+path_tabs ="Manuscript/tables/"
+path_tablescraps = "Manuscript/other/tablescraps/"
+```
+
+
+
+
+
+\section*{Descriptions of Simulation Scenarios}
+Below we describe the various simulation scenarios relevant to the this document. For descriptions of the simulation parameters, see section "\textbf{Simulation Parameters}". For mathematical details, see \textbf{Appendix}. In all simulations, we simulate genetic trios consisting of an eQTL (genotype) and its cis and trans targets (molecular phenotypes) with confounding variables. For definitions of performance metrics see section "\textbf{Metrics}". See section \textbf{Results} for details on the results of the inference of the MRGN and MRPC methods.
+
+In this set of simulations we again simulate trios from the 5 models described by Badsha and Fu, 2019 to produce 300 of each model type (1.5k total trios). We simulate trios to have confounding variables of all types (confounder, intermediate, common child - see \textbf{Appendix}). In particular, We simulated each trio with 3 known confounders, $d$ unknown confounders, one intermediate variable, and one common child variable. Again, we utilize inference to select the confounding variables for each trio. Specifically, we create a pool of potential confounding variables by combining all unknown confounders, intermediate and common child variables from all simulated trios. We select the confounders for each trio from this pool and then use the selected set of confounders for each trio to infer the structure of the trio (see \textbf{Confounder Selection and Filtering}). As before, this process introduces two potential sources of error for each trio (1) error in the confounder selection (2) error in the inference (which can be driven by (1) when the selected confounding variables are qualitatively quite different).    
+
+In this set of simulations, we compare 3 methods: GMAC, MRGN, and MRPC. In particular, we compare both the inference of the methods as well as the performance of the confounder selection procedures. This adds an additional layer of complexity as the accuracy of the confounder selection can impact the inference performance. To compare MRGN/MRPC with the GMAC method, we apply GMAC twice to each simulated trio, once with $T_1$ as the mediator and second with $T_2$ as the mediator. This allows added power in detecting the $T1 - T2$ edge. If one of the GMAC runs is positive it is assigned a label of $Cis$ or $Trans$ depending on the mediator. When both runs are positive a label of $Both$ is assigned, and when neither is positive, a label of $No \ Mediation$ is assigned. To compare the three algorithms across the simulated trios, we modify the edge-based metric of "Simulation Set 1" based on the $T1 - T2$ edge (i.e the edge between nodes $T_1$ and $T_2$).
+\section*{Simulation Parameters}
+
+\textbf{Note:} We simulate most of our parameters from a discrete uniform distribution denoted $\text{dUnif}(\text{min}, \text{max},m)$ where $m$ is the step size parameter.
+
+\itemize{
+  
+  \item{\textbf{Mediation Edge Effects}} {We denote the mediation edge as the edge between the molecular phenotypes ($T_1 - T_2$) regardless of direction. We fix the effect(s) of the mediation edge at $\beta_{\text{med}}$ for a trio and simulate $\beta_{\text{med}}$ as an independent draw from a discrete uniform distribution such that $\beta_{\text{med}} \sim \text{dUnif}(\text{min} = 0.5, \text{max} = 1, m = 0.1)$}
+  
+  \item{\textbf{eQTL Edge Effects}} {We denote the eQTL edges as $V_1 - T_1$ or $V_1 - T_2$. We fix the effect(s) for all edges with the eQTL as $\beta_{\text{SNP}}$ and simulate $\beta_{\text{SNP}}$ by independent draw from a discrete uniform distribution such that $\beta_{\text{SNP}} \sim \text{dUnif}(\text{min} = 0.5,\text{max} = 1.5, m = 0.1)$}
+  
+  \item{\textbf{Residual Standard Deviation (Noise)}} {We simulate the strength of the residual standard deviation/noise by scaling the mediation effect $\beta_{\text{med}}$ such that $\sigma = a\beta_{\text{med}}$. We simulate the scaling factor by independent draw from a discrete uniform distribution such that $a \sim \text{dUnif}(\text{min} = 0.3, \text{max} = 1.5, m = 0.1)$ so that $\sigma$ is at worst $1.5$ stronger than the signal for the mediation edge and at best $1/3$ the signal for the mediation edge.}
+  
+  \item{\textbf{Minor Allele Frequency}} {We denote the denote the frequency of the minor allele of the eQTL as $\theta$ and simulate $\theta$ by independent draw from a discrete uniform distribution such that $\theta \sim \text{dUnif}(\text{min}=0.01, \text{max}=0.5, m = 0.01)$. Under this distribution for $\theta$ we expect $10\%$ of simulated trios in each scenario to contain a rare allele}
+  
+}
+
+
+\subsection*{Simulating Confounders}
+For all simulated trios, we make the point of distinguishing between "known" and "unkown" confounders. Each trio has the same three "known" confounders: "pcr", "platform" and "sex" covariates from the GTEx tissue "WholeBlood" and represented by the matrix $\bf K$ and have effects $\Phi_j$ on the $j^{th}$ molecular phenotype $T_j$. These "known" confounders represent recorded experimental conditions that are possible confounding variables that we know of before hand. Our "unknown" confounding variables are those covariates that we do not know of ahead of time, such as correlated PC scores. These confounders are usually selected for each trio through inferential means. In our simulations, we simulate the "unknown" confounding variables by randomly generating $d$ confounders to confound the edge between the molecular phenotypes ($T_1 - T_2$). The "unknown" confounders for a trio are represented by the matrix ${\bf U}$ and have effects $\Gamma_j$ on the $j^{th}$ molecular phenotype $T_j$. 
+Additionally, for each trio, we simulate on intermediate variable and one common child variable. Intermediate variables are represented by $\bf W$ which is generated from the parental effect $\omega_p$ from its parent molecular phenotype $T_p$ and has the confounding effect $omega_j$ on the $j^{th}$ molecular phenotype $T_j$. The common child variable is represented by $\bf Z$ and is generated from the parental effects $\psi_p$ from the $p^{th}$ parent $T_p$. 
+
+\begin{itemize}
+  \item{\textbf{Known Confounder Effects}} {we simulate the effects of the "known" confounders as coming from a uniform distribution where the effect of the $i^{th}$ known confounder on the $j^{th}$ molecular phenotype is simulated as $\phi_{ij} \sim \text{Unif}(\text{min} = 0.005, \text{max} = 0.01)$} 
+  \item{\textbf{Unknown Confounder Effects}} {we simulate the effects of the "unknown" confounders as coming from a uniform distribution where the effect of the $i^{th}$ "unknown" confounder on the $j^{th}$ molecular phenotype is simulated as $\gamma_{ij} \sim \text{Unif}(\text{min} = 0.15, \text{max} = 0.5)$} 
+    \item{\textbf{Intermediate Variable Effects}} {we simulate the effects of the intermediate variables as coming from a uniform distribution where the effect of the $i^{th}$ intermediate variable $W_i$ on the $j^{th}$ molecular phenotype is simulated as $\omega_{ij} \sim \text{Unif}(\text{min} = 0.15, \text{max} = 0.5)$}. We utilize the same distribution for the parental effect $\omega_{pi}$ of the $p^{th}$ molecular phenotype $T_p$ on the $i^{th}$ intermediate variable.  
+      \item{\textbf{Common Child Effects}} {we simulate the effects on common child variables as coming from a uniform distribution where the effect of the $p^{th}$ parent $T_p$ on the $i^{th}$ common child $Z_i$ is simulated as $\psi_{pi} \sim \text{Unif}(\text{min} = 1, \text{max} = 1.5)$} 
+  \item{\textbf{Number of Unknown Confounders}} {We simulate the number of unknown confounding variables $d$ from the discrete uniform distribution $d \sim \text{dUnif}(\text{min} = 1, \text{max} = 15, m = 1)$}
+\end{itemize}
+
+For additional simulation details see \textbf{Appendix}
+
+\section*{Confounder Selection and Filtering}
+The GMAC method uses an adaptive, regression-based algorithm to filter out common child and intermediate variables and select confounders for each trio (see \textbf{Appendix: Confounder Selection}). We compare the GMAC selection method with a correlation-based procedure (with and without common child and intermediate variable filtering) that we use to select the confounder sets for MRGN and MRPC.   
+    
+\section*{Metrics}
+We assess the performance of the three inference methods in a number of ways: \textit{(A)} firstly, we assess how well the confounder selection procedure captures the true set of confounders prior to inference. Next we utilize two metrics to assess the actual network inference made by each method using \textit{(B)} a class-based performance, and \textit{(C)} an edge-based performance that compares the edges in the true and inferred adjacency matrices and \textit{(D)} a modified edge-based performance defined only on the $T_1 - T_2$ edge.
+
+\begin{itemize}
+  \item{\textbf{Metric (A)}} Here we define a precision and recall to assess how well the confounder selection procedure captures the true set of confounding variables for each trio. We compare the confounder selection procedure of GMAC with the method used for MRPC/MRGN. For each trio, we take the ratio of the number of correctly identified confounding variables to the total number of true confounders for the trio (Recall):
+  $$\text{Confounder Selection Recall} = \frac{\text{Number of correct confounders}}{\text{Number of true confounders}}$$
+     We also take the ratio of the number of correctly identified confounding variables to the total number of confounders that were selected for the trio (Precision):
+    $$\text{Confounder Selection Precision} = \frac{\text{Number of correct confounders}}{\text{Number of selected confounders}}$$
+
+  \item{\textbf{Metric (B)}} This metric is a simple class/label based performance measure in which the overall performance across all classes and within each class is determined by comparing the true model class to the inferred model label. Used only for MRPC and MRGN. We note that with this metric we exclude trios of the inferred class "Other" which leads to optimistic performance estimates. (See \textbf{Descriptions of Simulation Scenarios}).
+  \item{\textbf{Metric (C)}} This metric compares the true and inferred adjacency matrices to calculate a performance on each trio. Performance is assessed for distinct parameter values by averaging metrics (precision, recall, etc) for all observations at a given parameter value (i.e performance across a given value of signal, noise, etc). This metric is a less conservative estimate of performance than \textbf{(B)} as it accounts for correctly identified positive/negative edges.
+  \item{\textbf{Metric (D)}} This metric is an adaptation of the edge-based metric above where we determine how well each method can predict the $T_1 - T_2$ edge. Here, we relax our definition of mediation to include any edge between the molecular phenotypes (ignoring direction). Specifically, if the true model contains an edge between the genes $T_1 - T_2; T_1 \rightarrow T_2; T_2 \rightarrow T_1$ and the inference of the method supports the presence of the edge (i.e adjacency matrix for MRPC/MRGN, or positive edge detection for GMAC) then an accuracy of $100\%$ is assumed. We convert the inference into the binary indicator variable $E \in [0,1]$ where $1$ indicates the $T_1 - T_2$ is present and $0$ indicates it is absent. Therefore, for GMAC
+  
+\[ E = \begin{cases} 1, & \text{if any mediation detected ( Cis, Trans, or Both)} \\
+                       0, & \text{else}
+                       \end{cases}\]
+
+For MRGN and MRPC, given the adjacency matrix:
+\[{\bf A} = \begin{bmatrix} 0 & a_{12} & a_{13} \\
+                   a_{21} & 0 & a_{23} \\
+                   a_{31} & a_{32} & 0\end{bmatrix}\]
+
+\[ E = \begin{cases} 1, & \text{if} \ \ (a_{23} + a_{32}) \geq 1 \\
+                       0, & \text{else}
+                       \end{cases}\]
+\end{itemize}
+
+We calculate the following scoring measures:
+\[ Precision = \frac{TP}{TP+FP} = Pr(Y=1|\hat{Y}=1)\] 
+\[ Recall/Sensitivity = \frac{TP}{TP+FN} = Pr(\hat{Y}=1|Y=1)\]
+\[ Specificity = \frac{TN}{TN+FP} = Pr(\hat{Y}=0|Y=0)  \]
+\[ False \ Omission \ Rate \ (FOR) = \frac{FN}{FN+TN} = Pr(\hat{Y}=0|Y=1)\]
+
+where 
+
+\[TP=\text{A correctly inferred edge or class}  \]
+\[FP=\text{A falsely inferred edge or class}  \]
+\[TN=\text{A correctly omitted edge or class}\]
+\[FN=\text{An incorrectly omitted edge or class}\]
+
+
+\section*{Results}
+
+```{r, eval=TRUE,fig.cap="This plot gives a visualization of the performance of the two implementations of the confounder selection procedure - the regression based method of GMAC - i.e the version implemented in the MRGN package vs the version implemented in the GMAC package. Results focus only on the selection of \"Unknown Confounders\" and any selection of the common child and intermediate variables are automatically considered to be false positives. In all plots, the x-axis represents the number of \"Unknown Confounders\" simulated and the y-axis give the precision or recall.", echo=FALSE, warning=FALSE, message=FALSE}
+
+library("MRGN")
+library("qvalue")
+library("caret")
+#read in helper functions
+source('Manuscript/scripts/MRGN_write_up_helper_functions.R')
+
+#======================================================================================
+#This section compares MRGN, MRPC, and GMAC using the GMAC procedure for confounder selection and filtering
+#simulations include between 1-15 confounders with 1 intermediate and 1 common child variable
+#1500 trios with approximately 10% having a minor allele frequency <0.05
+
+#read in simulation data
+params=loadRData(file="Simulation/data/mrpc_v_mrgn_v_gmac_5k_params_all_mods_conf_types.RData")
+
+master.table = loadRData(file="Simulation/data/master_table_all_confs_all_mods.RData")
+write.csv(master.table, paste0(path_supptabs, "ST_all_results_simulation.csv"), row.names = F)
+
+gmac.trans = loadRData(file="Simulation/data/gmac_5k_trans_results_all_all_mods_conf_types_preproc.RData")
+
+gmac.cis=loadRData(file="Simulation/data/gmac_5k_cis_results_all_mods_all_conf_types_proproc.RData")
+
+mrgn.inf=loadRData("Simulation/data/int_and_child_filtered_data/mrgn_5k_inf_results_all_confs_filtered_all_mods.RData")
+
+#mrgn.reg.res=loadRData(file="Simulation/data/int_and_child_filtered_data/mrgn_5k_regres_results_all_confs_filtered_all_mods.RData")
+
+mrpc.inf=loadRData(file="Simulation/data/int_and_child_filtered_data/mrpc_5k_small_results_all_confs_filtered_all_mods.RData")
+
+datasets=loadRData(file="Simulation/data/mrgn_v_gmac_v_mrpc_5k_datasets_all_mods_conf_types.RData")
+
+conf.list.mrgn=loadRData(file="Simulation/data/int_and_child_filtered_data/mrgn_5k_conf_list_all_confs_filtered_all_mods.RData")
+
+#conf.list.mrpc = loadRData(file="Simulation/data/int_and_child_filtered_data/mrpc_5k_conf_list_all_confs_filtered_all_mods.RData")
+
+conf.mat = loadRData(file = "Simulation/data/mrgn_v_gmac_v_mrpc_5k_datasets_all_mods_conf_types_conf_mat.RData")
+#======================================================================================
+#read simulation results for conf selection with no FDR (selected at alpha < 0.01)
+
+conf.list.alpha01 = loadRData('Simulation/data/int_and_child_filtered_data/alpha_01_selected_confs_results/MRGN_15confs_liberal_alpha01_conf_list.RData')
+mrgn.inf.alpha01 = loadRData('Simulation/data/int_and_child_filtered_data/alpha_01_selected_confs_results/MRGN_15confs_liberal_alpha01_inference_results.RData')
+
+
+
+#======================================================================================
+#comp time results
+#comp time table::
+# mrpc.comp.times = loadRData(file = "Simulation/data/diagnostics/mrpc_comp_times_with_filtering.RData")
+# mrgn.comp.times = loadRData(file = "Simulation/data/diagnostics/mrgn_comp_times_with_filtering.RData")
+# ct = cbind.data.frame(`Total Time To Compute All Trios (hrs)` = c(sum(mrpc.comp.times$Time.to.compute.mrpc)/60,
+#                                                             sum(mrgn.comp.times$Time.to.compute.mrgn)/60),
+#                       `Median Time To Compute A Trio (sec)` = c(median(mrpc.comp.times$Time.to.compute.mrpc)*60,
+#                                                            median(mrgn.comp.times$Time.to.compute.mrgn)*60),
+#                       `IQR Time To Compute A Trio (sec)` = c(IQR(mrpc.comp.times$Time.to.compute.mrpc)*60,
+#                                                            IQR(mrgn.comp.times$Time.to.compute.mrgn)*60))
+# row.names(ct) = c("MRPC", "MRGN")
+# 
+# kable(ct, caption = "Computation Times for MRGN and MRPC")
+# write.csv(ct, paste0(path_supptabs, "ST_compute_times.csv"), row.names = T)
+
+#extract just the data
+datasets_new = lapply(datasets, function(x) x$data)
+
+#==========================================
+#-------confounder-selection-scoring-------
+#==========================================
+
+```
+
+
+```{r, fig.cap = "This plot gives a visualization of the performance of the two implementations of the confounder selection procedure - the regression based method of GMAC - i.e the version implemented in the MRGN package vs the version implemented in the GMAC package. Results focus only on the selection of \"Unknown Confounders\" and any selection of the common child and intermediate variables are automatically considered to be false positives. In all plots, the x-axis represents the number of \"Unknown Confounders\" simulated and the y-axis give the precision or recall.", echo=FALSE, message=FALSE, warning=FALSE}
+gmac.conf.list = apply(gmac.cis$cov.indicator.list, 1, list)
+conf.select.scores = calc.css(true.datasets = datasets_new, gmac.confs.list = gmac.conf.list, 
+                              mrgn.confs.list = conf.list.mrgn, conf.names = colnames(conf.mat), plot.graphs = T)
+```
+
+
+```{r, fig.cap = "Confounder selection performance given in precision (# correct confounders / # selected confounders) and recall (# correct confounders / # true confounders). Plots give a comparison of our (MRGNtrio's) implementation when no FDR correction (confounders selected at threshold $\\alpha < 0.01$) is used. When compared with the Yang et al., 2017 confounder selection procedure provided in the GMAC software there is a noticable improvement in recall. ", echo=FALSE, message=FALSE, warning=FALSE}
+conf.select.scores2 = calc.css(true.datasets = datasets_new, gmac.confs.list = gmac.conf.list, 
+                              mrgn.confs.list = conf.list.alpha01, conf.names = colnames(conf.mat), plot.graphs = T)
+#save(conf.select.scores, file = 'Manuscript/conf.select.scores.15confs.RData')
+
+# conf.select.scores = calc.css(true.datasets = datasets, gmac.confs.list = gmac.conf.list, 
+#                               mrgn.confs.list = conf.list.mrpc, conf.names = colnames(conf.mat))
+```
+
+
+
+
+
+
+```{r, eval=TRUE,fig.cap="This plot gives a visualization of the performance of the two implementations of the confounder selection procedure - the regression based method of GMAC - i.e the version implemented in the MRGN package vs the version implemented in the GMAC package. Results focus only on the selection of \"Unknown Confounders\" and any selection of the common child and intermediate variables are automatically considered to be false positives. In all plots, the x-axis represents the number of \"Unknown Confounders\" simulated and the y-axis give the precision or recall.", echo=FALSE, warning=FALSE, message=FALSE}
+
+#==========================================
+#-----------Class-Based-Metrics------------
+#==========================================
+#decompose mrgn inference into the inferred class and the adjacency
+mrpc.inf2=unlist(lapply(mrpc.inf, function(x) x$model))
+mrpc.adj=lapply(mrpc.inf, function(x) x$Adj)
+#get the adjacency for MRGN and the truth
+mrgn.adj=lapply(mrgn.inf, get.adj.from.class)
+mrgn.adj.alpha01 = lapply(mrgn.inf.alpha01, get.adj.from.class)
+true.adj=lapply(convert.truth(params$model), get.adj.from.class)
+
+#convert gmac inference into binary variable 
+gmac.binary = master.table$gmac.infer
+gmac.binary[which(gmac.binary != "No.Med")] = "Mediation"
+#confusion matrices
+#mrgn
+x1.1 = table(MRGN = convert.cats(mrgn.inf), TRUTH = convert.truth(params$model))
+x1.2 = rbind(x1.1, Total = colSums(x1.1), Recall = round(diag(x1.1)/colSums(x1.1),4))
+x1.3 = cbind(x1.2, Total = c(rowSums(x1.2[1:7,]), " "), Precision = c(round(diag(x1.2)/rowSums(x1.2[1:5,]),4), rep(" ", 3)))
+#mrgn with alpha 01 sel confs
+x12.1 = table(MRGN = convert.cats(mrgn.inf.alpha01), TRUTH = convert.truth(params$model))
+x12.2 = rbind(x12.1, Total = colSums(x12.1), Recall = round(diag(x12.1)/colSums(x12.1),4))
+x12.3 = cbind(x12.2, Total = c(rowSums(x12.2[1:7,]), " "), Precision = c(round(diag(x12.2)/rowSums(x12.2[1:5,]),4), rep(" ", 3)))
+#mrpc
+x2.1 = table(MRPC = convert.cats(mrpc.inf2), TRUTH = convert.truth(params$model))
+x2.2 = rbind(x2.1, Total = colSums(x2.1), Recall = round(diag(x2.1)/colSums(x2.1),4))
+x2.3 = cbind(x2.2, Total = c(rowSums(x2.2[1:7,]), " "), Precision = c(round(diag(x2.2)/rowSums(x2.2[1:5,]),4), rep(" ", 3)))
+
+#combine tables
+final.x12 = cbind(`Inference Method` = c(rep(" ", 3), "MRGN", 
+                             rep(" ", 8), "MRGN", 
+                             rep(" ", 8), "MRPC", rep(" ", 4)),
+                  `Inference Correction` = c(rep(" ", 3), "None: $\\alpha <0.01$", 
+                             rep(" ", 8), "None: $\\alpha <0.01$", 
+                             rep(" ", 8), "ADDIS", rep(" ", 4)),
+                  `Confounder Selection Correction` = c(rep(" ", 3), "FDR $ < 0.05$", 
+                             rep(" ", 8), "None: $\\alpha <0.01$", 
+                             rep(" ", 8), "FDR $< 0.05$", rep(" ", 4)),
+                  Description = c(rownames(x1.3), " ", rownames(x12.3), " ", rownames(x2.3)),
+                  rbind.data.frame(x1.3, rep(" ", 8), x12.3,rep(" ", 8), x2.3))
+
+#print final table
+kable(final.x12, row.names = F, caption = "Confusion matrix showing the class-based performance of MRGN and MRPC both methods use the GMAC confounder selection procedure with filtering", escape = FALSE,
+      booktabs = T)%>%column_spec(1, width = "4em")%>%column_spec(2:3, width = "5em")%>%column_spec(5:11, width = "3em")
+
+write.csv(final.x12, paste0(path_supptabs, "Results-class-based.csv"), row.names = F)
+
+
+#==========================================
+#-----------Edge-Based-Metrics------------
+#==========================================
+
+# get the mean edge based metrics for each trio
+
+edge.metrics.mrgn=as.data.frame(matrix(0, nrow = 1500, ncol = 4))
+colnames(edge.metrics.mrgn)=c("prec_edge", "recall","EW_prec_edge", "EW_recall")
+edge.metrics.mrgn.alpha01=as.data.frame(matrix(0, nrow = 1500, ncol = 4))
+colnames(edge.metrics.mrgn.alpha01)=c("prec_edge", "recall","EW_prec_edge", "EW_recall")
+edge.metrics.mrpc=as.data.frame(matrix(0, nrow = 1500, ncol = 4))
+colnames(edge.metrics.mrpc)=c("prec_edge", "recall","EW_prec_edge", "EW_recall")
+
+for(i in 1:1500){
+  edge.metrics.mrgn[i,] = c(get.metrics(Truth = convert.truth(params$model)[i],
+                                      Inferred = mrgn.adj[[i]],
+                                      get.adj.truth = TRUE),
+                            get.metrics(Truth = convert.truth(params$model)[i],
+                                      Inferred = mrgn.adj[[i]],
+                                      get.adj.truth = TRUE,
+                                      weight.edge.directed.present = 1,
+                                      weight.edge.present.only = 1))
+  edge.metrics.mrgn.alpha01[i,] = c(get.metrics(Truth = convert.truth(params$model)[i],
+                                      Inferred = mrgn.adj.alpha01[[i]],
+                                      get.adj.truth = TRUE),
+                                    get.metrics(Truth = convert.truth(params$model)[i],
+                                      Inferred = mrgn.adj.alpha01[[i]],
+                                      get.adj.truth = TRUE,
+                                      weight.edge.directed.present = 1,
+                                      weight.edge.present.only = 1))
+  edge.metrics.mrpc[i,] = c(get.metrics(Truth = convert.truth(params$model)[i],
+                                      Inferred = mrpc.adj[[i]],
+                                      get.adj.truth = TRUE),
+                            get.metrics(Truth = convert.truth(params$model)[i],
+                                      Inferred = mrgn.adj[[i]],
+                                      get.adj.truth = TRUE,
+                                      weight.edge.directed.present = 1,
+                                      weight.edge.present.only = 1))
+}
+
+edge.perf = edge.metrics.mrgn
+edge.perf.alpha01 = edge.metrics.mrgn.alpha01
+
+
+#summarize edge based metrics within each model class
+edge.met.tab.mrgn = as.data.frame(matrix(0, nrow = 4, ncol = 5))
+edge.met.tab.mrgn.alpha01 = as.data.frame(matrix(0, nrow = 4, ncol = 5))
+edge.met.tab.mrpc = as.data.frame(matrix(0, nrow = 4, ncol = 5))
+mod.class = c("M0","M1","M2","M3","M4")
+colnames(edge.met.tab.mrgn)=colnames(edge.met.tab.mrgn.alpha01)=colnames(edge.met.tab.mrpc)=mod.class
+for(i in 1:length(mod.class)){
+  
+  edge.met.tab.mrgn[,i] = colMeans(edge.metrics.mrgn[which(convert.truth(params$model)==mod.class[i]),], na.rm = T)
+  
+  edge.met.tab.mrgn.alpha01[,i] =
+    colMeans(edge.metrics.mrgn.alpha01[which(convert.truth(params$model)==mod.class[i]),],na.rm = T)
+  
+  edge.met.tab.mrpc[,i] = colMeans(edge.metrics.mrpc[which(convert.truth(params$model)==mod.class[i]),], na.rm = T)
+   
+}
+
+
+
+
+#set rownames
+row.names(edge.met.tab.mrgn) = row.names(edge.met.tab.mrpc) = row.names(edge.met.tab.mrgn.alpha01) = c("Precision", "Recall","EW Precision", "EW Recall")
+
+#combine tables
+
+edge.met.final = cbind( `Inference Method` = c(" ","MRGN",rep(" ", 4),
+                                   "MRGN", rep(" ", 4), 
+                                   "MRPC", rep(" ", 2)),
+                        `Inference Correction` = c(" ","None: $\\alpha < 0.01$",rep(" ", 4),
+                                   "None: $\\alpha < 0.01$", rep(" ", 4), 
+                                   "ADDIS", rep(" ", 2)),
+                        `Confounder Selection Correction` = c(" ","FDR $<0.05$",rep(" ", 4),
+                                   "None: $\\alpha < 0.01$", rep(" ", 4), 
+                                   "FDR $<0.05$", rep(" ", 2)),
+                        Metric = c(row.names(edge.met.tab.mrgn), " ", row.names(edge.met.tab.mrgn.alpha01),
+                                   " ", row.names(edge.met.tab.mrpc)),
+                        rbind(round(edge.met.tab.mrgn,4), rep(" ", 1), 
+                              round(edge.met.tab.mrgn.alpha01,4), rep(" ", 1), 
+                              round(edge.met.tab.mrpc,4)))
+
+kable(edge.met.final, caption = "Within - class mean edge-based performances for MRGN and MRPC using the GMAC confounder selection procedure with filtering. The identifier \"EW\" stands for Equally Weighted indicating that edges with wrong directions the same as edges with correct directions. Therefore the scores in these rows indicates the performance when edge direction is ignored", row.names = F, escape = FALSE,
+      booktabs = T)%>%column_spec(1, width = "4em")%>%column_spec(2:3, width = "5em")
+
+#write.csv(edge.met.final, paste0(path_tabs, "Results.15conf.edge-based.csv"), row.names = F)
+
+
+#==========================================
+#-----T1-T2-Edge-Only-Based-Metrics--------
+#==========================================
+
+# get 0,1 indication of inference for T1 - T2 edge
+params$true.score = unlist(lapply(true.adj, ind.med.edge))
+#MRGN
+mrgn.edge.ind = unlist(lapply(mrgn.adj, ind.med.edge))
+#MRGN and CS w/no correction 
+mrgn.edge.ind.alpha01 = unlist(lapply(mrgn.adj.alpha01, ind.med.edge))
+#MRPC
+mrpc.edge.ind = unlist(lapply(mrpc.adj, ind.med.edge))
+#GMAC
+gmac.edge.ind = apply(cbind(gmac.cis$output.table$Cis_Sig, 
+                            gmac.trans$output.table$Trans_Sig),
+                      1, ind.gmac)
+#GMAC no inf correction alpha <0.05
+gmac.edge.ind.at05.sc = apply(cbind(gmac.cis$output.table$Cis_at_05_cutoff, 
+                            gmac.trans$output.table$Trans_at_05_cutoff),
+                      1, ind.gmac)
+#GMAC no inf correction alpha <0.01
+gmac.edge.ind.at01.sc = apply(cbind(gmac.cis$output.table$Cis_at_01_cutoff, 
+                            gmac.trans$output.table$Trans_at_01_cutoff),
+                      1, ind.gmac)
+
+
+
+#mrgn
+t1.1 = table(MRGN = mrgn.edge.ind, Truth = params$true.score)
+colnames(t1.1) = row.names(t1.1)=c("T1-T2 Absent", "T1-T2 Present")
+t1.2 = rbind(t1.1, Total = colSums(t1.1), Recall = round(diag(t1.1)/colSums(t1.1),4))
+t1.3 = cbind(t1.2, Total = c(rowSums(t1.2)[1:3], " "), Precision = c(round(diag(t1.1)/rowSums(t1.1),4), rep("",2)))
+
+#mrgn with confs sel at alpha < 0.01
+t12.1 = table(MRGN = mrgn.edge.ind.alpha01, Truth = params$true.score)
+colnames(t12.1) = row.names(t12.1)=c("T1-T2 Absent", "T1-T2 Present")
+t12.2 = rbind(t12.1, Total = colSums(t12.1), Recall = round(diag(t12.1)/colSums(t12.1),4))
+t12.3 = cbind(t12.2, Total = c(rowSums(t12.2)[1:3], " "), Precision = c(round(diag(t12.1)/rowSums(t12.1),4), rep("",2)))
+
+#mrpc
+t2.1 = table(MRPC = mrpc.edge.ind, Truth = params$true.score)
+colnames(t2.1) = row.names(t2.1)=c("T1-T2 Absent", "T1-T2 Present")
+t2.2 = rbind(t2.1, Total = colSums(t2.1), Recall = round(diag(t2.1)/colSums(t2.1),4))
+t2.3 = cbind(t2.2, Total = c(rowSums(t2.2)[1:3], " "), Precision = c(round(diag(t2.1)/rowSums(t2.1),4), rep("",2)))  
+#gmac
+t3.1 = rbind(c(0,0),table(GMAC = gmac.edge.ind, Truth = params$true.score))
+colnames(t3.1) = row.names(t3.1)=c("T1-T2 Absent", "T1-T2 Present")
+t3.2 = rbind(t3.1, Total = colSums(t3.1), Recall = round(diag(t3.1)/colSums(t3.1),4))
+t3.3 = cbind(t3.2, Total = c(rowSums(t3.2)[1:3], " "), Precision = c(round(diag(t3.1)/rowSums(t3.1),4), rep("",2)))
+
+#gmac with significance at alpha < 0.01
+t31.1 = table(GMAC = gmac.edge.ind.at05.sc, Truth = params$true.score)
+colnames(t31.1) = row.names(t31.1)=c("T1-T2 Absent", "T1-T2 Present")
+t31.2 = rbind(t31.1, Total = colSums(t31.1), Recall = round(diag(t31.1)/colSums(t31.1),4))
+t31.3 = cbind(t31.2, Total = c(rowSums(t31.2)[1:3], " "), Precision = c(round(diag(t31.1)/rowSums(t31.1),4),
+rep("",2))) 
+
+#gmac with significance at alpha < 0.01
+t32.1 = table(GMAC = gmac.edge.ind.at01.sc, Truth = params$true.score)
+colnames(t32.1) = row.names(t32.1)=c("T1-T2 Absent", "T1-T2 Present")
+t32.2 = rbind(t32.1, Total = colSums(t32.1), Recall = round(diag(t32.1)/colSums(t32.1),4))
+t32.3 = cbind(t32.2, Total = c(rowSums(t32.2)[1:3], " "), Precision = c(round(diag(t32.1)/rowSums(t32.1),4), rep("",2))) 
+
+#combine
+final.t123 = cbind(`Inference Method` = c(rep(" ", 2), "MRGN", 
+                                          rep(" ", 4), "MRGN",
+                                          rep(" ", 4), "MRPC", 
+                                          rep(" ", 4), "GMAC", 
+                                          rep(" ", 4), "GMAC",
+                                          rep(" ", 4), "GMAC", " "),
+                   `Inference Correction` = c(rep(" ", 2), "None: $\\alpha < 0.01$", 
+                                              rep(" ", 4), "None: $\\alpha < 0.01$",
+                                              rep(" ", 4), "ADDIS", 
+                                              rep(" ", 4), "FDR $< 0.1$", 
+                                              rep(" ", 4), "None: $\\alpha < 0.05$",
+                                              rep(" ", 4), "None: $\\alpha < 0.01$", " "),
+                   `Confounder Selection Correction` = c(rep(" ", 2), "FDR $<0.05$", 
+                                                         rep(" ", 4), "None: $\\alpha < 0.01$",
+                                                         rep(" ", 4), "FDR $<0.05$", 
+                                                         rep(" ", 4), "FDR $<0.05$", 
+                                                         rep(" ", 4), "FDR $<0.05$",
+                                                         rep(" ", 4), "FDR $<0.05$", " "),
+                   Description = c(row.names(t1.3), " ", 
+                                   row.names(t12.3), " ", 
+                                   row.names(t2.3)," ", 
+                                   row.names(t3.3), " ", 
+                                   row.names(t31.3), " ",
+                                   row.names(t32.3)),
+                   rbind(t1.3, rep(" ", 4), 
+                         t12.3, rep(" ",4), 
+                         t2.3, rep(" ", 4), 
+                         t3.3, rep(" ",4), 
+                         t31.3, rep(" ",4),
+                         t32.3))
+
+kable(final.t123, caption = "Confusion matrices and precision/recall for MRGN, MRPC, and GMAC showing T1-T2 edge prediction performance on simulated trios of all model types. All methods use the GMAC confounder selection procedure with filtering. Columns represent the true case and rows represent the inferred case", row.names = F, booktabs = T, escape = FALSE)%>%column_spec(1, width = "4em")%>%column_spec(2:3, width = "5em")
+
+write.csv(final.t123, paste0(path_supptabs, "T1.T2.edge.results.15confs.csv"), row.names = F)
+
+
+
+
+
+
+MRGN.FDRSC = rbind(cbind.data.frame(Recall = round(diag(x1.1)/colSums(x1.1),4), 
+                                    Precision = round(diag(x1.1)/rowSums(x1.1)[1:5],4)),
+                   round(c(t1.1[2,2]/sum(t1.1[,2]), t1.1[2,2]/sum(t1.1[2,])),4),
+                   round(colMeans(edge.metrics.mrgn, na.rm = T)[1:2],4))
+                   
+                   
+                   
+MRGN.noFDRSC = rbind(cbind.data.frame(Recall = round(diag(x12.1)/colSums(x12.1),4), 
+                                                  Precision = round(diag(x12.1)/rowSums(x12.1)[1:5],4)),
+                   round(c(t12.1[2,2]/sum(t12.1[,2]), t12.1[2,2]/sum(t12.1[2,])),4),
+                   round(colMeans(edge.metrics.mrgn.alpha01, na.rm = T)[1:2],4))
+                     
+MRPC = rbind(cbind.data.frame(Recall = round(diag(x2.1)/colSums(x2.1),4), 
+                                                  Precision = round(diag(x2.1)/rowSums(x2.1)[1:5],4)),
+                   round(c(t2.1[2,2]/sum(t2.1[,2]), t2.1[2,2]/sum(t2.1[2,])),4),
+                   round(colMeans(edge.metrics.mrpc, na.rm = T)[1:2],4))
+             
+GMAC01 = rbind(cbind.data.frame(Recall = rep(" - ", 5),
+                                Precision = rep(" - ", 5)),
+                   round(c(t32.1[2,2]/sum(t32.1[,2]), t32.1[2,2]/sum(t32.1[2,])),4),
+                   c(" - ", " - "))
+         
+MainT.combined.res.final =  rbind(c(" ", " ", "MRGN+CSnoFDR", " ", "MRGN + CSFDR", 
+                                    " ", "MRPC-ADDIS+CSFDR", " ", "GMAC "),
+                                  cbind(Metric = c("M0", "M1", "M2", "M3", "M4", "T1-T2 Edge", "All Edges"),
+                                  MRGN.noFDRSC, MRGN.FDRSC, MRPC, GMAC01))      
+
+kable(MainT.combined.res.final, caption = "Summary of Simulation Performance on trios simulated with 15 or less confounders. Results are given for MRGN (with and without correction FDR correction to selected confounders) MRPC and GMAC using significance $\\alpha < 0.01$.", row.names = F, booktabs = T, escape = FALSE)#%>%column_spec(1, width = "4em")%>%column_spec(2:3, width = "5em")
+
+write.csv(MainT.combined.res.final,paste0(path_tabs, "MT2_Combined_ALL_METICS_15confSIMS.csv"), row.names = F)
+# 
+# 
+# #GMAC inf at alpha = 0.01 cutoff
+# #mrgn
+# t1.1 = table(MRGN = mrgn.edge.ind, Truth = params$true.score)
+# colnames(t1.1) = row.names(t1.1)=c("T1-T2 Absent", "T1-T2 Present")
+# t1.2 = rbind(t1.1, Total = colSums(t1.1), Recall = round(diag(t1.1)/colSums(t1.1),4))
+# t1.3 = cbind(t1.2, Total = c(rowSums(t1.2)[1:3], " "), Precision = c(round(diag(t1.1)/rowSums(t1.1),4), rep("",2)))
+# #mrgn with confs sel at alpha < 0.01
+# t1.1 = table(MRGN = mrgn.edge.ind, Truth = params$true.score)
+# colnames(t1.1) = row.names(t1.1)=c("T1-T2 Absent", "T1-T2 Present")
+# t1.2 = rbind(t1.1, Total = colSums(t1.1), Recall = round(diag(t1.1)/colSums(t1.1),4))
+# t1.3 = cbind(t1.2, Total = c(rowSums(t1.2)[1:3], " "), Precision = c(round(diag(t1.1)/rowSums(t1.1),4), rep("",2)))
+# #mrpc
+# t2.1 = table(MRPC = mrpc.edge.ind, Truth = params$true.score)
+# colnames(t2.1) = row.names(t2.1)=c("T1-T2 Absent", "T1-T2 Present")
+# t2.2 = rbind(t2.1, Total = colSums(t2.1), Recall = round(diag(t2.1)/colSums(t2.1),4))
+# t2.3 = cbind(t2.2, Total = c(rowSums(t2.2)[1:3], " "), Precision = c(round(diag(t2.1)/rowSums(t2.1),4), rep("",2)))  
+# #gmac
+# t3.1 = table(GMAC = gmac.edge.ind.at01.sc, Truth = params$true.score)
+# colnames(t3.1) = row.names(t3.1)=c("T1-T2 Absent", "T1-T2 Present")
+# t3.2 = rbind(t3.1, Total = colSums(t3.1), Recall = round(diag(t3.1)/colSums(t3.1),4))
+# t3.3 = cbind(t3.2, Total = c(rowSums(t3.2)[1:3], " "), Precision = c(round(diag(t3.1)/rowSums(t3.1),4), rep("",2))) 
+# 
+# #combine
+# final.t123 = cbind(Method = c(rep(" ", 2), "MRGN", rep(" ", 4), "MRPC", rep(" ", 4), "GMAC", " "),
+#                    Description = c(row.names(t1.3), " ", row.names(t2.3), " ", row.names(t3.3)),
+#                    rbind(t1.3, rep(" ", 4), t2.3, rep(" ",4), t3.3))
+# 
+# kable(final.t123, caption = "Confusion matrices and precision/recall for MRGN, MRPC, and GMAC (at alpha = 0.01 cutoff) showing T1-T2 edge prediction performance on simulated trios of all model types. All methods use the GMAC confounder selection procedure with filtering. Columns represent the true case and rows represent the inferred case", row.names = F, booktabs = T)%>%column_spec(1, width = "5em")
+# 
+# write.csv(final.t123, "Manuscript/SuppTables/tablescraps/T1.T2.edge.results.15confs.01cutoff.csv", row.names = T)
+
+```
+
+
+
+
+
+
+
+
+
+
+```{r, eval = FALSE, fig.cap="Plot comparing the performance of MRGN, MRPC, and GMAC inference on the T1 - T2 edge across simulation values of the standard deviation of the residuals (noise). All simulated trios are simulated with confounding variables of all types and confounding variable selection for all methods includes the GMAC method using common child and intermediate variable filtering", message=FALSE, warning=FALSE, echo=FALSE}
+
+
+colnames(params)[-c(1,7)]=c("Residual SD", "Minor Allele Frequency", "SNP Signal", "T1 - T2 Edge Signal", "Number of Unknown Confounders")
+#T1 - T2 edge metrics
+mrgn.metrics = cbind.data.frame(Method = rep("MRGN", 1500), 
+                                truth = params$true.score, 
+                                inf = mrgn.edge.ind)
+mrpc.metrics = cbind.data.frame(Method = rep("MRPC", 1500),
+                                truth = params$true.score,
+                                inf = mrpc.edge.ind)
+gmac.metrics = cbind.data.frame(Method = rep("GMAC", 1500), 
+                                truth = params$true.score,
+                                inf = gmac.edge.ind)
+
+
+A=plot.sim.metrics(metrics.mrgn = mrgn.metrics, 
+                   metrics.mrpc = mrpc.metrics, 
+                   metrics.gmac = gmac.metrics,
+                   params = params, 
+                   which.param = 2,
+                   by.class=FALSE, 
+                   use.metric = "prec_rec",
+                   which.class=NULL, 
+                   plot.it=TRUE, 
+                   spline.it=TRUE, 
+                   spline.int=10, 
+                   dodge=0.01, 
+                   return.means=TRUE, 
+                   rplot=2, 
+                   nplot=1, 
+                   xbrks = seq(0.15, 1.5, 0.15),
+                   brks1 = seq(0, 1, 0.05),
+                   include.gmac = T,
+                   save.plot=FALSE, 
+                   plot.path=paste0("Manuscript/supplementary_figures/sd.mrgn.mrpc.gmac.pdf"))
+
+```
+
+
+```{r, eval=FALSE, fig.cap="Plot comparing the performance of MRGN, MRPC, and GMAC inference on the T1 - T2 edge across simulation values of the minor allele frequency. All simulated trios are simulated with confounding variables of all types and confounding variable selection for all methods includes common child and intermediate variable filtering", echo=FALSE, warning=FALSE, message=FALSE}
+
+B=plot.sim.metrics(metrics.mrgn = mrgn.metrics, 
+                   metrics.mrpc = mrpc.metrics, 
+                   metrics.gmac = gmac.metrics,
+                   params = params, 
+                   which.param = 3,
+                   by.class=FALSE, 
+                   which.class=NULL, 
+                   plot.it=TRUE, 
+                   spline.it=TRUE, 
+                   spline.int=15, 
+                   dodge=0.01, 
+                   return.means=TRUE, 
+                   rplot=2, 
+                   nplot=1, 
+                   xbrks = seq(0, 0.5, 0.05),
+                   brks1 = seq(0.45, 1, 0.05),
+                   brks2 = seq(0, 1, 0.1),
+                   save.plot=FALSE, 
+                   plot.path=paste0("Manuscript/supplementary_figures/minor.freq.T1T2.edge.mrgn.mrpc.gmac.pdf"))
+
+```
+
+
+```{r, eval=FALSE, fig.cap="Plot comparing the performance of MRGN, MRPC, and GMAC inference on the T1 - T2 edge across simulation values of the signal for the V1 - T1 and V1 - T2 edges. All simulated trios are simulated with confounding variables of all types and confounding variable selection for all methods includes common child and intermediate variable filtering", echo=FALSE, warning=FALSE, message=FALSE}
+
+C=plot.sim.metrics(metrics.mrgn = mrgn.metrics, 
+                   metrics.mrpc = mrpc.metrics, 
+                   metrics.gmac = gmac.metrics,
+                   params = params, 
+                   which.param = 4,
+                   by.class=FALSE, 
+                   which.class=NULL, 
+                   plot.it=TRUE, 
+                   spline.it=TRUE, 
+                   spline.int=5, 
+                   dodge=0.01, 
+                   return.means=TRUE, 
+                   rplot=2, 
+                   nplot=1, 
+                   xbrks = seq(0.5, 1.5, 0.1),
+                   brks1 = seq(0.5, 1, 0.05),
+                   brks2 = seq(0.55, 1, 0.05),
+                   save.plot=FALSE, 
+                   plot.path=paste0("Manuscript/supplementary_figures/snp.signal.T1T2.edge.mrgn.mrpc.gmac.pdf"))
+
+```
+
+
+
+```{r, eval=FALSE, fig.cap="Plot comparing the performance of MRGN, MRPC, and GMAC inference on the T1 - T2 edge across simulation values of the signal of the T1 - T2 edge. All simulated trios are simulated with confounding variables of all types and confounding variable selection for all methods includes common child and intermediate variable filtering", echo=FALSE, warning=FALSE, message=FALSE}
+
+C=plot.sim.metrics(metrics.mrgn = mrgn.metrics, 
+                   metrics.mrpc = mrpc.metrics, 
+                   metrics.gmac = gmac.metrics,
+                   params = params, 
+                   which.param = 5,
+                   by.class=FALSE, 
+                   which.class=NULL, 
+                   plot.it=TRUE, 
+                   spline.it=TRUE, 
+                   spline.int=5, 
+                   dodge=0.01, 
+                   return.means=TRUE, 
+                   rplot=2, 
+                   nplot=1, 
+                   xbrks = seq(0.5, 1, 0.05),
+                   brks1 = seq(0.5, 1, 0.05),
+                   brks2 = seq(0.4, 1, 0.05),
+                   save.plot=FALSE, 
+                   plot.path=paste0("Manuscript/supplementary_figures/med.signal.T1T2.edge.mrgn.mrpc.gmac.pdf"))
+
+```
+
+```{r, eval=FALSE, fig.cap="Plot comparing the performance of MRGN, MRPC, and GMAC inference on the T1 - T2 edge across simulation values of the number of confounding variables present. All simulated trios are simulated with confounding variables of all types and confounding variable selection for all methods includes common child and intermediate variable filtering", echo=FALSE, warning=FALSE, message=FALSE}
+
+D=plot.sim.metrics(metrics.mrgn = mrgn.metrics, 
+                   metrics.mrpc = mrpc.metrics, 
+                   metrics.gmac = gmac.metrics,
+                   params = params, 
+                   which.param = 6,
+                   by.class=FALSE, 
+                   which.class=NULL, 
+                   plot.it=TRUE, 
+                   spline.it=TRUE, 
+                   spline.int=15, 
+                   dodge=0.01, 
+                   return.means=TRUE, 
+                   rplot=2, 
+                   nplot=1, 
+                   xbrks = seq(1, 15, 1),
+                   brks1 = seq(0.5, 1, 0.05),
+                   brks2 = seq(0.5, 1, 0.05),
+                   save.plot=FALSE, 
+                   plot.path=paste0("Manuscript/supplementary_figures/num.conf.T1T2.edge.mrgn.mrpc.gmac.pdf"))
+
+```
+
+
+
+
+
+
+
+```{r, eval=TRUE, fig.cap="Performance for MRGN and GMAC on $T_1 - T_2$ edge prediction when the number of confounders is very large (15 - 50). ", echo=FALSE, warning=FALSE, message=FALSE}
+#######################-Many-Confs-#####################################
+#this section focuses on comparing MRGN and GMAC when there are many confounders for each trio
+#both methods use regression conf selection with int and child filtering::
+#300 total trios each simulated with 15-50 confounding variables
+#===============================================
+#many.conf.datasets=loadRData(file="Simulation/data/many_conf_data/mrgn_v_gmac_v_mrpc_300_datasets_all_mods_conf_types.RData")
+many.conf.params=loadRData(file="Simulation/data/many_conf_data/mrpc_v_mrgn_v_gmac_300_params_all_mods_conf_types.RData")
+
+many.conf.data = loadRData(file =
+                             "Simulation/data/many_conf_data/mrgn_v_gmac_v_mrpc_300_datasets_all_mods_conf_types.RData")
+
+many.conf.data2 = lapply(many.conf.data, function(x) x$data)
+
+many.conf.conf.mat = loadRData("Simulation/data/many_conf_data/mrgn_v_gmac_v_mrpc_300_datasets_all_mods_conf_types_conf_mat.RData")
+
+many.conf.reg.res = loadRData("Simulation/data/many_conf_data/mrgn_300_regres_results_all_confs_all_mods.RData")
+
+many.conf.mrgn.conf.list = loadRData("Simulation/data/many_conf_data/mrgn_300_conf_list_all_confs_all_mods_REG.RData")
+
+mrgn.many.conf.inf = loadRData(file= "Simulation/data/many_conf_data/mrgn_300_inf_results_all_confs_all_mods.RData")
+
+master.table.many.conf = loadRData(file="Simulation/data/many_conf_data/master_table_MANY_CONF_all_confs_all_mods.RData")
+
+params.with.mrgn.comp.time = loadRData("Simulation/data/diagnostics/mrgn_many_conf_with_comp_times.RData")
+
+gmac.trans.many.conf = loadRData("Simulation/data/many_conf_data/gmac_300_trans_results_all_all_mods_conf_types_preproc.RData")
+
+gmac.cis.many.conf = loadRData("Simulation/data/many_conf_data/gmac_300_cis_results_all_mods_all_conf_types_proproc.RData")
+#==================================================================
+#read in many conf simulation results using MRGN with Confounder Selection and No FDR (alpha <0.01)
+mrgn.mc.inf.alpha01 = loadRData(file = "Simulation/data/many_conf_data/alpha_01_selected_confs_results/mrgn_many_conf_liberal_alpha01_inf_results.RData")
+mrgn.mc.confs.alpha01 = loadRData(file = "Simulation/data/many_conf_data/alpha_01_selected_confs_results/MRGN_many_conf_liberal_sel_alpha01_conf_list.RData")
+
+#==================================================================
+
+
+#write.csv(master.table.many.conf, "Manuscript/SuppTables/MRGN.GMAC.summary.results.50confs.csv", row.names = T)
+#comp time table
+times =  t(cbind.data.frame(MRGN = c(sum(params.with.mrgn.comp.time$Time.to.compute.mrgn),
+                                   mean(params.with.mrgn.comp.time$Time.to.compute.mrgn)*60), 
+          GMAC = c(20.83,(20.83/300)*60)))
+colnames(times) = c("Est. Time to Compute 300 trios (mins)", "Est. Time to Compute Each Trio (sec)")
+
+```
+
+
+
+```{r, eval=TRUE, fig.cap="This plot gives a visualization of the performance of the two implementations of the regression-based confounder selection procedure proposed by Yang et al., 2017. The performance curves represent the version implemented in the MRGN package vs the version implemented in the GMAC package. Results are given for the simulations with many confounding variables and focus only on the selection of \"Unknown Confounders\". Any selection of the common child and intermediate variables are automatically considered to be false positives. In all plots, the x-axis represents the number of \"Unknown Confounders\" simulated and the y-axis give the precision or recall.", echo=FALSE, warning=FALSE, message=FALSE}
+#==========================================
+#-------confounder-selection-scoring-------
+#==========================================
+gmac.conf.list = apply(gmac.cis.many.conf$cov.indicator.list, 1, list)
+conf.select.scores.mc = calc.css(true.datasets = many.conf.data2, gmac.confs.list = gmac.conf.list, 
+                              mrgn.confs.list = many.conf.mrgn.conf.list, 
+                              conf.names = colnames(many.conf.conf.mat))
+```
+
+```{r, eval=TRUE, fig.cap="This plot gives a visualization of the performance of the two implementations of the regression-based confounder selection procedure proposed by Yang et al., 2017. The performance curves represent the version implemented in the MRGN package vs the version implemented in the GMAC package. In addition, the MRGN implementation here represents results when no FDR is used to correct the multiple tests for selecting confounders. Instead confounders are selected at the significance threshold of $\\alpha < 0.01$. Results are given for the simulations with many confounding variables and focus only on the selection of \"Unknown Confounders\". Any selection of the common child and intermediate variables are automatically considered to be false positives. In all plots, the x-axis represents the number of \"Unknown Confounders\" simulated and the y-axis give the precision or recall.", echo=FALSE, warning=FALSE, message=FALSE}
+conf.select.scores.mc.alpha01 = calc.css(true.datasets = many.conf.data2, gmac.confs.list = gmac.conf.list, 
+                              mrgn.confs.list = mrgn.mc.confs.alpha01, 
+                              conf.names = colnames(many.conf.conf.mat))
+
+```
+
+
+
+
+
+
+```{r, eval=TRUE, fig.cap="Performance for MRGN and GMAC on $T_1 - T_2$ edge prediction when the number of confounders is very large (15 - 50). ", echo=FALSE, warning=FALSE, message=FALSE}
+conf.selscores.comb = cbind.data.frame(Method = c(rep("MRGN+CSplusFDR",300), rep('MRGN+CSnoFDR.alpha01', 300)),
+                                                  conf.select.scores.mc$data, conf.select.scores.mc.alpha01$data)
+save(conf.selscores.comb, file = paste0(path_tablescraps,'confounder.select.scores.many.confs.RData'))
+
+kable(times, digits = 5, caption = "Times for computing all 300 trios with the selected confounders and an estimated per trio computation times. Trios were simulated from the five model structures with varying numbers of confounders (between 15 and 50), one intermediate variable and one common child variable. MRGN is approximately 150 times faster than GMAC", row.names = T)
+
+write.csv(times, paste0(path_tablescraps,"comp.times.MRGN.GMAC.50conf.csv"), row.names = T)
+
+#T1 - T2 edge prediction table
+
+#mrgn cases
+mrgn.adj=lapply(mrgn.many.conf.inf, get.adj.from.class)
+mrgn.adj.alpha01=lapply(mrgn.mc.inf.alpha01, get.adj.from.class)
+true.adj=lapply(convert.truth(many.conf.params$model), get.adj.from.class)
+
+#gmac with FDR correction
+gmac.binary.qval = master.table.many.conf$GMAC.inference.with.qval
+gmac.binary.qval[which(gmac.binary.qval != "No.Med")] = "Mediation"
+gmac.binary2.qval = gmac.binary.qval
+gmac.binary2.qval[which(gmac.binary.qval == "Mediation")] = "T1 - T2 Edge Present"
+
+#gmac with no fdr: sig at alpha05
+gmac.binary.a05 = master.table.many.conf$GMAC.inference.at.05.cutoff
+gmac.binary.a05[which(gmac.binary.a05 != "No.Med")] = "Mediation"
+gmac.binary2.a05 = gmac.binary.a05
+gmac.binary2.a05[which(gmac.binary.a05 == "Mediation")] = "T1 - T2 Edge Present"
+gmac.binary2.a05[which(gmac.binary.a05 == "No.Med")] = "T1 - T2 Edge Absent"
+
+#gmac with no fdr: sig at alpha01
+gmac.binary.a01 = master.table.many.conf$GMAC.inference.at.01.cutoff
+gmac.binary.a01[which(gmac.binary.a01 != "No.Med")] = "Mediation"
+gmac.binary2.a01 = gmac.binary.a01
+gmac.binary2.a01[which(gmac.binary.a01 == "Mediation")] = "T1 - T2 Edge Present"
+gmac.binary2.a01[which(gmac.binary.a01 == "No.Med")] = "T1 - T2 Edge Absent"
+
+
+x1.1 = table(MRGN = convert.cats(mrgn.many.conf.inf), TRUTH = convert.truth(many.conf.params$model))
+x1.2 = rbind(x1.1, Total = colSums(x1.1), Recall = round(diag(x1.1)/colSums(x1.1),4))
+x1.3 = cbind(x1.2, Total = c(rowSums(x1.2[1:7,]), " "), Precision = c(round(diag(x1.2)/rowSums(x1.2[1:5,]),4), rep(" ", 3)))
+#[MRGN]-[CS+noFDR+Alpha01]
+x12.1 = table(MRGN = convert.cats(mrgn.mc.inf.alpha01), TRUTH = convert.truth(many.conf.params$model))
+x12.2 = rbind(x12.1, Total = colSums(x12.1), Recall = round(diag(x12.1)/colSums(x12.1),4))
+x12.3 = cbind(x12.2, Total = c(rowSums(x12.2[1:7,]), " "), Precision = c(round(diag(x12.2)/rowSums(x12.2[1:5,]),4), rep(" ", 3)))
+#[GMAC+FDRcorrection]-[CS+FDR]
+x21.1 = table(GMAC = gmac.binary2.qval, TRUTH = convert.truth(many.conf.params$model))
+x21.1.1 = rbind(`T1 - T2 Edge Absent`=rep(0,5), x21.1)
+x21.2 = rbind(x21.1.1, Total = colSums(x21.1.1), Recall = c(0,1,1,0,1))
+x21.3 = cbind(x21.2, Total = c(rowSums(x21.2[1:3,]), " "), Precision = c(0, (72+56+58)/sum(x21.2[2,]), rep(" ", 2)))
+#[GMAC+noFDR:alpha05]-[CS+FDR]
+x22.1 = table(GMAC = gmac.binary2.a05, TRUTH = convert.truth(many.conf.params$model))
+x22.2 = rbind(x22.1, Total = colSums(x22.1), Recall = round(c(8/48,1.0,1.0,3/66,57/58), 4))
+x22.3 = cbind(x22.2, Total = c(rowSums(x22.2[1:3,]), " "), Precision = c(round(c(11, 72+56+57)/rowSums(x22.2[1:2,]),4), rep(" ", 2)))
+#[GMAC+noFDR:alpha01]-[CS+FDR]
+x23.1 = table(GMAC = gmac.binary2.a01, TRUTH = convert.truth(many.conf.params$model))
+x23.2 = rbind(x23.1, Total = colSums(x23.1), Recall = round(c(12/48,71/72,1.0,9/66,57/58), 4))
+x23.3 = cbind(x23.2, Total = c(rowSums(x23.2[1:3,]), " "), Precision = c(round(c(11, 71+56+57)/rowSums(x23.2[1:2,]),4), rep(" ", 2)))
+
+final.x12 = cbind(`Inference Method` = c(rep(" ", 3), "MRGN", 
+                             rep(" ", 8), "MRGN",
+                             rep(" ", 6), "GMAC",
+                             rep(" ", 4), "GMAC",
+                             rep(" ", 4), "GMAC",rep(" ", 2)),
+                  `Inference Correction` =c(rep(" ", 3), "None: $\\alpha < 0.01$", 
+                             rep(" ", 8), "None: $\\alpha < 0.01$",
+                             rep(" ", 6), "FDR $<0.1$",
+                             rep(" ", 4), "None: $\\alpha < 0.05$",
+                             rep(" ", 4), "None: $\\alpha < 0.01$", rep(" ", 2)),
+                  `Confounder Selection Correction` = c(rep(" ", 3), "FDR $<0.05$", 
+                             rep(" ", 8), "None: $\\alpha < 0.01$",
+                             rep(" ", 6), "FDR $ < 0.05$",
+                             rep(" ", 4), "FDR $ < 0.05$",
+                             rep(" ", 4), "FDR $ < 0.05$", rep(" ", 2)),
+                  Description = c(rownames(x1.3), " ", rownames(x12.3), " ", rownames(x21.3), 
+                                  " ", rownames(x22.3), " ", rownames(x23.3)),
+                  rbind(x1.3, rep(" ", 7), 
+                                   x12.3,rep(" ", 7), 
+                                   x21.3,rep(" ", 7), 
+                                   x22.3, rep(" ", 7), 
+                                   x23.3))
+
+#print final table
+kable(final.x12, row.names = F, caption = "Confusion matrix showing the class-based performance of MRGN and GMAC on 300 trios after using regression based confounder selection and common child and intermediate variable filtering. For GMAC, precision and recall were calculated according to which model types have a T1-T2 edge. ", booktabs = T, escape = FALSE)%>%column_spec(1, width = "4em")%>%column_spec(2:4, width = "5em")
+
+write.csv(final.x12, paste0(path_tablescraps, "MRGN.GMAC.class.inference.50conf"), row.names = T)
+
+
+
+#==========================================
+#-----------Edge-Based-Metrics-------------
+#==========================================
+
+edge.metrics.mrgn=as.data.frame(matrix(0, nrow = 300, ncol = 4))
+colnames(edge.metrics.mrgn)=c("prec_edge", "recall", "EW_prec_edge", "EW_recall")
+edge.metrics.mrgn.mc.alpha01=as.data.frame(matrix(0, nrow = 300, ncol = 4))
+colnames(edge.metrics.mrgn.mc.alpha01)=c("prec_edge", "recall", "EW_prec_edge", "EW_recall")
+
+for(i in 1:300){
+  edge.metrics.mrgn[i,] = c(get.metrics(Truth = convert.truth(many.conf.params$model)[i],
+                                        Inferred = mrgn.adj[[i]],
+                                        get.adj.truth = TRUE),
+                            get.metrics(Truth = convert.truth(many.conf.params$model)[i],
+                                        Inferred = mrgn.adj[[i]],
+                                        get.adj.truth = TRUE,
+                                        weight.edge.directed.present = 1,
+                                        weight.edge.present.only = 1))
+  
+  edge.metrics.mrgn.mc.alpha01[i,] = c(get.metrics(Truth = convert.truth(many.conf.params$model)[i],
+                                        Inferred = mrgn.adj.alpha01[[i]],
+                                        get.adj.truth = TRUE),
+                            get.metrics(Truth = convert.truth(many.conf.params$model)[i],
+                                        Inferred = mrgn.adj.alpha01[[i]],
+                                        get.adj.truth = TRUE,
+                                        weight.edge.directed.present = 1,
+                                        weight.edge.present.only = 1))
+  
+}
+
+edge.perf.mc = edge.metrics.mrgn
+edge.perf.mc.alpha01 = edge.metrics.mrgn.mc.alpha01
+
+
+edge.met.tab.mrgn = as.data.frame(matrix(0, nrow = 4, ncol = 5))
+edge.met.tab.mrgn.mc.alpha01 = as.data.frame(matrix(0, nrow = 4, ncol = 5))
+mod.class = c("M0","M1","M2","M3","M4")
+colnames(edge.met.tab.mrgn)=colnames(edge.met.tab.mrgn.mc.alpha01)=mod.class
+for(i in 1:length(mod.class)){
+  
+  edge.met.tab.mrgn[,i] = colMeans(edge.metrics.mrgn[which(convert.truth(many.conf.params$model)==mod.class[i]),], na.rm = T)
+  
+  edge.met.tab.mrgn.mc.alpha01[,i] = colMeans(edge.metrics.mrgn.mc.alpha01[which(convert.truth(many.conf.params$model)==mod.class[i]),], na.rm = T)
+   
+}
+
+
+# set row.names
+row.names(edge.met.tab.mrgn) = row.names(edge.met.tab.mrgn.mc.alpha01) = c("Precision", "Recall", "EW Precision", "EW Recall")
+
+#combine tables
+
+edge.met.final = cbind( `Inference Method` = c(" ", "MRGN", rep(" ", 5), 
+                                               "MRGN"," "),
+                        `Inference Correction` = c(" ", "None: $\\alpha<0.01$", 
+                                                   rep(" ", 5), "None: $\\alpha<0.01$"," "),
+                        `Confounder Selection Correction` = c(" ", "FDR $<0.05$", 
+                                                              rep(" ", 5), "None: $\\alpha < 0.01$"," "),
+                        Metric = c(row.names(edge.met.tab.mrgn), " ",
+                                   row.names(edge.met.tab.mrgn.mc.alpha01)),
+                        rbind(round(edge.met.tab.mrgn,4), " ", round(edge.met.tab.mrgn.mc.alpha01,4)))
+
+kable(edge.met.final, caption = "Within - class mean edge-based performances for MRGN for 300 trios with a large number of confounders and using regression - based confounder selection and filtering", row.names = F,
+      booktabs = T, escape = FALSE)%>%column_spec(1, width = "4em")%>%column_spec(2:3, width = "5em")
+
+write.csv(edge.met.final, paste0(path_tablescraps,"MRGN.50conf.edge.results.csv"), row.names = T)
+
+
+#==========================================
+#-----T1-T2-Edge-Only-Based-Metrics--------
+#==========================================
+
+# get 0,1 indication of inference for T1 - T2 edge
+many.conf.params$true.score = unlist(lapply(true.adj, ind.med.edge))
+mrgn.edge.ind = unlist(lapply(mrgn.adj, ind.med.edge))
+mrgn.edge.ind.alpha01 = unlist(lapply(mrgn.adj.alpha01, ind.med.edge))
+gmac.edge.ind = apply(cbind(
+                            gmac.cis.many.conf$output.table$Cis_Sig, 
+                            gmac.trans.many.conf$output.table$Trans_Sig),
+                      1, ind.gmac)
+
+gmac.edge.ind.at05.mc = apply(cbind(
+                            gmac.cis.many.conf$output.table$Cis_at_05_cutoff, 
+                            gmac.trans.many.conf$output.table$Trans_at_05_cutoff),
+                      1, ind.gmac)
+
+gmac.edge.ind.at01.mc = apply(cbind(
+                            gmac.cis.many.conf$output.table$Cis_at_01_cutoff, 
+                            gmac.trans.many.conf$output.table$Trans_at_01_cutoff),
+                      1, ind.gmac)
+
+#mrgn
+t1.1 = table(MRGN = mrgn.edge.ind, Truth = many.conf.params$true.score)
+colnames(t1.1) = row.names(t1.1)=c("T1-T2 Absent", "T1-T2 Present")
+t1.2 = rbind(t1.1, Total = colSums(t1.1), Recall = round(diag(t1.1)/colSums(t1.1),4))
+t1.3 = cbind(t1.2, Total = c(rowSums(t1.2)[1:3], " "), Precision = c(round(diag(t1.1)/rowSums(t1.1),4), rep("",2)))
+#mrgn with confounder selection with no FDR
+t12.1 = table(MRGN = mrgn.edge.ind.alpha01, Truth = many.conf.params$true.score)
+colnames(t12.1) = row.names(t12.1)=c("T1-T2 Absent", "T1-T2 Present")
+t12.2 = rbind(t12.1, Total = colSums(t12.1), Recall = round(diag(t12.1)/colSums(t12.1),4))
+t12.3 = cbind(t12.2, Total = c(rowSums(t12.2)[1:3], " "), Precision = c(round(diag(t12.1)/rowSums(t12.1),4), rep("",2)))
+#gmac with FDR correction
+t3.1 = rbind(c(0,0),table(GMAC = gmac.edge.ind, Truth = many.conf.params$true.score))
+colnames(t3.1) = row.names(t3.1)=c("T1-T2 Absent", "T1-T2 Present")
+t3.2 = rbind(t3.1, Total = colSums(t3.1), Recall = round(diag(t3.1)/colSums(t3.1),4))
+t3.3 = cbind(t3.2, Total = c(rowSums(t3.2)[1:3], " "), Precision = c(round(diag(t3.1)/rowSums(t3.1),4), rep("",2))) 
+#gmac no FDR alpha < 0.05
+t32.1 = table(GMAC = gmac.edge.ind.at05.mc, Truth = many.conf.params$true.score)
+colnames(t32.1) = row.names(t32.1)=c("T1-T2 Absent", "T1-T2 Present")
+t32.2 = rbind(t32.1, Total = colSums(t32.1), Recall = round(diag(t32.1)/colSums(t32.1),4))
+t32.3 = cbind(t32.2, Total = c(rowSums(t32.2)[1:3], " "), Precision = c(round(diag(t32.1)/rowSums(t32.1),4), rep("",2))) 
+#gmac no FDR alpha < 0.01
+t33.1 = table(GMAC = gmac.edge.ind.at01.mc, Truth = many.conf.params$true.score)
+colnames(t33.1) = row.names(t33.1)=c("T1-T2 Absent", "T1-T2 Present")
+t33.2 = rbind(t33.1, Total = colSums(t33.1), Recall = round(diag(t33.1)/colSums(t33.1),4))
+t33.3 = cbind(t33.2, Total = c(rowSums(t33.2)[1:3], " "), Precision = c(round(diag(t33.1)/rowSums(t33.1),4), rep("",2))) 
+
+#combine
+final.t123 = cbind(`Inference Method` = c(rep(" ", 1), "MRGN", 
+                                          rep(" ", 4), "MRGN",
+                                          rep(" ", 4), "GMAC",
+                                          rep(" ", 4), "GMAC",
+                                          rep(" ", 4), "GMAC",
+                                          rep(" ", 2)),
+                   `Inference Correction` = c(rep(" ", 1), "None: $\\alpha < 0.01$", 
+                                              rep(" ", 4), "None: $\\alpha < 0.01$",
+                                              rep(" ", 4), "FDR $<0.1$",
+                                              rep(" ", 4), "None: $\\alpha < 0.05$",
+                                              rep(" ", 4), "None: $\\alpha < 0.01$",
+                                              rep(" ", 2)),
+                   `Confounder Selection Correction` = c(rep(" ", 1), "FDR $<0.05$", 
+                                                         rep(" ", 4), "None: $\\alpha < 0.01$",
+                                                         rep(" ", 4), "FDR $<0.05$",
+                                                         rep(" ", 4), "FDR $<0.05$",
+                                                         rep(" ", 4), "FDR $<0.05$",
+                                                         rep(" ", 2)),
+                   Description = c(row.names(t1.3), 
+                                   " ", row.names(t12.3),
+                                   " ", row.names(t3.3),
+                                   " ", row.names(t32.3),
+                                   " ", row.names(t33.3)),
+                   rbind(t1.3, 
+                         rep(" ",4), t12.3,
+                         rep(" ",4), t3.3,
+                         rep(" ",4), t32.3,
+                         rep(" ",4), t33.3))
+
+kable(final.t123, caption = "Confusion matrices and precision/recall for MRGN, and GMAC showing T1-T2 edge prediction performance on 300 simulated trios where the number of confounders varied from 15 to 50. Columns represent the true case and rows represent the inferred case", row.names = F, booktabs = T, escape = FALSE)%>%column_spec(1, width = "4em")%>%column_spec(2:4, width = "5em")
+
+write.csv(final.t123, paste0(path_tablescraps,"MRGN.GMAC.t1.t2.edge.results.50confs.csv"), row.names = F)
+
+
+
+
+
+
+
+#compute true upper bound of recall and precision for many conf case
+# NOTE: This file must be placed in Simulation/data/ from the original MRGN_extra repo
+G = loadRData( file = "Simulation/data/reg_res_TRUE_CONFS.RData")
+
+tub = tub.calc.prec.rec(G, many.conf.params, "True Upper Bound")
+
+
+write.csv(tub, paste0(path_tablescraps, "many.conf.true.upper.bound.csv"), row.names = F)
+
+
+#combine all results into final table
+mc.MRGN.FDRSC = rbind(cbind.data.frame(Recall = round(diag(x1.1)/colSums(x1.1),4), 
+                                    Precision = round(diag(x1.1)/rowSums(x1.1)[1:5],4)),
+                   round(c(t1.1[2,2]/sum(t1.1[,2]), t1.1[2,2]/sum(t1.1[2,])),4),
+                   round(colMeans(edge.metrics.mrgn, na.rm = T)[1:2],4))
+                   
+                   
+                   
+mc.MRGN.noFDRSC = rbind(cbind.data.frame(Recall = round(diag(x12.1)/colSums(x12.1),4), 
+                                                  Precision = round(diag(x12.1)/rowSums(x12.1)[1:5],4)),
+                   round(c(t12.1[2,2]/sum(t12.1[,2]), t12.1[2,2]/sum(t12.1[2,])),4),
+                   round(colMeans(edge.metrics.mrgn.mc.alpha01, na.rm = T)[1:2],4))
+                     
+mc.MRPC = cbind.data.frame(Recall = rep(" - ", 7), Precision = rep(" - ", 7))
+             
+mc.GMAC01 = rbind(cbind.data.frame(Recall = rep(" - ", 5),
+                                Precision = rep(" - ", 5)),
+                   round(c(t32.1[2,2]/sum(t32.1[,2]), t32.1[2,2]/sum(t32.1[2,])),4),
+                   c(" - ", " - "))
+         
+MainT2.combined.res.final = rbind(c(" ", " ","True Upper Bound", " ", "MRGN+CSnoFDR", " ", 
+                                    "MRGN+CSFDR", " ", "MRPC-ADDIS+CSFDR", " ", "GMAC "),
+                                 cbind(Metric = c("M0", "M1", "M2", "M3", "M4", "T1-T2 Edge", "All Edges"),
+                                 tub[,2:3], mc.MRGN.noFDRSC, mc.MRGN.FDRSC, mc.MRPC, mc.GMAC01))      
+
+kable(MainT2.combined.res.final, caption = "Summary of Simulation Performance on trios simulated with 15 or more confounders. Results are shown for MRGN (with and without correction FDR correction to selected confounders) MRPC and GMAC using significance $\\alpha < 0.01$.", row.names = F, booktabs = T, escape = FALSE)#%>%column_spec(1, width = "4em")%>%column_spec(2:3, width = "5em")
+
+write.csv(MainT2.combined.res.final,paste0(path_tabs, "MT3_Combined_ALL_METICS_MANYconfSIMS.csv"), row.names = F)
+
+
+```
+
+
+```{r, eval=TRUE, fig.cap="", echo=FALSE, warning=FALSE, message=FALSE}
+library(ggthemes)
+library(gridExtra)
+library(grid)
+#Updated: Confounder Selection performance combining noFDR (alpha < 0.01) and FDR procedures 
+#Plot to show the relationship between false positive confs and prediction performance
+#===========================================================================================
+comb.css.all = rbind(cbind(Method = rep("Qvalue: FDR < 0.05", 1500), 
+                           #Scenario = rep('Simulations with 1-15 Confouders', 1500),
+                           conf.select.scores$data),
+                     cbind(Method = rep("None: $\\alpha < 0.01$", 1500), 
+                           #Scenario = rep('Simulations with 1-15 Confouders', 1500),
+                           conf.select.scores2$data),
+                     cbind(Method = rep("Qvalue: FDR < 0.05", 300), 
+                           #Scenario = rep('Simulations with 15-50 Confouders', 300),
+                           conf.select.scores.mc$data),
+                     cbind(Method = rep("None: $\\alpha < 0.01$", 300),
+                           #Scenario = rep('Simulations with 15-50 Confouders', 300),
+                           conf.select.scores.mc.alpha01$data))
+
+longform.css.all = rbind.data.frame(cbind.data.frame(Correction = comb.css.all$Method,
+                                          #Scenario = comb.css.all$Scenario,
+                                          Num.selected = comb.css.all$Selected.MRGN.MRPC,
+                                          Num.of.True = comb.css.all$Num.of.True,
+                                          Metric = rep("Recall", 3600), 
+                                          Performance = comb.css.all$MRGN.MRPC.Recall),
+                                    cbind.data.frame(Correction = comb.css.all$Method,
+                                          #Scenario = comb.css.all$Scenario,
+                                          Num.selected = comb.css.all$Selected.MRGN.MRPC,
+                                          Num.of.True = comb.css.all$Num.of.True,
+                                          Metric = rep("Precision", 3600),
+                                          Performance = comb.css.all$MRGN.MRPC.Prec))
+
+
+comb2.css.and.inf = rbind.data.frame(cbind.data.frame(#Simulation = rep("< 15 Confounders", 3000), 
+                                                      rbind.data.frame(cbind.data.frame(Correction = rep("Qvalue: FDR < 0.05", 1500), 
+                                                      False.Positives = conf.select.scores$data$Selected.MRGN.MRPC - conf.select.scores$data$Correct.MRGN.MRPC,
+                                                      False.Negatives = conf.select.scores$data$Num.of.True - conf.select.scores$data$Correct.MRGN.MRPC,
+                                                      Edge.Precision = edge.perf$prec_edge,
+                                                      Edge.Recall = edge.perf$recall),
+                          cbind.data.frame(Correction = rep("None: alpha < 0.01", 1500), 
+                                           False.Positives = conf.select.scores2$data$Selected.MRGN.MRPC - conf.select.scores2$data$Correct.MRGN.MRPC,
+                                           False.Negatives = conf.select.scores2$data$Num.of.True - conf.select.scores2$data$Correct.MRGN.MRPC,
+                                           Edge.Precision = edge.perf.alpha01$prec_edge,
+                                           Edge.Recall = edge.perf.alpha01$recall))),
+                          cbind.data.frame(#Simulation = rep("> 15 Confounders", 600),
+                                           rbind.data.frame(cbind.data.frame(Correction = rep("Qvalue: FDR < 0.05", 300), 
+                                           False.Positives = conf.select.scores.mc$data$Selected.MRGN.MRPC - conf.select.scores.mc$data$Correct.MRGN.MRPC,
+                                           False.Negatives = conf.select.scores.mc$data$Num.of.True - conf.select.scores.mc$data$Correct.MRGN.MRPC,
+                                           Edge.Precision = edge.perf.mc$prec_edge,
+                                           Edge.Recall = edge.perf.mc$recall),
+                          cbind.data.frame(Correction = rep("None: alpha < 0.01", 300), 
+                                           False.Positives = conf.select.scores.mc.alpha01$data$Selected.MRGN.MRPC - conf.select.scores.mc.alpha01$data$Correct.MRGN.MRPC,
+                                           False.Negatives = conf.select.scores.mc.alpha01$data$Num.of.True - conf.select.scores.mc.alpha01$data$Correct.MRGN.MRPC,
+                                           Edge.Precision = edge.perf.mc.alpha01$prec_edge,
+                                           Edge.Recall = edge.perf.mc.alpha01$recall))))
+
+comb2.longform = rbind.data.frame(cbind.data.frame(comb2.css.and.inf[,1:4],
+                                                   Metric = rep("Recall", 3600),
+                                                   Performance = comb2.css.and.inf$Edge.Recall),
+                                  cbind.data.frame(comb2.css.and.inf[,1:4],
+                                                   Metric = rep("Precision", 3600),
+                                                   Performance = comb2.css.and.inf$Edge.Precision))
+                        
+facet_names = c(TeX("CSnoFDR $(\\alpha < 0.01)$"), TeX("CSFDR (FDR $< 0.05)$"))
+longform.css.all$Correction = factor(longform.css.all$Correction, 
+                                     labels = c('None: $\\alpha < 0.01$'= parse(text = TeX('CSnoFDR $(\\alpha < 0.01)$')),
+                                                'Qvalue: FDR < 0.05' = parse(text = TeX("CSFDR (FDR $< 0.05)$"))))
+# longform.css.all$Scenario = factor(longform.css.all$Scenario, 
+#                                    labels =c('Simulations with 1-15 Confouders' = parse(text = TeX('Simulations with $1-15$ Confouders')),
+#                                    'Simulations with 15-50 Confouders' = parse(text = TeX('Simulations with $15-50$ Confouders'))))
+
+color.codes2 = c("#12C2FF", "#EFF333FF", "#868686FF")
+color.codes1 = c("#0013C2FF", "#EFB000FF")
+color.codes = c("#0073C2FF", "#EFC000FF", "#868686FF")
+A = ggplot(data = longform.css.all, aes(x = Num.of.True, y = Performance, 
+                                        fill = Metric, shape = Metric, color = Metric))+
+      geom_point(alpha = 0.4, color = 'black', size = 3)+
+      theme_bw()+
+      facet_wrap(~Correction, labeller = "label_parsed", scales = 'free_x', nrow = 2)+
+      geom_smooth(size = 1.5, se = F)+
+      scale_fill_manual(values = color.codes2)+
+      scale_color_manual(values = color.codes)+
+      scale_shape_manual(values = c(21, 23))+
+      scale_y_continuous(breaks = seq(0,1,0.1))+
+      scale_x_continuous(breaks = seq(0,50,5), name = "# of True Confounders")+
+      ylab("Selection Performance")+
+      # scale_linetype_manual(values = c('solid', 'twodash'),
+      #                       labels=c(TeX("CSnoFDR $(\\alpha < 0.01)$"), TeX("CSFDR (FDR $< 0.05)$")))+
+        scale_linetype_discrete(labels=c(TeX("CSnoFDR $(\\alpha < 0.01)$"), TeX("CSFDR (FDR $< 0.05)$")))+
+  theme(legend.position = 'top',legend.text = element_text(size = 16),axis.text = element_text(size = 16),
+        legend.title = element_text(size = 16),
+        axis.title.y = element_text(margin = margin(t = 0, r = 15, b = 8, l = 0), size = 16),
+        axis.title.x = element_text(margin = margin(t = 0, r = 35, b = 8, l = 0), size = 16),
+        strip.text.x = element_text(size = 16),
+        strip.text.y = element_text(size = 16),
+        plot.title = element_text(size = 16, hjust = 0.5))
+
+temp = longform.css.all
+temp$Num.of.True = as.factor(temp$Num.of.True)
+A2 = ggplot(data = temp, aes(x = Num.of.True, y = Performance, 
+                                        fill = Metric, color = Metric))+
+      geom_smooth(size = 1.5, se = T, aes(group = Metric))+
+      geom_boxplot(color = 'black')+
+      theme_hc()+
+      facet_wrap(Scenario ~ Correction, labeller = "label_parsed", scales = 'free_x')+
+      scale_fill_manual(values = color.codes)+
+      scale_color_manual(values = color.codes)+
+      theme(legend.position = "top")+
+      scale_y_continuous(breaks = seq(0,1,0.1))+
+      #scale_x_continuous(breaks = seq(0,50,5), name = "Number of True Confounders")+
+      ylab("Selection Performance")+
+  xlab('# of True Confounders')+
+  theme(legend.text = element_text(size = 16),axis.text = element_text(size = 16),
+        legend.title = element_text(size = 16),
+        axis.title.y = element_text(margin = margin(t = 0, r = 15, b = 8, l = 0), size = 16),
+        axis.title.x = element_text(margin = margin(t = 0, r = 35, b = 8, l = 0), size = 16),
+        strip.text.x = element_text(size = 16),
+        strip.text.y = element_text(size = 16),
+        plot.title = element_text(size = 16, hjust = 0.5))
+
+
+
+A12 = ggplot(data = longform.css.all, aes(x = Num.selected, y = Performance, color = Metric, fill = Metric))+
+      geom_point(size = 2.5, alpha = 0.3, shape = 21, color ='black')+
+      theme_bw()+
+      geom_smooth(size = 1.5, se = F)+
+      scale_fill_manual(values = color.codes2)+
+      scale_color_manual(values = color.codes)+
+      facet_wrap(Scenario~Correction, scales = 'free_x', labeller = 'label_parsed')+
+      theme(legend.position = "top")+
+      scale_y_continuous(breaks = seq(0,1,0.2))+
+      #scale_x_continuous(breaks = seq(0,50,5), name = "Number of True Confounders")+
+      xlab('# of Selected Confounders')+
+      ylab("Selection Performance")+
+      scale_linetype_discrete(labels=c(TeX("CSnoFDR $(\\alpha < 0.01)$"), TeX("CSFDR (FDR $< 0.05)$")))+
+  theme(legend.text = element_text(size = 16),axis.text = element_text(size = 16),
+        legend.title = element_text(size = 16),
+        axis.title.y = element_text(margin = margin(t = 0, r = 15, b = 8, l = 0), size = 16),
+        axis.title.x = element_text(margin = margin(t = 0, r = 35, b = 8, l = 0), size = 16),
+        strip.text.x = element_text(size = 16),
+        strip.text.y = element_text(size = 16),
+        plot.title = element_text(size = 16, hjust = 0.5))
+      
+#relationship between False Negative Confounders and Performance      
+B1 = ggplot(data = comb2.longform, aes(x = False.Negatives, y = Performance, color = Metric, linetype = Metric))+
+      #geom_point(size = 1)+
+      theme_hc()+
+      scale_y_continuous(breaks = seq(0.5, 0.95, 0.05), expand = c(0,0), name = "MRGN Edge-Based Inference Precision/Recall")+
+      scale_x_continuous(breaks = seq(0, 22, 2), name = "Number of False Negative Confounders")+
+      geom_smooth(size = 1.5)+
+      scale_fill_manual(values = color.codes)+
+      scale_color_manual(values = color.codes)+
+      coord_cartesian(ylim = c(0.5, 1))+
+      theme(legend.position = "top",legend.text = element_text(size = 16),axis.text = element_text(size = 16),
+        legend.title = element_text(size = 16),
+        axis.title.y = element_text(margin = margin(t = 0, r = 15, b = 8, l = 0), size = 16),
+        axis.title.x = element_text(margin = margin(t = 0, r = 35, b = 8, l = 0), size = 16),
+        strip.text.x = element_text(size = 16),
+        strip.text.y = element_text(size = 16),
+        plot.title = element_text(size = 16, hjust = 0.5))
+
+#Relationship between False Positive Confounders and Performance
+B2 = ggplot(data = comb2.longform, aes(x = False.Positives, y = Performance, color = Metric, linetype = Metric))+
+      #geom_point(size = 1)+
+      theme_hc()+
+      scale_y_continuous(breaks = seq(0.5, 0.95, 0.05), expand = c(0,0), name = "MRGN Edge-Based Inference Precision/Recall")+
+      scale_x_continuous(breaks = seq(0, 200, 50), name = "Number of False Positive Confounders")+
+      coord_cartesian(ylim = c(0.5, 1))+
+      geom_smooth(size = 1.5)+
+      scale_fill_manual(values = color.codes)+
+      scale_color_manual(values = color.codes)+
+      theme(legend.position = "top",legend.text = element_text(size = 16),axis.text = element_text(size = 16),
+        legend.title = element_text(size = 16),
+        axis.title.y = element_text(margin = margin(t = 0, r = 15, b = 8, l = 0), size = 16),
+        axis.title.x = element_text(margin = margin(t = 0, r = 35, b = 8, l = 0), size = 16),
+        strip.text.x = element_text(size = 16),
+        strip.text.y = element_text(size = 16),
+        plot.title = element_text(size = 16, hjust = 0.5))
+
+#boxplot Distribution of False negatives broken down across Simulation Scenario and Selected Confounder Correction
+B1.1 = ggplot(data = comb2.css.and.inf, aes(x = Simulation, y = log10(False.Negatives), fill = Correction))+
+      #geom_point(size = 1)
+      geom_boxplot(notch = T, color = 'black')+
+      theme_hc()+
+      #geom_smooth(size = 1.5, method = "lm")+
+      #facet_wrap(~Simulation, scales = 'free_x')+
+      scale_fill_brewer(palette="Blues", labels=c(TeX("CSnoFDR $(\\alpha < 0.01)$"), "CSFDR (FDR < 5%)"))+
+      theme(legend.position = "top")+
+      #scale_y_continuous(breaks = seq(0,1,0.1))+
+      ylab(TeX("$\\log_{10}$(# False Negative Confounders+1)"))+
+      xlab("Correction Used To Select Confounders")+
+  theme(legend.text = element_text(size = 16),axis.text = element_text(size = 16),
+        legend.title = element_text(size = 16),
+        axis.title.y = element_text(margin = margin(t = 0, r = 15, b = 8, l = 0), size = 16),
+        axis.title.x = element_text(margin = margin(t = 0, r = 35, b = 8, l = 0), size = 16),
+        strip.text.x = element_text(size = 16),
+        strip.text.y = element_text(size = 16),
+        plot.title = element_text(size = 16, hjust = 0.5))
+
+#boxplot Distribution of False Positives broken down across Simulation Scenario and Selected Confounder Correction
+B2.1 = ggplot(data = comb2.longform, aes(x = Simulation, y = log10(False.Positives+1), fill = Correction))+
+      #geom_point(size = 1)
+      geom_boxplot(notch = T, color = 'black')+
+      theme_hc()+
+      #geom_smooth(size = 1.5, method = "lm")+
+      #facet_wrap(~Simulation, scales = 'free_x')+
+      scale_fill_brewer(palette="Blues", labels=c(TeX("CSnoFDR $(\\alpha < 0.01)$"), "CSFDR (FDR < 5%)$"))+
+      theme(legend.position = "top")+
+      #scale_y_continuous(breaks = seq(0,1,0.1))+
+      ylab(TeX("$\\log_{10}$(# False Positive Confounders+1)"))+
+      xlab("Correction Used To Select Confounders")+
+  theme(legend.text = element_text(size = 16),axis.text = element_text(size = 16),
+        legend.title = element_text(size = 16),
+        axis.title.y = element_text(margin = margin(t = 0, r = 15, b = 8, l = 0), size = 16),
+        axis.title.x = element_text(margin = margin(t = 0, r = 35, b = 8, l = 0), size = 16),
+        strip.text.x = element_text(size = 16),
+        strip.text.y = element_text(size = 16),
+        plot.title = element_text(size = 16, hjust = 0.5))
+      
+get_legend<-function(a.gplot){
+  tmp <- ggplot_gtable(ggplot_build(a.gplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)}
+
+
+
+
+legend_obj <- get_legend(B1)
+
+E1 = ggarrange(B1+theme(legend.position = 'none')+ rremove("ylab"),
+               B2+theme(legend.position = 'none')+ rremove("ylab"),
+              labels= c("A", "B"),
+              hjust = -3,
+              nrow = 2, ncol = 1,
+              common.legend = T, align = 'hv',
+              font.label=list(color="black",size=18))
+
+F1 = annotate_figure(E1, left = textGrob("MRGN Edge-Based Inference", gp = gpar(cex = 1.1, size = 16), rot = 90))
+
+E2 = ggarrange(B1.1+theme(legend.position = 'none')+ rremove("xlab"),
+              B2.1+theme(legend.position = 'none')+ rremove("xlab"),
+              labels= c("C", "D"),
+              nrow = 1, ncol = 2,
+              hjust = -3,
+              legend = 'bottom',
+              common.legend = T,
+              font.label=list(color="black",size=18))
+F2 = annotate_figure(E2, bottom = textGrob("Simulation Scenario", gp = gpar(cex = 1.5, size = 16)))
+
+Z1 = ggarrange(F1,
+               F2,
+               nrow = 1, ncol = 2,
+               common.legend = F)+theme(plot.margin = unit(c(0, 0, 0.45, 0), "cm"))
+               #legend = 'top',
+               #legend.grob = legend_obj)
+
+
+pdf(paste0(path_suppfigs, "SF4_Confounder_Selection_Performance.pdf"),
+    height = 8, width = 10)
+plot(A)
+dev.off()
+
+
+
+# jpeg("Manuscript/SuppFigures/SF4_Confounder_Selection_Performance.jpeg",
+#      height = 8, width = 12, units = 'in', res = 1000, quality = 90)
+# plot(A)
+# dev.off()
+
+
+pdf(paste0(path_suppfigs, "SF7_Confounder_Selection_Impact_On_Inference.pdf"),
+    height = 9, width = 12)
+#plot(Z.final)
+plot(F1)
+dev.off()
+
+
+# jpeg("Manuscript/SuppFigures/SF7_Confounder_Selection_Impact_On_Inference.jpeg",
+#      height = 9, width = 12, units = 'in', res = 1000, quality = 90)
+# #plot(Z.final)
+# plot(Z1)
+# dev.off()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r, eval = FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="Edge-based performance of MRGN and MRPC across the frequency of the minor alle of the genetic variant. Notice that MRGN has a $\\approx 10\\%$ increase in power for rare alleles (frequencies $\\leq 5\\%$)."}
+
+datasets=loadRData(file="Simulation/data/int_and_child_filtered_data/mrgn_data_with_SELECTED_CONFS_filtered.RData")
+#read in simulation parameters and truth
+params=loadRData(file="Simulation/data/mrpc_v_mrgn_v_gmac_5k_params_all_mods_conf_types.RData")
+
+inf.perm.all.trios = sapply(datasets, infer.trio, nperms = 1000, gamma = 0.5)
+#inf.with.perm = sapply(datasets[idx.rare], infer.trio, nperms = 1000)
+inf.wo.perm = sapply(datasets[idx.rare], infer.trio, use.perm = F, nperms = 1000)
+
+inf.cats.with.perm = unlist(inf.with.perm[14,])
+inf.cats.wo.perm = unlist(inf.wo.perm[14,])
+
+
+pval.data = cbind.data.frame(Label = c(rep("With Permutation",length(idx.rare)), 
+                                       rep("Without Perm", length(idx.rare))), 
+                             pb21=c(unlist(inf.perm.all.trios[8,]), unlist(inf.wo.perm[8,])),
+                             pb22=c(unlist(inf.perm.all.trios[10,]), unlist(inf.wo.perm[10,])))
+
+library(ggplot2)
+library(latex2exp)
+pdf(paste0("Manuscript/figures/plot_perm_pvalues_from_simulation.pdf"))
+ggplot(data = subset(pval.data, Label == "With Permutation"), aes(x = log10(pb21), y = log10(pb22)))+
+  geom_point(size = 2, shap = 19, alpha = 0.6)+
+  xlab(TeX("$\\log_{10}$ (P-value $\\beta_{21}$)"))+
+  ylab(TeX("$\\log_{10}$ (P-value $\\beta_{22}$)"))+
+  theme_classic()+
+  theme(legend.text = element_text(size = 16),axis.text = element_text(size = 18),
+        legend.title = element_text(size = 16),
+        axis.title.y = element_text(margin = margin(t = 0, r = 15, b = 0, l = 0), size = 18),
+        axis.title.x = element_text(margin = margin(t = 0, r = 35, b = 0, l = 0), size = 18))
+dev.off()
+
+
+```
+
+
+
+```{r, eval = FALSE, echo=FALSE, warning=FALSE, message=FALSE}
+
+
+library("MRGN")
+library("qvalue")
+library("caret")
+#read in helper functions
+source('Manuscript/scripts/MRGN_write_up_helper_functions.R')
+
+#=========================================================================
+#read in many conf data: simulations with >= 15 confounders
+many.conf.params=loadRData(file="Simulation/data/many_conf_data/mrpc_v_mrgn_v_gmac_300_params_all_mods_conf_types.RData")
+many.conf.conf.mat = loadRData("Simulation/data/many_conf_data/mrgn_v_gmac_v_mrpc_300_datasets_all_mods_conf_types_conf_mat.RData")
+#since many conf data and <15 conf data have similar confounder names, make the names for the many conf scenario unique by attaching an additional .1 to name --> applied to all confs in confounder matrix
+colnames(many.conf.conf.mat) = paste(colnames(many.conf.conf.mat), ".1", sep = "")
+#read in list of selected confounders
+many.conf.mrgn.conf.list = loadRData("Simulation/data/many_conf_data/mrgn_300_conf_list_all_confs_all_mods_REG.RData")
+#apply unique names to selected confs
+many.conf.mrgn.conf.list.confnames = lapply(many.conf.mrgn.conf.list, 
+                                           function(x) colnames(x) = paste(colnames(x), ".1", sep = ""))
+#read in the simulated data (i.e simulation truth)
+many.conf.data = loadRData(file =
+                             "Simulation/data/many_conf_data/mrgn_v_gmac_v_mrpc_300_datasets_all_mods_conf_types.RData")
+#extract the dataframes for each trio
+many.conf.data2 = lapply(many.conf.data, function(x) x$data)
+#reset true confounders names to match naming style change applied to selected confs
+for(i in 1:length(many.conf.data2)){
+  
+  colnames(many.conf.data2[[i]])[-c(1:6)] = paste(colnames(many.conf.data2[[i]])[-c(1:6)], ".1", sep = "")
+  
+}
+
+#=========================================================================
+#read in data for simulations with <= 15 confounders
+datasets=loadRData(file="Simulation/data/mrgn_v_gmac_v_mrpc_5k_datasets_all_mods_conf_types.RData")
+#extract simulation truth dataframes
+datasets = lapply(datasets, function(x) x$data)
+#read in the list of selected confounders
+conf.list.mrgn=loadRData(file="Simulation/data/int_and_child_filtered_data/mrgn_5k_conf_list_all_confs_filtered_all_mods.RData")
+#extract just the selected conf names
+conf.list.mrgn.confnames = lapply(conf.list.mrgn, colnames)
+#read in the matrix of confounders
+conf.mat = loadRData(file = "Simulation/data/mrgn_v_gmac_v_mrpc_5k_datasets_all_mods_conf_types_conf_mat.RData")
+
+#=========================================================================
+#use calc.css2 to extract confounder selection peformance metrics:
+#combine the lists and confounder matrices from the two scenarios 
+combined.data = do.call(c, list(datasets, many.conf.data2))
+combined.conf.lists = do.call(c, list(conf.list.mrgn.confnames, many.conf.mrgn.conf.list.confnames))
+combined.conf.mat = cbind.data.frame(conf.mat, many.conf.conf.mat)
+#make plots
+pdf(paste0(sp, "SF4_Confounder_Selection_Performance.pdf"),
+    height = 8, width = 12)
+conf.select.scores = calc.css2(true.datasets = combined.data, 
+                              mrgn.confs.list = combined.conf.lists, 
+                              conf.names = colnames(combined.conf.mat))
+dev.off()
+
+# 
+# jpeg("Manuscript/SuppFigures/SF4_Confounder_Selection_Performance.jpeg",
+#      height = 8, width = 12, units = 'in', res = 1000, quality = 90)
+# conf.select.scores = calc.css2(true.datasets = combined.data, 
+#                               mrgn.confs.list = combined.conf.lists, 
+#                               conf.names = colnames(combined.conf.mat))
+# dev.off()
+
+
+
+```
+
+
+
+```{r, eval = TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+#=========================================================================
+#evidence for permutation not helping inference in simulation
+
+data1500=loadRData(file="Simulation/data/int_and_child_filtered_data/mrgn_data_with_SELECTED_CONFS_filtered.RData")
+
+data300=loadRData(file="Simulation/data/many_conf_data/mrgn_data_300_with_SELECTED_CONFS_REG.RData")
+
+all.trios = do.call(c, list(data1500, data300))
+
+#inf.perm.all.trios = sapply(all.trios, infer.trio, nperms = 1000, gamma = 0.5)
+#save(inf.perm.all.trios, file = "Simulation/data/permutation_on_all_sim_data_1800trios.RData")
+perm.all = loadRData( file = "Simulation/data/permutation_on_all_sim_data_1800trios_OLD.RData")
+#inf.with.perm = sapply(datasets[idx.rare], infer.trio, nperms = 1000)
+no.perm = sapply(all.trios, infer.trio, use.perm = F, nperms = 1000)
+
+#inf.cats.with.perm = unlist(inf.perm.all.trios[14,])
+#inf.cats.wo.perm = unlist(inf.wo.perm[14,])
+#x = as.matrix(table(inf.cats.with.perm, inf.cats.wo.perm))
+#write.csv(x, "Manuscript/SuppTables/tablescraps/sim_perm_no_perm_confusion.csv")
+
+
+library(ggpubr)
+library(MRGN)
+library(latex2exp)
+library(ggthemes)
+
+#===============================================investigate-Permutation=========================================
+
+rare.idx = which(unlist(perm.all[13,])<0.1)
+rare.var = rep("Minor Freq > 0.05", dim(perm.all)[2])
+rare.var[rare.idx] = "Minor Freq < 0.05"
+inf.perm = unlist(perm.all[14,])
+inf.no.perm = unlist(no.perm[14,])
+
+idx.mod.change = which(inf.perm != inf.no.perm)
+mod.change = rep("No Change", dim(perm.all)[2])
+
+
+
+after.perm = inf.perm[idx.mod.change]
+before.perm = inf.no.perm[idx.mod.change]
+xx = paste(before.perm, after.perm, sep = " --> ")
+
+classify.change.types = function(x){
+  
+  if (x[1] == "M0.1" | x[1] == "M0.2"){
+    if (x[2] == "M1.1" | x[2] == "M1.2"){
+      y = "liberal change"
+    }else{
+      y = "conservative change"
+    }
+  }else if(x[1] == "M1.1" | x[1] == "M1.2"){
+    y = "conservative change"
+  
+  }else if(x[1] == "M2.2"){
+    y = "conservative change"
+  
+  }else if(x[1] == "M3"){
+   
+    if(x[2] == "M2.2" | x[2] == "M4"){
+      y = "liberal change"
+    }else{
+      y = "conservative change"
+    }
+    
+  }else if (x[1] == "M4"){
+    y = "conservative change"
+  
+  }else if (x[1] == "Other"){
+    y = "liberal change"
+  }
+  
+  
+}
+
+
+change.type = apply(cbind.data.frame(before.perm, after.perm), 1, classify.change.types)
+
+mod.change[idx.mod.change] = xx
+mod.change2 = mod.change
+mod.change2[which(mod.change != "No Change")] = "Model Changed"
+
+counts = summary(as.factor(xx))
+nm = strsplit(names(counts), ' --> ')
+chty = unlist(lapply(nm, classify.change.types))
+
+mod.change.counts = cbind.data.frame(counts, `type of model change` = names(counts), 
+                                     `Category of Change` = chty)
+
+# ct = summary(as.factor(change.type))
+# mod.change.types = cbind.data.frame(count = ct, `category of change` = names(ct))
+
+
+#combine all permutation pvalues into a matrix
+pvalues.mat = cbind.data.frame(pb12.with.perm = unlist(perm.all[8,]),
+                               pb12.no.perm = unlist(no.perm[8,]),
+                               pb22.with.perm = unlist(perm.all[10,]),
+                               pb22.no.perm = unlist(no.perm[10,]),
+                               Allele.freq = unlist(perm.all[13,]),
+                               `Types of Model Changes` = as.factor(mod.change),
+                               Inference = as.factor(mod.change2))
+
+pvalues.mat$diff.perm.p = abs(pvalues.mat$pb12.with.perm - pvalues.mat$pb22.with.perm)
+
+
+
+h=0.01
+A=ggplot(data = pvalues.mat)+
+  geom_point(aes(x=log10(pb12.no.perm), y=log10(pb12.with.perm), color=Inference, fill = Inference),
+             shape = 19, alpha = 0.6)+
+  color_palette(palette = "jco")+
+  theme_hc()+
+  theme(legend.position = "right",legend.text = element_text(size = 16),axis.text = element_text(size = 18),
+        legend.title = element_text(size = 16),
+        axis.title.y = element_text(margin = margin(t = 0, r = 15, b = 0, l = 0), size = 18),
+        axis.title.x = element_text(margin = margin(t = 0, r = 35, b = 0, l = 0), size = 18))+
+  labs(y = TeX('$\\log_{10}$ pvalue $\\beta_{12}$ with permutation'),
+       x = TeX('$\\log_{10}$ pvalue $\\beta_{12}$ without permutation'))+
+  scale_x_continuous(limits = c(-15,0))+
+  scale_y_continuous(limits = c(-15,0))+
+  geom_abline(intercept = 0, slope = 1, linetype="dotted")+
+  geom_vline(xintercept = log10(h), color="red", linetype="dashed")+
+  geom_hline(yintercept = log10(h), color="red", linetype="dashed")
+
+h=0.01
+B=ggplot(data = pvalues.mat)+
+  geom_point(aes(x=log10(pb22.no.perm), y=log10(pb22.with.perm), color=Inference, fill = Inference),
+             shape = 19, alpha = 0.6)+
+  color_palette(palette = "jco")+
+  theme_hc()+
+  theme(legend.position = "right",legend.text = element_text(size = 16),axis.text = element_text(size = 18),
+        legend.title = element_text(size = 16),
+        axis.title.y = element_text(margin = margin(t = 0, r = 15, b = 0, l = 0), size = 18),
+        axis.title.x = element_text(margin = margin(t = 0, r = 35, b = 0, l = 0), size = 18))+
+  labs(y = TeX('$\\log_{10}$ pvalue $\\beta_{22}$ with permutation'),
+       x = TeX('$\\log_{10}$ pvalue $\\beta_{22}$ without permutation'))+
+  scale_x_continuous(limits = c(-15,0))+
+  scale_y_continuous(limits = c(-15,0))+
+  geom_abline(intercept = 0, slope = 1, linetype="dotted")+
+  geom_vline(xintercept = log10(h), color="red", linetype="dashed")+
+  geom_hline(yintercept = log10(h), color="red", linetype="dashed")
+
+#pdf("Manuscript/figures/Perm_check_plot.pdf")
+C = ggarrange(A, B, labels = c("A", "B"), nrow = 1, ncol = 2, common.legend = T, legend = "top")
+plot(C)
+
+n = dim(pvalues.mat)[1]
+pvals.longform = cbind.data.frame(`Permutation Test` = c(rep("b12", n), rep("b22", n)),
+                                  pvalue = c(pvalues.mat$pb12.with.perm, pvalues.mat$pb22.with.perm),
+                                  `Allele Frequency` = rep(pvalues.mat$Allele.freq, 2),
+                                  `Inferred Model Status` = rep(pvalues.mat$Inference, 2))
+
+D=ggplot(data = pvals.longform, aes(x=`Inferred Model Status`, y=`Allele Frequency`))+
+  xlab("")+
+  ylab(TeX('Minor Allele Frequency'))+
+  theme(legend.position = "bottom",legend.text = element_text(size = 16),axis.text = element_text(size = 18),
+        legend.title = element_text(size = 16),
+        axis.title.y = element_text(margin = margin(t = 0, r = 15, b = 0, l = 0), size = 18),
+        axis.title.x = element_text(margin = margin(t = 0, r = 35, b = 0, l = 0), size = 18))+
+  color_palette(palette = "jco")+
+  stat_compare_means(method = "t.test", label.x = 1.4, label.y = 0.55, color = 'red')+
+  stat_compare_means(label.x = 1.4, label.y = 0.5, color = 'red')+
+  scale_y_continuous(limits = c(0, 0.6))+
+  theme_hc()+
+  #scale_fill_discrete(labels=c(TeX("$\\H_0: \ \\beta_{12} = 0$"), TeX("$\\H_0: \ \\beta_{22} = 0$")))+
+  geom_boxplot(fill = "#7AA6DCFF")
+plot(D)
+
+color.codes = c("#0073C2FF","#868686FF")
+E = ggplot(data = mod.change.counts, aes(x = `type of model change`, y = counts, fill = `Category of Change`))+
+  theme_hc()+
+  scale_fill_manual(values = color.codes)+
+  scale_color_manual(values = color.codes)+
+  scale_x_discrete(guide = guide_axis(angle = 45))+
+  geom_bar(stat = "identity", color = "black")+
+  theme(legend.position = 'top', legend.text = element_text(size = 16),axis.text = element_text(size = 18),
+        legend.title = element_text(size = 16),
+        axis.title.y = element_text(margin = margin(t = 0, r = 15, b = 0, l = 0), size = 18),
+        axis.title.x = element_text(margin = margin(t = 0, r = 35, b = 0, l = 0), size = 18))+
+  xlab("Type of Model Change After Permutation")+
+  ylab("Count")
+#geom_bar(aes(x = `category of change`, y = count), data = mod.change.types, stat = "identity", fill = c("red", "blue"))
+plot(E)
+
+
+final.plot = ggarrange(C, ggarrange(E, D, labels = c("C", "D"), nrow = 1, ncol = 2), nrow = 2, ncol = 1)+theme(plot.margin = unit(c(0, 0, 0.45, 0), "cm"))
+
+pdf(paste0(sp, "SF5_Simulation_Permutation_and_Model_Changes.pdf"), 
+    height = 10, width = 12)
+plot(final.plot)
+dev.off()
+
+
+
+```
+
+
+\newpage
+\section*{Appendix}
+
+\subsection*{Simulating data}
+We simulate common child effects independently for each edge as $\Psi_1,\Psi_2 \sim \text{unif}_n(a = 1, b = 1.5)$. For intermediate variables, we simulate the effects of each edge independently as $\Omega_1, \Omega_2 \sim \text{unif}(a = )$. We select half of the effects on each edge at random to be negative.
+
+\noindent \textbf{(1.)} - We simulate the variant $V_1 = [v_1, v_2, \cdots v_n]$ from a multinomial distribution under Hardy-Weinberg equilibrium:
+
+\[ Pr(v_i = 0) =(1 -\theta)^2; \ Pr(v_i = 1) = 2\theta(1-\theta); \ Pr(v_i = 2) = \theta^2 \]
+
+\noindent \textbf{(2.)} - We denote the $j^{th}$ molecular phenotype as $T_j$ and its set of parents by ${\bf Par}(T_j)$. The set of parent nodes ${\bf Parents}(T_j)$ may be empty, contain $V$-nodes, $T$-nodes, confounders, intermediate variables or a combination of all (Badsha and Fu, 2019). We model $T_j$ as following a normal distribution:
+
+\[ T_j \sim N\left( \beta_0 + \sum_{i\in{\bf Par}(T_j)} \beta_{i} V_i +\left[\sum_{k\in{\bf Par}(T_j)} \beta_k T_k\right] +\left[\sum_{l\in{\bf Par}(T_j)} \gamma_l U_l\right]+\left[\sum_{m\in{\bf Par}(T_j)} \phi_m K_m\right]+\left[\sum_{t\in{\bf Par}(T_j)} \omega_t W_t\right]+\left[\sum_{s\in{\bf Par}(T_j)} \psi_s Z_s\right], \ \sigma_j \right)  \]
+
+Since common child variables have parents in both molecular phenotypes, we utilize a similar model where the $j^th$ child variable follows a normal distribution:
+
+
+\[ Z_j \sim N\left( \beta_0 + \sum_{i \in {\bf Par}(Z_j)} \psi_i T_i, \ \sigma \right) \]  
+
+Lastly, since intermediate variables have a single parent in one of the molecular phenotypes we simulate the $j^th$ intermediate variable as following a normal distribution:
+
+ \[ W_j \sim N\left( \beta_0 +  \sum_{i \in {\bf Par}(W_j)} \omega_i T_i,  \ \sigma \right) \] 
+
+\indent $\bullet$ \textbf{Example 1}: In this example we describe the equations for the simulation of a M1 network with known and unkown confounders, intermediate variables, and common children variables. Assuming a variant $V1$ of length $n$ we generate $T_1$ as:
+
+\[ T_1 \sim N\left( \beta_0 + \beta_{12}V_1 + {\bf \Phi_1 K} + {\bf \Gamma_1 U, \ \sigma} \right) \]
+Once $T_1$ is generated, we generate the intermediate variables such that the $j^{th}$ intermediate follows
+
+\[ W_j \sim N\left( \beta_0 + \omega_{j1} T_1, \ \sigma \right) \]
+
+Next we generate $T_2$ as
+
+\[ T_2 \sim N\left( \beta_0 + \beta_{21}T_1 + {\bf \Phi_2 K} + {\bf \Gamma_2 U} + {\bf \Omega_2 W}, \ \sigma \right)  \]
+
+Finally, we generate the $j^{th}$ common child variable as
+
+\[ Z_j \sim N\left( \beta_0 + \psi_{j1} T_1 + \psi_{j2} T_2, \ \sigma \right)  \]
+
+Notice that both $\beta_0$ and $\sigma$ are fixed for the model. We do this to reduce simulation complexity for post-analysis performance comparisons across simulation parameters
+
+
+
+\begin{figure}
+\begin{center}
+\caption{The confounder model}
+\begin{tikzpicture}[node distance={30mm}, thick, main/.style = {draw, circle}] 
+\node[main] (1) {$V_1$};
+\node[main] (2) [below left of=1] {$T_1$};
+\node[main] (3) [below right of=1] {$T_2$};
+\node[main] (4) [below right of=2] {$\bf U, K$};
+\draw[->] (1) -- (2) node [midway, yshift=+0.25cm, xshift=-0.52cm, fill=white] {$\beta_{11}$};
+\draw[dotted] (2) -- (3) node [midway, above, fill=white] {$\beta_{21}, \beta_{22}$};
+\draw[->] (1) -- (3) node [midway, yshift=+0.25cm, xshift=+0.52cm, fill=white] {$\beta_{12}$};
+\draw[->] (4) -- (2) node [midway, yshift=-0.21cm, xshift=-0.7cm, fill=white] {$\bf \Gamma_1, \Phi_1$};
+\draw[->] (4) -- (3) node [midway, yshift=-0.21cm, xshift=+0.7cm, fill=white] {$\bf \Gamma_2, \Phi_2$};
+\end{tikzpicture}
+\end{center}
+\end{figure}
+
+
+
+\begin{figure}
+\begin{center}
+\caption{The common child model}
+\begin{tikzpicture}[node distance={30mm}, thick, main/.style = {draw, circle}] 
+\node[main] (1) {$V_1$};
+\node[main] (2) [below left of=1] {$T_1$};
+\node[main] (3) [below right of=1] {$T_2$};
+\node[main] (4) [below right of=2] {$\bf Z$};
+\draw[->] (1) -- (2) node [midway, yshift=+0.25cm, xshift=-0.52cm, fill=white] {$\beta_{11}$};
+\draw[dotted] (2) -- (3) node [midway, above, fill=white] {$\beta_{21}, \beta_{22}$};
+\draw[->] (1) -- (3) node [midway, yshift=+0.25cm, xshift=+0.52cm, fill=white] {$\beta_{12}$};
+\draw[<-] (4) -- (2) node [midway, yshift=-0.21cm, xshift=-0.7cm, fill=white] {$\bf \Psi_1$};
+\draw[<-] (4) -- (3) node [midway, yshift=-0.21cm, xshift=+0.7cm, fill=white] {$\bf \Psi_2$};
+\end{tikzpicture}
+\end{center}
+\end{figure}
+
+
+
+\begin{figure}
+\begin{center}
+\caption{The intermediate variable model}
+\begin{tikzpicture}[node distance={30mm}, thick, main/.style = {draw, circle}] 
+\node[main] (1) {$V_1$};
+\node[main] (2) [below left of=1] {$T_1$};
+\node[main] (3) [below right of=1] {$T_2$};
+\node[main] (4) [below right of=2] {$\bf W$};
+\draw[->] (1) -- (2) node [midway, yshift=+0.25cm, xshift=-0.52cm, fill=white] {$\beta_{11}$};
+\draw[dotted] (2) -- (3) node [midway, above, fill=white] {$\beta_{21}, \beta_{22}$};
+\draw[->] (1) -- (3) node [midway, yshift=+0.25cm, xshift=+0.52cm, fill=white] {$\beta_{12}$};
+\draw[<-] (4) -- (2) node [midway, yshift=-0.21cm, xshift=-0.7cm, fill=white] {$\bf \Omega_1$};
+\draw[->] (4) -- (3) node [midway, yshift=-0.21cm, xshift=+0.7cm, fill=white] {$\bf \Omega_2$};
+\end{tikzpicture}
+\end{center}
+\end{figure}
+
+
+\subsection*{Running GMAC and Post-processing Results}
+
+\subsection*{Confounder Selection MRGN/MRPC and GMAC}
+
+\subsection*{Common Child and Intermediate Variable Filtering}
+
+

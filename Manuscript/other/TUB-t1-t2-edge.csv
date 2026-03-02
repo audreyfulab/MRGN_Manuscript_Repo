@@ -1,0 +1,5 @@
+"","T1-T2 Absent","T1-T2 Present","Total","Precision"
+"T1-T2 Pred. Absent","394","0","394","1"
+"T1-T2 Pred. Present","328","1078","1406","0.7667"
+"Total","722","1078","1800",""
+"Recall","0.5457","1",NA,""

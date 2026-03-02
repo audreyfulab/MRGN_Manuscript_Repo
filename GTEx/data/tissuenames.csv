@@ -1,0 +1,49 @@
+var1,tissue.name1,tissue.name2
+Adipose - Subcutaneous                     ,AdiposeSubcutaneous,Adipose_Subcutaneous
+Adipose - Visceral (Omentum)               ,AdiposeVisceral,Adipose_Visceral_Omentum
+Adrenal Gland                              ,AdrenalGland,Adrenal_Gland
+Artery - Aorta                             ,ArteryAorta,Artery_Aorta
+Artery - Coronary                          ,ArteryCoronary,Artery_Coronary
+Artery - Tibial                            ,ArteryTibial,Artery_Tibial
+Brain - Amygdala                           ,BrainAmygdala,Brain_Amygdala
+Brain - Anterior cingulate cortex (BA24)   ,BrainAnteriorcingulatecortex,Brain_Anterior_cingulate_cortex_BA24
+Brain - Caudate (basal ganglia)            ,BrainCaudate,Brain_Caudate_basal_ganglia
+Brain - Cerebellar Hemisphere              ,BrainCerebellarHemisphere,Brain_Cerebellar_Hemisphere
+Brain - Cerebellum                         ,BrainCerebellum,Brain_Cerebellum
+Brain - Cortex                             ,BrainCortex,Brain_Cortex
+Brain - Frontal Cortex (BA9)               ,BrainFrontalCortex,Brain_Frontal_Cortex_BA9
+Brain - Hippocampus                        ,BrainHippocampus,Brain_Hippocampus
+Brain - Hypothalamus                       ,BrainHypothalamus,Brain_Hypothalamus
+Brain - Nucleus accumbens (basal ganglia)  ,BrainNucleusaccumbens,Brain_Nucleus_accumbens_basal_ganglia
+Brain - Putamen (basal ganglia)            ,BrainPutamen,Brain_Putamen_basal_ganglia
+Brain - Spinal cord (cervical c-1)         ,BrainSpinalcord,Brain_Spinal_cord_cervical_c-1
+Brain - Substantia nigra                   ,BrainSubstantianigra,Brain_Substantia_nigra
+Breast - Mammary Tissue                    ,BreastMammaryTissue,Breast_Mammary_Tissue
+Cells - Cultured fibroblasts               ,CellsCulturedfibroblasts,Cells_Cultured_fibroblasts
+Cells - EBV-transformed lymphocytes        ,CellsEBVtransformedlymphocytes,Cells_EBV-transformed_lymphocytes
+Colon - Sigmoid                            ,ColonSigmoid,Colon_Sigmoid
+Colon - Transverse                         ,ColonTransverse,Colon_Transverse
+Esophagus - Gastroesophageal Junction      ,EsophagusGastroesophagealJunction,Esophagus_Gastroesophageal_Junction
+Esophagus - Mucosa                         ,EsophagusMucosa,Esophagus_Mucosa
+Esophagus - Muscularis                     ,EsophagusMuscularis,Esophagus_Muscularis
+Heart - Atrial Appendage                   ,HeartAtrialAppendage,Heart_Atrial_Appendage
+Heart - Left Ventricle                     ,HeartLeftVentricle,Heart_Left_Ventricle
+Liver,Liver,Liver
+Lung,Lung,Lung
+Minor Salivary Gland                       ,MinorSalivaryGland,Minor_Salivary_Gland
+Muscle - Skeletal                          ,MuscleSkeletal,Muscle_Skeletal
+Nerve - Tibial                             ,NerveTibial,Nerve_Tibial
+Ovary,Ovary,Ovary
+Pancreas,Pancreas,Pancreas
+Pituitary,Pituitary,Pituitary
+Prostate,Prostate,Prostate
+Skin - Not Sun Exposed (Suprapubic)        ,SkinNotSunExposed,Skin_Not_Sun_Exposed_Suprapubic
+Skin - Sun Exposed (Lower leg)             ,SkinSunExposed,Skin_Sun_Exposed_Lower_leg
+Small Intestine - Terminal Ileum           ,SmallIntestine,Small_Intestine_Terminal_Ileum
+Spleen                                     ,Spleen,Spleen
+Stomach                                    ,Stomach,Stomach
+Testis                                     ,Testis,Testis
+Thyroid                                    ,Thyroid,Thyroid
+Uterus                                     ,Uterus,Uterus
+Vagina                                     ,Vagina,Vagina
+Whole Blood                                ,WholeBlood,Whole_Blood

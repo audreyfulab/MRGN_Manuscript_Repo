@@ -31,3 +31,5 @@ Output files from the permutation test analysis:
 | `perm.all.trios.WB.liberal.confs.alpha05.RData` | MRGN results **with** permutation test (liberal confounder selection, alpha < 0.05). |
 | `GTEx_results_*.txt` | Human-readable summary tables of inference results for each combination of permutation/no-permutation and confounder selection strategy. |
 | `GTEx_Analysis_All_Results_Table_WholeBlood*.txt` | Comprehensive results tables for all WholeBlood trios, including a rare-trios-only variant. |
+
+> **Note:** All files in `results/` are too large for GitHub and are excluded via `.gitignore`. They must be regenerated locally by running the scripts in `scripts/`.

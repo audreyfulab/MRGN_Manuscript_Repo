@@ -64,6 +64,18 @@ Diagnostic PDF plots for specific WholeBlood trios, including probability plots 
 
 Placeholder for assembled trio result tables (currently empty).
 
+## Files Not Included in Repository
+
+The following files are too large for GitHub and are excluded via `.gitignore`. They must be regenerated locally by running the corresponding scripts:
+
+| File | Description |
+|---|---|
+| `data/data.with.PCs.WholeBlood.RData` | List of trio data frames with matched PC confounders. Regenerate via `data/PC_LRNA_PC_Selection_manu.R`. |
+| `scripts/make_mrgn_triotables.R` | Master trio table builder (large script). |
+| `scripts/make_GMAC_tables.R` | GMAC results table assembler (large script). |
+| `trios_data_prlnc_liberal_conf_sel/data_with_confs/trios.with.confs.WholeBlood.RData` | Trio data with liberal-selected confounders (alpha < 0.05). Regenerate via `scripts/use_liberal_conf_selection_noFDR.R`. |
+| `trios_data_prlnc_liberal_conf_sel/data_with_confs/alpha01/trios.with.confs.WholeBloodalpha01.RData` | Trio data with liberal-selected confounders (alpha < 0.01). Regenerate via `scripts/use_liberal_conf_selection_noFDR.R`. |
+
 ## PC Selection Procedure
 
 1. Compute Pearson correlations between each PC and all trio variables using `psych::corr.test(adjust="none")`

@@ -64,7 +64,6 @@ A = ggplot(data=subset(model.res, Method != 'GMAC'), aes(x=`Inferred Model`, y=C
         axis.title.y = element_text(margin = margin(t = 0, r = 15, b = 0, l = 0), size = 18),
         axis.title.x = element_text(margin = margin(t = 0, r = 35, b = 0, l = 0), size = 18))+
   xlab("Model")
-plot(A)
 
 
 B = ggplot(data=subset(model.res2, Method != 'GMAC'), aes(x=`Inferred Model`, y=Count, fill=Method)) +
@@ -78,7 +77,6 @@ B = ggplot(data=subset(model.res2, Method != 'GMAC'), aes(x=`Inferred Model`, y=
         axis.title.y = element_text(margin = margin(t = 0, r = 15, b = 0, l = 0), size = 18),
         axis.title.x = element_text(margin = margin(t = 0, r = 35, b = 0, l = 0), size = 18))+
   xlab("Type of Mediation")
-plot(B)
 
 
 mrgn.adj = list()
@@ -123,7 +121,6 @@ C = ggplot(data=t1t2.res, aes(x=`T1 T2 Edge Prediction`, y=Count, fill=Method)) 
         axis.title.y = element_text(margin = margin(t = 0, r = 15, b = 0, l = 0), size = 18),
         axis.title.x = element_text(margin = margin(t = 0, r = 35, b = 0, l = 0), size = 18))+
   xlab("T1 - T2 Edge")
-plot(C)
 
 
 D = ggplot(data=mrgn.tab, aes(x= MRGN.libconf.alpha05.number.of.PCs)) +
@@ -135,7 +132,6 @@ D = ggplot(data=mrgn.tab, aes(x= MRGN.libconf.alpha05.number.of.PCs)) +
         legend.text = element_text(size = 16),
         axis.title.y = element_text(margin = margin(t = 0, r = 15, b = 0, l = 0), size = 18),
         axis.title.x = element_text(margin = margin(t = 0, r = 35, b = 0, l = 0), size = 18))
-plot(D)
 
 
 

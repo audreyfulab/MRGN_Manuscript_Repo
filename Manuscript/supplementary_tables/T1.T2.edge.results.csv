@@ -1,0 +1,25 @@
+"Inference Method","Inference Correction","Confounder Selection Correction","Description","T1-T2 Absent","T1-T2 Present","Total","Precision"
+NA,NA,NA,"T1-T2 Pred. Absent","270","6","276","0.9783"
+NA,NA,NA,"T1-T2 Pred. Present","452","1072","1524","0.7034"
+"MRGN","None: $\alpha < 0.01$","FDR $<0.05$","Total","722","1078","1800",""
+NA,NA,NA,"Recall","0.374","0.9944",NA,""
+NA,NA,NA,NA,NA,NA,NA,NA
+NA,NA,NA,"T1-T2 Pred. Absent","285","23","308","0.9253"
+NA,NA,NA,"T1-T2 Pred. Present","437","1055","1492","0.7071"
+"MRGN","None: $\alpha < 0.01$","None: $\alpha < 0.01$","Total","722","1078","1800",""
+NA,NA,NA,"Recall","0.3947","0.9787",NA,""
+NA,NA,NA,NA,NA,NA,NA,NA
+NA,NA,NA,"T1-T2 Pred. Absent","504","194","698","0.7221"
+NA,NA,NA,"T1-T2 Pred. Present","66","723","789","0.9163"
+"MRPC","ADDIS","FDR $<0.05$","Total","570","917","1487",""
+NA,NA,NA,"Recall","0.8842","0.7884",NA,""
+NA,NA,NA,NA,NA,NA,NA,NA
+NA,NA,NA,"T1-T2 Pred. Absent","197","3","200","0.985"
+NA,NA,NA,"T1-T2 Pred. Present","525","1075","1600","0.6719"
+"GMAC","None: $\alpha < 0.05$","FDR $<0.05$","Total","722","1078","1800",""
+NA,NA,NA,"Recall","0.2729","0.9972",NA,""
+NA,NA,NA,NA,NA,NA,NA,NA
+NA,NA,NA,"T1-T2 Pred. Absent","267","6","273","0.978"
+NA,NA,NA,"T1-T2 Pred. Present","455","1072","1527","0.702"
+"GMAC","None: $\alpha < 0.01$","FDR $<0.05$","Total","722","1078","1800",""
+NA,NA,NA,"Recall","0.3698","0.9944",NA,""

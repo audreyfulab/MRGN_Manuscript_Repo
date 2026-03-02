@@ -1,0 +1,4 @@
+"","Method","Median Time To Compute A Trio (sec)","IQR Time To Compute A Trio (sec)"
+"1","MRGN",0.0105410814285278,0.00521558523178101
+"2","MRPC-ADDIS",0.46008,9.011685
+"3","GMAC",1.53726100921631,1.48312610387802

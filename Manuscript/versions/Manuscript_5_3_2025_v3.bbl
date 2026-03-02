@@ -1,0 +1,189 @@
+\begin{thebibliography}{10}
+
+\bibitem{camacho2018next}
+Diogo~M Camacho, Katherine~M Collins, Rani~K Powers, James~C Costello, and
+  James~J Collins.
+\newblock Next-generation machine learning for biological networks.
+\newblock {\em Cell}, 173(7):1581--1592, 2018.
+
+\bibitem{lecca2021machine}
+Paola Lecca.
+\newblock Machine learning for causal inference in biological networks:
+  Perspectives of this challenge.
+\newblock {\em Frontiers in Bioinformatics}, 1:746712, 2021.
+
+\bibitem{xu2019machine}
+Chunming Xu and Scott~A Jackson.
+\newblock Machine learning and complex biological data.
+\newblock {\em Genome biology}, 20(76):1--4, 2019.
+
+\bibitem{pingault2018using}
+Jean-Baptiste Pingault, Paul~F O’reilly, Tabea Schoeler, George~B Ploubidis,
+  Fr{\"u}hling Rijsdijk, and Frank Dudbridge.
+\newblock Using genetic data to strengthen causal inference in observational
+  research.
+\newblock {\em Nature Reviews Genetics}, 19(9):566--580, 2018.
+
+\bibitem{davey2014mendelian}
+George Davey~Smith and Gibran Hemani.
+\newblock Mendelian randomization: genetic anchors for causal inference in
+  epidemiological studies.
+\newblock {\em Human Molecular Genetics}, 23(R1):R89--R98, 2014.
+
+\bibitem{aten2008using}
+Jason~E Aten, Tova~F Fuller, Aldons~J Lusis, and Steve Horvath.
+\newblock Using genetic markers to orient the edges in quantitative trait
+  networks: the neo software.
+\newblock {\em BMC systems biology}, 2(1):1--21, 2008.
+
+\bibitem{badsha2019learning}
+Md~Bahadur Badsha and Audrey~Qiuyan Fu.
+\newblock Learning causal biological networks with the principle of mendelian
+  randomization.
+\newblock {\em Frontiers in genetics}, 10:454043, 2019.
+
+\bibitem{yazdani2016generating}
+Azam Yazdani, Akram Yazdani, Ahmad Samiei, and Eric Boerwinkle.
+\newblock Generating a robust statistical causal structure over 13
+  cardiovascular disease risk factors using genomics data.
+\newblock {\em Journal of Biomedical Informatics}, 60:114--119, 2016.
+
+\bibitem{ludl2021comparison}
+Adriaan-Alexander Ludl and Tom Michoel.
+\newblock Comparison between instrumental variable and mediation-based methods
+  for reconstructing causal gene networks in yeast.
+\newblock {\em Molecular Omics}, 17(2):241--251, 2021.
+
+\bibitem{wang2014.network}
+Huange Wang and Fred~A van Eeuwijk.
+\newblock A new method to infer causal phenotype networks using {QTL} and
+  phenotypic information.
+\newblock {\em PLoS One}, 9(8):e103997, 2014.
+
+\bibitem{wang2017efficient}
+Lingfei Wang and Tom Michoel.
+\newblock Efficient and accurate causal inference with hidden confounders from
+  genome-transcriptome variation data.
+\newblock {\em PLoS computational biology}, 13(8):e1005703, 2017.
+
+\bibitem{millstein2009cit}
+Joshua Millstein, Bin Zhang, Jun Zhu, and Eric~E Schadt.
+\newblock Disentangling molecular relationships with a causal inference test.
+\newblock {\em BMC Genetics}, 10(1):23, 2009.
+
+\bibitem{zeng2021statistical}
+Ping Zeng, Zhonghe Shao, and Xiang Zhou.
+\newblock Statistical methods for mediation analysis in the era of
+  high-throughput genomics: current successes and future challenges.
+\newblock {\em Computational and structural biotechnology journal},
+  19:3209--3224, 2021.
+
+\bibitem{badsha2021mrpc}
+Md~Bahadur Badsha, Evan~A Martin, and Audrey~Qiuyan Fu.
+\newblock {MRPC}: An {R} package for inference of causal graphs.
+\newblock {\em Frontiers in Genetics}, 12, 2021.
+
+\bibitem{yang2017identifying}
+Fan Yang, Jiebiao Wang, Brandon~L Pierce, Lin~S Chen, Fran{\c{c}}ois Aguet,
+  Kristin~G Ardlie, Beryl~B Cummings, Ellen~T Gelfand, Gad Getz, Kane Hadley,
+  et~al.
+\newblock Identifying cis-mediators for trans-eqtls across many human tissues
+  using genomic mediation analysis.
+\newblock {\em Genome research}, 27(11):1859--1871, 2017.
+
+\bibitem{burgess2015network}
+Stephen Burgess, Rhian~M Daniel, Adam~S Butterworth, Simon~G Thompson, and
+  EPIC-InterAct Consortium.
+\newblock Network mendelian randomization: using genetic variants as
+  instrumental variables to investigate mediation in causal pathways.
+\newblock {\em International journal of epidemiology}, 44(2):484--495, 2015.
+
+\bibitem{shan2019identification}
+Nayang Shan, Zuoheng Wang, and Lin Hou.
+\newblock Identification of trans-eqtls using mediation analysis with multiple
+  mediators.
+\newblock {\em BMC bioinformatics}, 20(3):87--97, 2019.
+
+\bibitem{amar2021graphical}
+David Amar, Nasa Sinnott-Armstrong, Euan~A Ashley, and Manuel~A Rivas.
+\newblock Graphical analysis for phenome-wide causal discovery in genotyped
+  population-scale biobanks.
+\newblock {\em Nature communications}, 12(1):350, 2021.
+
+\bibitem{zhao2024adjusting}
+Siming Zhao, Wesley Crouse, Sheng Qian, Kaixuan Luo, Matthew Stephens, and Xin
+  He.
+\newblock Adjusting for genetic confounders in transcriptome-wide association
+  studies improves discovery of risk genes of complex traits.
+\newblock {\em Nature Genetics}, 56(2):336--347, 2024.
+
+\bibitem{gtex2020}
+The~GTEx Consortium.
+\newblock The {GTEx} {C}onsortium atlas of genetic regulatory effects across
+  human tissues.
+\newblock {\em Science}, 369(6509):1318--1330, 2020.
+
+\bibitem{storey2003positive}
+John~D Storey.
+\newblock The positive false discovery rate: a bayesian interpretation and the
+  q-value.
+\newblock {\em The annals of statistics}, 31(6):2013--2035, 2003.
+
+\bibitem{spiess2018package}
+Andrej-Nikolai Spiess.
+\newblock propagate: Propagation of uncertainty using higherorder taylor
+  expansion and monte carlo simulation.
+\newblock R package: 1.0-6, 2018.
+
+\bibitem{storey2002qvalue}
+John~D Storey.
+\newblock A direct approach to false discovery rates.
+\newblock {\em Journal of the Royal Statistical Society: Series B (Statistical
+  Methodology)}, 64(3):479--498, 2002.
+
+\bibitem{burgess2018inferring}
+Stephen Burgess, Christopher~N Foley, and Verena Zuber.
+\newblock Inferring causal relationships between risk factors and outcomes from
+  genome-wide association study data.
+\newblock {\em Annual review of genomics and human genetics}, 19:303--327,
+  2018.
+
+\bibitem{kvamme2022types}
+Jarred Kvamme, Md~Bahadur Badsha, Evan~A Martin, Jiayu Wu, Mohamed Megheib,
+  Xiaoyue Wang, and Audrey~Qiuyan Fu.
+\newblock Types of cis-and trans-gene regulation of expression quantitative
+  trait loci across human tissues.
+\newblock {\em bioRxiv}, 2022.
+
+\bibitem{josse2016missmda}
+Julie Josse, Fran{\c{c}}ois Husson, et~al.
+\newblock {missMDA}: a package for handling missing values in multivariate data
+  analysis.
+\newblock {\em Journal of Statistical Software}, 70(1):1--31, 2016.
+
+\bibitem{yang2017gmac}
+Fan Yang, Jiebiao Wang, The~GTEx Consortium, Brandon~L Pierce, and Lin~S Chen.
+\newblock Identifying cis-mediators for trans-{eQTLs} across many human tissues
+  using genomic mediation analysis.
+\newblock {\em Genome Research}, 27(11):1859--1871, 2017.
+
+\bibitem{spirtes2000causation}
+Peter Spirtes, Clark~N Glymour, and Richard Scheines.
+\newblock {\em Causation, prediction, and search}.
+\newblock MIT press, 2000.
+
+\bibitem{tian2019addis}
+Jinjin Tian and Aaditya Ramdas.
+\newblock {ADDIS}: an adaptive discarding algorithm for online {FDR} control
+  with conservative nulls.
+\newblock {\em Advances in Neural Information Processing Systems},
+  32:9388--9396, 2019.
+
+\bibitem{Badsha2019}
+Md~Bahadur Badsha and Audrey~Qiuyan Fu.
+\newblock Learning causal biological networks with the principle of {M}endelian
+  randomization.
+\newblock {\em Frontiers in Genetics}, 10:460, 2019.
+\newblock PMC6536645.
+
+\end{thebibliography}

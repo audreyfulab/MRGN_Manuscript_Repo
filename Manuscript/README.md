@@ -23,6 +23,7 @@ R scripts for generating all manuscript figures, tables, and analyses.
 | `gmac_valid_res_6_27_2023.R` | Loads GMAC validation results and creates supplementary figure SF9: GMAC Type I error rate vs. number of confounders at 0.01 and 0.05 significance cutoffs. |
 | `Plot_dist_rare_genotype_trios.R` | Generates supplementary figures showing gene expression distributions for GTEx WholeBlood trios with rare MAF (<10%). Includes scatter plots and histograms with skewness/kurtosis statistics. |
 | `plot_SF_perm_evidence.R` | Creates figures visualizing the permutation test's effect on MRGN inference. Classifies model changes as "liberal" or "conservative" and shows impact on rare-allele trios. Also exports GTEx result tables. |
+| `MRGN_write_up_helper_functions.R` | Shared helper functions used across multiple manuscript scripts. Provides utilities for loading RData files by name, formatting results, and other common operations. |
 
 **Data files in `scripts/`:**
 
@@ -111,6 +112,9 @@ Helper functions, intermediate data, and auxiliary outputs.
 | `TUB-t1-t2-edge.csv` | True upper bound — T1–T2 edge-based metrics. |
 | `TUB-mrgn-all-trios.RData` | True upper bound MRGN results for all trios. |
 | `Bad_simulated_trio.csv` | Example of a problematic simulated trio. |
+| `mrpc_ADDIS_time_to_compute_trios.pdf` | Plot of MRPC-ADDIS computation time per trio. |
+| `mrpc_LOND_time_to_compute_trios.pdf` | Plot of MRPC-LOND computation time per trio. |
+| `mrpc_time_to_compute_trios.pdf` | Plot of overall MRPC computation time per trio. |
 | `tablescraps/` | Working/draft table fragments. |
 
 ### `versions/`

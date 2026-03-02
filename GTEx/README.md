@@ -26,7 +26,9 @@ Input data and intermediate products for the GTEx analysis.
 | `List.Match.significant.trios.WholeBlood.RData` | List of length p_sub where each element contains indices of PCs correlated with that trio. |
 | `kclist_top5_tiss.RData` | Known clinical covariate lists for the top-5 tissues by sample size. |
 | `WholeBloodmaster_table.RData` | Master results table combining MRGN, MRPC, and GMAC inference for all WholeBlood trios. |
+| `tissuenames.csv` | Mapping of GTEx tissue identifiers to display names, used by multi-tissue analysis scripts. |
 | `PC_LRNA_PC_Selection_manu.R` | Script that filters trios to protein-coding/lncRNA genes (via BioMart), performs PC-based confounder selection, extracts known covariates (pcr, platform, sex) from GTEx V8 covariate files, and saves the filtered datasets. |
+| `TrioTables/all_master_trio_tables.RData` | Master trio result tables for the top-5 GTEx tissues, combining MRGN, MRPC-ADDIS, and GMAC results with gene annotations. Used by `scripts/make_mrgn_triotables.R`. |
 
 ### `scripts/`
 
@@ -42,8 +44,8 @@ Inference outputs organized by method:
 
 | Subfolder | Contents |
 |---|---|
-| `MRGN/` | MRGN inference results for WholeBlood, including `gtex.analysis.mrgn.R` (analysis script), inferred models, and regression-based confounder selection results. |
-| `GMAC/` | GMAC cis/trans inference results for WholeBlood, including `gtex.analysis.gmac.R` (analysis script) and GMAC input/output lists. |
+| `MRGN/` | MRGN inference results for WholeBlood. Contains: `gtex.analysis.mrgn.R` (analysis script), `inf.mods.wo.pseudo.RData` (inferred models), `reg.res.wo.pseudo.RData` (regression-based confounder selection for WholeBlood), `reg.res.wo.pseudo.list.all.tissues.RData` (regression-based confounder selection for all tissues), `Regression_conf_select_res_WholeBlood.RData` (regression confounder selection output). |
+| `GMAC/` | GMAC cis/trans inference results for WholeBlood. Contains: `gtex.analysis.gmac.R` (analysis script), `GMAC_cis_inference_for_tissue_WholeBlood.RData` (cis-mediation results), `GMAC_trans_inference_for_tissue_WholeBlood.RData` (trans-mediation results), `GMAC_input_list_for_WholeBlood.RData` (GMAC input data), `gmac.results.tables.combined.RData` (post-processed GMAC results for all tissues). |
 | `MRPC/` | MRPC inference results for WholeBlood. |
 
 ### `trios_data_prlnc_liberal_conf_sel/`

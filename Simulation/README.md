@@ -62,7 +62,8 @@ Standalone validation experiment assessing GMAC's Type I and Type II error rates
 |---|---|
 | `simdata_for_gmac_valid_exp_yang_exact.R` | Generates 2,000 trios under Model 0 and Model 1 for each of 7 confounder-count levels (2, 4, 6, 8, 10, 12, 15). |
 | `run_GMAC_validation.R` | Runs the GMAC algorithm on the validation datasets and computes Type I error, Type II error, and power at 0.01 and 0.05 significance cutoffs. |
-| `gmac_valid_summary_results_table.csv` | Summary results table from the validation experiment. |
+| `gmac_valid_summary_results_table.csv` | Summary results table from the validation experiment (CSV). |
+| `gmac_valid_summary_results_table.RData` | Summary results table from the validation experiment (RData). |
 | `data/` | Simulated validation datasets. |
 | `results/` | GMAC inference outputs for each confounder-count level. |
 

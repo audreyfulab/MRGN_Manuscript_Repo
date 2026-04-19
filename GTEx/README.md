@@ -18,9 +18,9 @@ Input data and intermediate products for the GTEx analysis.
 
 | File | Description |
 |---|---|
-| `all.data.unqiue.snps.pclrna.only.WholeBlood.RData` | Filtered trio data matrix (n × 3p) containing only protein-coding and lncRNA trios for WholeBlood. |
-| `data.snp.cis.trans.final.WholeBlood.V8.unique.snps.RData` | Original n × 3p trio matrix from GTEx V8 with unique SNPs for WholeBlood. |
-| `data.with.PCs.WholeBlood.RData` | List of data frames (one per trio), each containing trio data plus its matched PC confounders. |
+| `all.data.unqiue.snps.pclrna.only.WholeBlood.RData` (not provided due to protected genotype data) | Filtered trio data matrix (n × 3p) containing only protein-coding and lncRNA trios for WholeBlood. |
+| `data.snp.cis.trans.final.WholeBlood.V8.unique.snps.RData` (not provided due to protected genotype data) | Original n × 3p trio matrix from GTEx V8 with unique SNPs for WholeBlood. |
+| `data.with.PCs.WholeBlood.RData` (not provided due to protected genotype data) | List of data frames (one per trio), each containing trio data plus its matched PC confounders. |
 | `PCs.matrix.WholeBlood.RData` | PC score matrix (n × m) for WholeBlood tissue. |
 | `List.significant.asso1.WholeBlood.RData` | List of length m (one per PC) containing column indices of trio variables significantly correlated with each PC. |
 | `List.Match.significant.trios.WholeBlood.RData` | List of length p_sub where each element contains indices of PCs correlated with that trio. |

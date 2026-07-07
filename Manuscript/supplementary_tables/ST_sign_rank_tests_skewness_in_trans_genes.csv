@@ -1,5 +1,0 @@
-"","Gene","Summary Statistic","Test","Mean Rare","SD Rare","Mean Common","SD Common","Wilcoxen Sum-Rank Statistic","Pvalue","Bonferroni Corrected Pvalue"
-"1","Cis","Sample Skewness","Minor Allele < 0.1 (Rare) - Minor Allele > 0.1 (Common)",2.17837791800892,2.58972241250356,1.97597416443249,2.35836669914578,1127794,0.0446667667511163,0.178667067004465
-"2","Trans","Sample Skewness","Minor Allele < 0.1 (Rare) - Minor Allele > 0.1 (Common)",13.9952749374266,6.9616939682355,4.29116609458493,4.4860915916022,1890060.5,1.28218848468875e-246,5.128753938755e-246
-"3","Cis","Sample Excess Kurtosis","Minor Allele < 0.1 (Rare) - Minor Allele > 0.1 (Common)",21.6876857687914,50.4131961061509,18.7014902859698,45.650157616559,1148645,0.00410093310585557,0.0164037324234223
-"4","Trans","Sample Excess Kurtosis","Minor Allele < 0.1 (Rare) - Minor Allele > 0.1 (Common)",265.949421502171,197.142836356712,49.6154359560823,81.2220935351008,1885642.5,5.82181596366846e-244,2.32872638546738e-243

@@ -1,6 +1,6 @@
 # Manuscript
 
-All materials for the MRGN manuscript: LaTeX source, figure/table generation scripts, final outputs, supplementary materials, and helper functions.
+All materials for the MRGN manuscript: figure/table generation scripts, final outputs, supplementary materials, and helper functions.
 
 ## Subfolders
 
@@ -38,63 +38,19 @@ R scripts for generating all manuscript figures, tables, and analyses.
 
 ### `figures/`
 
-Final main manuscript figures (PDF):
-
-| File | Description |
-|---|---|
-| `5 causal models2.pdf` | Diagram of the 5 causal models (M0–M4). |
-| `MF1_MRGN.GMAC.MRPC.all.params.t1t2.pdf` | Main Figure 1: T1–T2 edge-based performance across all simulation parameters. |
-| `MF3_GTEx.model.and.t1t2.edge.bargraphs.pdf` | Main Figure 3: GTEx model frequency and T1–T2 edge bar graphs. |
-
-### `tables/`
-
-Main manuscript tables:
-
-| File | Description |
-|---|---|
-| `MT1.xlsx` | Main Table 1. |
-| `MT2_Combined_ALL_METICS_15confSIMS.csv` | Main Table 2: All performance metrics for the standard (≤15 confounders) simulations. |
-| `MT3_Combined_ALL_METICS_MANYconfSIMS.csv` | Main Table 3: All performance metrics for the many-confounder (15–50) simulations. |
+Final main manuscript figures (PDF).
 
 ### `supplementary_figures/`
 
-Supplementary figures (PDF):
-
-| File | Description |
-|---|---|
-| `Confounding Vars2.pdf` | Diagram of confounding variable types. |
-| `SF1_comp_times_for_conf_selection_updated.pdf` | SF1: Computation time comparison for confounder selection. |
-| `SF3_GTEx_Permutation_and_Model_Changes.pdf` | SF3: GTEx permutation test effect on model assignments. |
-| `SF4_Confounder_Selection_Performance.pdf` | SF4: Confounder selection precision/recall. |
-| `SF5_Simulation_Permutation_and_Model_Changes.pdf` | SF5: Simulation permutation test and model changes. |
-| `SF6_Model_Misspecification.pdf` | SF6: Model misspecification analysis. |
-| `SF7_Confounder_Selection_Impact_On_Inference.pdf` | SF7: Impact of confounder selection on inference. |
-| `SF8_Trio_Skew_Stat_Distribtuions.pdf` | SF8: Skewness/kurtosis distributions in trio expression data. |
-| `SF9_GMAC_Valid_TypeI_error.pdf` | SF9: GMAC Type I error validation. |
-| `SF_MRGN.MRPC.all.params.edge.based.pdf` | MRGN vs MRPC edge-based performance comparison. |
-| `rare_trio_distributions/` | Expression distribution plots for individual rare-MAF trios. |
+Supplementary figures (PDF).
 
 ### `supplementary_tables/`
 
-Supplementary CSV/Excel tables:
-
-| File | Description |
-|---|---|
-| `ST_all_results_simulation.csv` | Full simulation results across all methods and metrics. |
-| `ST_compute_times.csv` | Computation time comparison table. |
-| `ST_GTEx_all_trios_master.csv` | Master table of all GTEx trio results. |
-| `ST_sign_rank_tests_skewness_in_trans_genes.csv` | Signed rank test results for skewness in trans genes. |
-| `ST10_Model_miss_Type_II_error_rates.csv` | Type II error rates under model misspecification. |
-| `S7_GTEx_comp_MRGN_MRPC_GMAC.csv` | GTEx comparison of MRGN, MRPC, and GMAC. |
-| `S8_GTEx_comp_MRGN_GMAC_perm_all.csv` | GTEx comparison with permutation test results. |
-| `T1.T2.Edge.Results.Combined.csv` | Combined T1–T2 edge-based confusion matrices for all 1800 trios (both ≤15 and 15–50 confounder scenarios) with precision, recall, Type I error, and Type II error for MRGN, MRPC, and GMAC. |
-| `Results-class-based.csv` / `Results-edge-based.csv` | Class-based and edge-based metric summaries. |
+Supplementary CSV/Excel tables.
 
 ### `supplementary_text/`
 
-| File | Description |
-|---|---|
-| `Supplementary-Textupdated.docx` | Supplementary text document for the manuscript. |
+Supplementary text for simulation study on model misspecification.
 
 ### `other/`
 
@@ -117,7 +73,3 @@ Helper functions, intermediate data, and auxiliary outputs.
 | `mrpc_LOND_time_to_compute_trios.pdf` | Plot of MRPC-LOND computation time per trio. |
 | `mrpc_time_to_compute_trios.pdf` | Plot of overall MRPC computation time per trio. |
 | `tablescraps/` | Working/draft table fragments. |
-
-### `versions/`
-
-LaTeX manuscript source and compiled output. Contains the manuscript `.tex` file, compiled PDF, BibTeX references, and LaTeX style packages (authblk, balance, figcaps, fullpage, sublabel).

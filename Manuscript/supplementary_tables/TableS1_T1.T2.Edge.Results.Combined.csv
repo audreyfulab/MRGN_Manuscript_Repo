@@ -1,0 +1,33 @@
+,,,,Truth,,,
+Inference Method,Inference Correction,Confounder Selection Correction,Inference,T1-T2 Absent,T1-T2 Present,Total,Precision
+,,,T1-T2 Pred. Absent,270,6,276,0.9783
+,,,T1-T2 Pred. Present,452,1072,1524,0.7034
+MRGN,alpha < 0.01,FDR < 0.05,Total,722,1078,1800,
+,,,Recall,0.374,0.9944,,
+,,,Type I Error,0.626,,,
+,,,Type II Error,,0.0056,,
+,,,T1-T2 Pred. Absent,285,23,308,0.9253
+,,,T1-T2 Pred. Present,437,1055,1492,0.7071
+MRGN,alpha < 0.01,alpha < 0.01,Total,722,1078,1800,
+,,,Recall,0.3947,0.9787,,
+,,,Type I Error,0.6053,,,
+,,,Type II Error,,0.0213,,
+,,,T1-T2 Pred. Absent,504,194,698,0.7221
+,,,T1-T2 Pred. Present,66,723,789,0.9163
+MRPC,ADDIS,FDR < 0.05,Total,570,917,1487,
+,,,Recall,0.8842,0.7884,,
+,,,Type I Error,0.1158,,,
+,,,Type II Error,,0.2116,,
+,,,T1-T2 Pred. Absent,197,3,200,0.985
+,,,T1-T2 Pred. Present,525,1075,1600,0.6719
+GMAC,alpha < 0.05,FDR < 0.05,Total,722,1078,1800,
+,,,Recall,0.2729,0.9972,,
+,,,Type I Error,0.7271,,,
+,,,Type II Error,,0.0028,,
+,,,T1-T2 Pred. Absent,267,6,273,0.978
+,,,T1-T2 Pred. Present,455,1072,1527,0.702
+GMAC,alpha < 0.01,FDR < 0.05,Total,722,1078,1800,
+,,,Recall,0.3698,0.9944,,
+,,,Type I Error,0.6302,,,
+,,,Type II Error,,0.0056,,
+,,,,,,,

@@ -14,9 +14,25 @@ setwd("./bioinfo_revision/")
 sim_data <- loadRData(file = "./simulated_data/simulated_trios.RData")
 
 
-# This function applies the MRGN method to a single dataset
-apply.mrgn <- function(data) {
+# a function to bootstrap edge probabilities for a single trio
+boostrap_edge_probabilities <- function(trio, number_of_samples=1000) {
+    results <- replicate(number_of_samples, {
+        sampled_trio <- trio[sample(nrow(trio), replace=TRUE), ]
+        result <- MRGN::infer.trio(
+            trio = sampled_trio,
+            use.perm = FALSE,
+        )
+        return(result$edge.probabilities)
+    })
+}
 
+# This function applies the MRGN method to a single dataset
+apply.mrgn <- function(data, use.perm=FALSE) {
+    result <- MRGN::infer.trio(
+        trio = data,
+        use.perm = use.perm,
+
+    )
 }
 
 

@@ -44,19 +44,10 @@ scenarios$b.med <- sample(seq(0.1, 1, 0.05), n, replace = TRUE)
 # residual SD is scaled to the mediation signal (1/3 to 1.5 times b.med) as in the
 # original simulation, so the signal to noise ratio stays in a comparable range instead
 # of drifting with the absolute size of b.med
-scenarios$SD <- sample(seq(0.3, 1.5, 0.1), n, replace = TRUE) * scenarios$b.med
+scenarios$SD <- 1 #just use 1 for now (same as Yang et al. 2017)
 
 # number of each type of confounding variable, drawn per scenario so the whole design
 # is recorded in one table.
-# CAUTION: U_n is drawn independently of sample.size, so a scenario can ask for up to
-# 50 U confounders (plus W and Z) at n = 50, i.e. more predictors than observations.
-# The simulation itself is unaffected -- the confounders are inputs here, not fits --
-# but every downstream method (MRGN, GMAC, MRPC and the get.conf selection step) then
-# regresses the trio on a rank deficient confounder matrix, which yields aliased NA
-# coefficients or a saturated fit rather than an error. Left in for now; if the small
-# sample size results look degenerate, cap U_n by sample size, e.g.
-# pmin(50, floor(sample.size / 5)).
-scenarios$U_n <- sample(1:50, n, replace = TRUE)
 # set number of intermediate and common child variables based on condition
 scenarios$W_n <- ifelse(scenarios$conf_condition == "many.intchild",
                         sample(2:5, n, replace = TRUE), 1)
@@ -65,6 +56,20 @@ scenarios$Z_n <- ifelse(scenarios$conf_condition == "many.intchild",
 # K confounders are the observed clinical covariates: available at n = 670 only
 scenarios$K_n <- ifelse(scenarios$sample.size == kc.sample.size,
                         length(kc.names), 0)
+# U_n is drawn independently of sample.size, so an uncapped draw could ask for up to
+# 50 U confounders (plus W and Z) at n = 50, i.e. more predictors than observations.
+# The simulation itself would be unaffected -- the confounders are inputs here, not
+# fits -- but every downstream method (MRGN, GMAC, MRPC and the get.conf selection
+# step) then regresses the trio on a rank deficient confounder matrix, which yields
+# aliased NA coefficients or a saturated fit rather than an error. The draw is
+# therefore capped so that the full confounder block (U + W + Z) leaves at least 4
+# columns of slack against the sample size: an intercept, the two other trio members
+# on the right hand side, and one residual degree of freedom. Drawn after W_n and Z_n
+# because the cap depends on them. The cap only binds at n = 50 (U_n <= 36 in the
+# many.intchild condition, <= 44 otherwise); the larger sample sizes keep the full
+# 1:50 range.
+scenarios$U_n <- pmin(sample(1:50, n, replace = TRUE),
+                      scenarios$sample.size - scenarios$Z_n - scenarios$W_n - 4)
 
 
 simulate.dataset <- function(settings, clinical.covs, verbose = TRUE) {
@@ -178,6 +183,9 @@ write.rdata <- function(data, filename) {
 simulate.all.datasets <- function(scenarios, clinical.covs, verbose = TRUE, save = FALSE, filename = NULL) {
     # simulate datasets for all scenarios
     datasets <- vector("list", nrow(scenarios))
+    cis.conf.effects <- NULL
+    trans.conf.effects <- NULL
+
     for (i in 1:nrow(scenarios)) {
         settings <- scenarios[i, ]
         sim <- simulate.dataset(settings, clinical.covs, verbose = verbose)
@@ -189,10 +197,16 @@ simulate.all.datasets <- function(scenarios, clinical.covs, verbose = TRUE, save
                                                           K_n = settings$K_n,
                                                           U_n = settings$U_n)),
                                    row.names = NULL)
+
+        cis.conf.effects = summary(lm(T1 ~ ., data = sim$data[, -c(1,3)]))$coefficients
+        trans.conf.effects = summary(lm(T2 ~ ., data = sim$data[, -c(1,2)]))$coefficients
+
         datasets[[i]] <- list(data = name.trio.columns(sim$data, index = i,
                                                        K_n = settings$K_n,
                                                        kc.names = kc.names),
-                              params = params)
+                              params = params,
+                              conf.effects = list(cis = cis.conf.effects,
+                                                  trans = trans.conf.effects))
     }
     if (save) {
         write.rdata(datasets, filename)

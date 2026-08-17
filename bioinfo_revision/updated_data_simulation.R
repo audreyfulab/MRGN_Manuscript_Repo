@@ -6,16 +6,21 @@ library(gridExtra)
 # -----------------------------
 # seed
 set.seed(234)
-# set model types
-models <- c("model0", "model1", "model2", "model3", "model4")
-# set sample sizes
-sample_sizes <- c(50, 150, 300, 670, 1000)
-# two cases: 1 intermediate, 1 common child and many intermediate,
-# many common child variables
-condition <- c("one.intchild", "many.intchild")
 # number of replicates of each scenario
 # (previously 300, dropping to 100 now with more scenarios)
 number_of_replicates <- 100
+
+effect_sizes <- c(small = c(0.1, 0.3), medium = c(0.3, 0.5), large = c(0.5, 1))
+
+# stringsAsFactors = FALSE matters here: gen.graph.skel() dispatches on the model with
+# switch(model, model0 = ..., ...), and a factor is silently treated as its integer
+# code. That happens to give the right topology only while the alphabetical level order
+# lines up with the branch order; keeping model a character string removes the trap.
+scenarios <- expand.grid(model =c("model0", "model1", "model2", "model3", "model4"),
+                         sample.size = c(50, 150, 300, 670, 1000),
+                         effect_size = c("small", "medium", "large"),
+                         replicate = 1:number_of_replicates,
+                         stringsAsFactors = FALSE)
 
 # load clinical covariates for use in simulating datasets with sample size 670
 clinical.covs = loadRData("./GTEx/data/kclist_top5_tiss.RData")
@@ -25,49 +30,52 @@ clinical.covs = loadRData("./GTEx/data/kclist_top5_tiss.RData")
 kc.sample.size <- nrow(clinical.covs$WholeBlood)
 kc.names <- colnames(clinical.covs$WholeBlood)
 
-# stringsAsFactors = FALSE matters here: gen.graph.skel() dispatches on the model with
-# switch(model, model0 = ..., ...), and a factor is silently treated as its integer
-# code. That happens to give the right topology only while the alphabetical level order
-# lines up with the branch order; keeping model a character string removes the trap.
-scenarios <- expand.grid(model = models,
-                         sample.size = sample_sizes,
-                         conf_condition = condition,
-                         replicate = 1:number_of_replicates,
-                         stringsAsFactors = FALSE)
 # count number of scenarios
 n <- nrow(scenarios)
 
 # add additional parameters to scenarios sampled from uniform distributions
 scenarios$minor.freq <- sample(seq(0.01, 0.5, 0.01), n, replace = TRUE)
-scenarios$b.snp <- sample(seq(0.1, 1, 0.05), n, replace = TRUE)
-scenarios$b.med <- sample(seq(0.1, 1, 0.05), n, replace = TRUE)
-# residual SD is scaled to the mediation signal (1/3 to 1.5 times b.med) as in the
-# original simulation, so the signal to noise ratio stays in a comparable range instead
-# of drifting with the absolute size of b.med
+
+same.effects <- function(scenarios) {
+    
+    for(effect_scene in c("small", "medium", "large")){
+        # get the indices of the scenarios with this effect size
+        idx <- which(scenarios$effect_size == effect_scene)
+        # sample b.snp from a uniform distribution over the range of effect sizes for this scenario
+        scenarios[idx, ]$b.snp <- sample(
+            seq(
+                from = effect_sizes[[effect_scene]][1],
+                to = effect_sizes[[effect_scene]][2],
+                by = 0.05),
+            size = length(idx), 
+            replace = TRUE
+        )
+        # sample b.med from the same range as b.snp
+        scenarios[idx, ]$b.med <- sample(
+            seq(
+                from = effect_sizes[[effect_scene]][1],
+                to = effect_sizes[[effect_scene]][2],
+                by = 0.05),
+            size = length(idx), 
+            replace = TRUE
+        )
+    }
+    return(scenarios)
+}
+
 scenarios$SD <- 1 #just use 1 for now (same as Yang et al. 2017)
 
 # number of each type of confounding variable, drawn per scenario so the whole design
 # is recorded in one table.
 # set number of intermediate and common child variables based on condition
-scenarios$W_n <- ifelse(scenarios$conf_condition == "many.intchild",
-                        sample(2:5, n, replace = TRUE), 1)
-scenarios$Z_n <- ifelse(scenarios$conf_condition == "many.intchild",
-                        sample(2:5, n, replace = TRUE), 1)
+scenarios$W_n <- 1
+scenarios$Z_n <- 1
 # K confounders are the observed clinical covariates: available at n = 670 only
 scenarios$K_n <- ifelse(scenarios$sample.size == kc.sample.size,
                         length(kc.names), 0)
-# U_n is drawn independently of sample.size, so an uncapped draw could ask for up to
-# 50 U confounders (plus W and Z) at n = 50, i.e. more predictors than observations.
-# The simulation itself would be unaffected -- the confounders are inputs here, not
-# fits -- but every downstream method (MRGN, GMAC, MRPC and the get.conf selection
-# step) then regresses the trio on a rank deficient confounder matrix, which yields
-# aliased NA coefficients or a saturated fit rather than an error. The draw is
-# therefore capped so that the full confounder block (U + W + Z) leaves at least 4
-# columns of slack against the sample size: an intercept, the two other trio members
-# on the right hand side, and one residual degree of freedom. Drawn after W_n and Z_n
-# because the cap depends on them. The cap only binds at n = 50 (U_n <= 36 in the
-# many.intchild condition, <= 44 otherwise); the larger sample sizes keep the full
-# 1:50 range.
+
+# U confounders are unobserved, and the number is drawn from a uniform distribution. range is adjusted
+# so that the total number of confounders does not exceed the sample size minus 4 (for T1, T2, G, and the intercept). 
 scenarios$U_n <- pmin(sample(1:50, n, replace = TRUE),
                       scenarios$sample.size - scenarios$Z_n - scenarios$W_n - 4)
 

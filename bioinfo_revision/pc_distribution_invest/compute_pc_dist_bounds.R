@@ -1,5 +1,6 @@
 library(MRGN)
 library(ggplot2)
+library(patchwork)
 
 root <- getwd()
 data.with.pcs <- loadRData("./GTEx/data/data.with.PCs.WholeBlood.RData")
@@ -154,6 +155,103 @@ fd.binwidth <- function(x) {
 }
 
 
+fmt.effect <- function(v) {
+    # the raw slopes run around 1e-04, so the default fixed notation prints them all as
+    # "0.00" and the labels say nothing
+    return(formatC(v, format = "e", digits = 2))
+}
+
+
+box.summary <- function(x) {
+    # The five numbers geom_boxplot() draws: lower whisker, Q1, median, Q3, upper
+    # whisker, with the whiskers pulled in to the most extreme observation within
+    # 1.5 * IQR of the hinges. Taken from boxplot.stats() so the labels are guaranteed
+    # to describe the box actually plotted rather than a separately computed quantile.
+    # Computed on the full vector: nothing is dropped from the numbers, only from the
+    # view (see the coord_cartesian() zoom in plot.raw.boxplot()).
+    stats <- grDevices::boxplot.stats(x)$stats
+    stat.names <- c("lower whisker", "Q1", "median", "Q3", "upper whisker")
+    return(data.frame(
+        stat = stat.names,
+        value = stats,
+        label = paste0(stat.names, "\n", fmt.effect(stats)),
+        # stagger the labels onto two rows: Q1 and Q3 sit within a hinge width of the
+        # median, so all five on one row would overprint each other
+        y = c(0.5, -0.5, 0.5, -0.5, 0.5),
+        stringsAsFactors = FALSE
+    ))
+}
+
+
+plot.raw.boxplot <- function(raw, panel.label) {
+    # The raw slopes cluster so tightly at zero relative to their extremes that a
+    # histogram of them is a single spike (see the pre-revision figure). A boxplot with
+    # its five-number summary printed as text carries the magnitudes that matter here.
+    stats <- box.summary(raw)
+    n.outside <- sum(raw < stats$value[1] | raw > stats$value[5], na.rm = TRUE)
+
+    # Zoom to the whiskers. coord_cartesian() rather than xlim(): this clips the view
+    # only, so the box itself is still computed from every effect.
+    span <- diff(range(stats$value))
+    if (!is.finite(span) || span <= 0) {
+        span <- max(abs(stats$value[c(1, 5)]), 1)
+    }
+    pad <- 0.12 * span
+
+    caption <- paste0("n = ", format(length(raw), big.mark = ","))
+    if (n.outside > 0) {
+        caption <- paste0(caption, "; ", format(n.outside, big.mark = ","),
+                          " outlier(s) beyond the whiskers, not drawn")
+    }
+
+    return(ggplot(data.frame(effects = raw), aes(x = effects, y = 0, group = 1)) +
+        # orientation is set explicitly: with a constant numeric y, ggplot's own guess
+        # is ambiguous and warns about a continuous y aesthetic
+        geom_boxplot(orientation = "y", outlier.shape = NA,
+                     fill = "lightblue", color = "black", width = 0.5) +
+        geom_text(data = stats, aes(x = value, y = y, label = label),
+                  inherit.aes = FALSE, size = 3, lineheight = 0.9) +
+        coord_cartesian(xlim = c(stats$value[1] - pad, stats$value[5] + pad),
+                        ylim = c(-0.85, 0.85)) +
+        scale_x_continuous(labels = scales::label_scientific(digits = 2)) +
+        # the y axis only positions the box and its labels, so its numbers are noise
+        scale_y_continuous(breaks = NULL) +
+        labs(title = panel.label, x = "Effect Size", y = NULL, caption = caption) +
+        theme_minimal() +
+        theme(plot.title = element_text(size = 10, hjust = 0.5),
+              plot.caption = element_text(size = 8, hjust = 0.5)))
+}
+
+
+plot.std.histogram <- function(standardized, panel.label, trim) {
+    # Restrict to the central quantile window before binning, and report the count that
+    # falls outside in the caption rather than hiding it.
+    outside <- rep(FALSE, length(standardized))
+    if (trim > 0) {
+        lims <- quantile(standardized, c(trim, 1 - trim), na.rm = TRUE)
+        outside <- standardized < lims[1] | standardized > lims[2]
+    }
+    n.outside <- sum(outside, na.rm = TRUE)
+
+    caption <- paste0("n = ", format(length(standardized), big.mark = ","))
+    if (n.outside > 0) {
+        caption <- paste0(caption, "; central ", round(100 * (1 - 2 * trim), 1),
+                          "% shown, ", format(n.outside, big.mark = ","),
+                          " outside the axes")
+    }
+
+    return(ggplot(data.frame(effects = standardized[!outside]), aes(x = effects)) +
+        geom_histogram(aes(y = after_stat(density)), binwidth = fd.binwidth,
+                       fill = "lightblue", color = "black") +
+        geom_density(color = "red", linewidth = 1) +
+        labs(title = panel.label, x = "Effect Size", y = "Density",
+             caption = caption) +
+        theme_minimal() +
+        theme(plot.title = element_text(size = 10, hjust = 0.5),
+              plot.caption = element_text(size = 8, hjust = 0.5)))
+}
+
+
 plot.distribution <- function(effects, target, save=FALSE, filename=NULL,
                               trim = 0.005) {
     # `effects` is the two column data.frame from collect.pc.effects(standardize = "both")
@@ -162,51 +260,22 @@ plot.distribution <- function(effects, target, save=FALSE, filename=NULL,
              "collect.pc.effects(..., standardize = 'both')")
     }
 
-    # Stack the two scales into one long frame with a panel label
-    scale.labels <- c("raw slope, b", "standardized, b * sd(PC) / sd(Y)")
-    effects.df <- rbind(
-        data.frame(effects = effects$raw, scale = scale.labels[1]),
-        data.frame(effects = effects$standardized, scale = scale.labels[2])
-    )
-    effects.df$scale <- factor(effects.df$scale, levels = scale.labels)
-
-    # Restrict each panel to its central quantile window before binning. Bin width
-    # alone cannot rescue the raw panel: a few extreme slopes stretch the range so far
-    # that every other effect lands in the first bin no matter how the bins are chosen.
-    # Done per panel because the two scales have completely different tails, and the
-    # count that falls outside is reported in the subtitle rather than hidden.
-    effects.df <- do.call(rbind, lapply(split(effects.df, effects.df$scale), function(d) {
-        if (trim <= 0) {
-            d$outside <- FALSE
-        } else {
-            lims <- quantile(d$effects, c(trim, 1 - trim), na.rm = TRUE)
-            d$outside <- d$effects < lims[1] | d$effects > lims[2]
-        }
-        return(d)
-    }))
-    n.outside <- sum(effects.df$outside)
-    plot.df <- effects.df[!effects.df$outside, , drop = FALSE]
-
-    trim.note <- ""
-    if (n.outside > 0) {
-        trim.note <- paste0("; central ", round(100 * (1 - 2 * trim), 1),
-                            "% of each panel shown, ", n.outside, " outside the axes")
-    }
-
-    # Create the histogram with density overlay
-    p <- ggplot(plot.df, aes(x = effects)) +
-        geom_histogram(aes(y = after_stat(density)), binwidth = fd.binwidth,
-                       fill = "lightblue", color = "black") +
-        geom_density(color = "red", linewidth = 1) +
-        # scales = "free": the raw slopes and the standardized effects differ by orders
-        # of magnitude, so a shared axis would compress one panel into a single bar
-        facet_wrap(~ scale, ncol = 1, scales = "free") +
-        labs(title = paste("Distribution of PC Effects on", target),
-             subtitle = paste0(nrow(effects), " effects over ",
-                               length(data.with.pcs), " trios", trim.note),
-             x = "Effect Size",
-             y = "Density") +
-        theme_minimal()
+    # The two scales differ by orders of magnitude and now want different geoms, so they
+    # are built as separate plots and stacked rather than faceted. The histogram gets
+    # the taller share: the boxplot is one row of ink plus its labels.
+    p <- plot.raw.boxplot(effects$raw, "raw slope, b") /
+        plot.std.histogram(effects$standardized,
+                           "standardized, b * sd(PC) / sd(Y)", trim) +
+        plot_layout(heights = c(1, 2)) +
+        plot_annotation(
+            title = paste("Distribution of PC Effects on", target),
+            subtitle = paste0(nrow(effects), " effects over ",
+                              length(data.with.pcs), " trios")
+            # deliberately no `theme =` here: patchwork 1.2.0 warns "annotation$theme
+            # is not a valid theme" under ggplot2 4.x for anything passed to it,
+            # theme() included, and then ignores it. Each panel carries its own
+            # theme_minimal(), and the default title styling is what we want anyway.
+        )
 
     # Save the plot if requested
     if (save) {

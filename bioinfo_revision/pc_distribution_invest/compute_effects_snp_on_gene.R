@@ -131,7 +131,14 @@ get.snp.effects <- function(data, target, standardize = FALSE, adjust = TRUE,
     # The raw slope is in units of (response units) / (allele count), and the responses
     # are residualized expression whose SD ranges over 8 orders of magnitude across
     # trios (4e-04 to 3.8e+04), so raw slopes are not comparable trio-to-trio.
-    # b * sd(V) / sd(Y) puts every trio on the common (partial-correlation) scale.
+    # b * sd(V) / sd(Y) puts every trio on the common partial-correlation scale.
+    # Precisely, this is the standardized partial regression coefficient of V. Unlike
+    # the PC script -- where the predictors are orthogonal PCs and the same expression
+    # reduces exactly to cor(PC, Y) -- V is not orthogonal to the PCs, so this is close
+    # to but not identical to r(V, Y | PCs). Measured over 25 trios: it sits within ~5%
+    # of the semipartial correlation (tolerance 1 - R^2(V ~ PCs) >= 0.90) and within
+    # ~0.11 of the partial correlation. Reported and labelled on the partial-correlation
+    # scale; use t / sqrt(t^2 + df.residual) if the exact partial correlation is wanted.
     # Both SDs come from `design`, i.e. the same complete cases the slope was fit on.
     # Both scales are computed here; `standardize` only decides which is returned.
     std.effect <- snp.effect * sd(design$V) / sd(design$Y)
@@ -169,7 +176,7 @@ summarize.effects <- function(effects, target) {
     # completely different scales.
     if (is.data.frame(effects)) {
         summarize.effects(effects$raw, paste0(target, " (raw slopes)"))
-        summarize.effects(effects$standardized, paste0(target, " (standardized)"))
+        summarize.effects(effects$standardized, paste0(target, " (partial correlation)"))
         return(invisible(NULL))
     }
     cat("\n--- ", target, ": ", length(effects), " SNP effects from ",
@@ -272,7 +279,8 @@ plot.raw.boxplot <- function(raw, panel.label) {
 }
 
 
-plot.std.histogram <- function(standardized, panel.label, trim) {
+plot.std.histogram <- function(standardized, panel.label, trim,
+                               x.label = "Effect Size") {
     # Restrict to the central quantile window before binning, and report the count that
     # falls outside in the caption rather than hiding it.
     outside <- rep(FALSE, length(standardized))
@@ -293,7 +301,7 @@ plot.std.histogram <- function(standardized, panel.label, trim) {
         geom_histogram(aes(y = after_stat(density)), binwidth = fd.binwidth,
                        fill = "lightblue", color = "black") +
         geom_density(color = "red", linewidth = 1) +
-        labs(title = panel.label, x = "Effect Size", y = "Density",
+        labs(title = panel.label, x = x.label, y = "Density",
              caption = caption) +
         theme_minimal() +
         theme(plot.title = element_text(size = 10, hjust = 0.5),
@@ -314,7 +322,8 @@ plot.distribution <- function(effects, target, save = FALSE, filename = NULL,
     # the taller share: the boxplot is one row of ink plus its labels.
     p <- plot.raw.boxplot(effects$raw, "raw slope, b") /
         plot.std.histogram(effects$standardized,
-                           "standardized, b * sd(V) / sd(Y)", trim) +
+                           "partial correlation, r(V, Y | PCs) = b * sd(V) / sd(Y)",
+                           trim, x.label = "Partial Correlation") +
         plot_layout(heights = c(1, 2)) +
         plot_annotation(
             title = paste("Distribution of SNP Effects on", target),

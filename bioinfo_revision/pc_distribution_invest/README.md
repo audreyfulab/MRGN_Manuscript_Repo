@@ -38,12 +38,18 @@ Three details matter for the result to be interpretable:
   effect.
 - **Effects are standardized** as `b * sd(PC) / sd(Y)`. The residualized
   expression SDs span 8 orders of magnitude across trios (4e-04 to 3.8e+04), so
-  raw slopes are not comparable trio to trio. The standardized slope is on the
-  partial-correlation scale.
+  raw slopes are not comparable trio to trio. Here that standardized slope is
+  *exactly* the Pearson correlation `cor(PC, Y)`: a standardized regression
+  coefficient equals the marginal correlation when the predictors are mutually
+  uncorrelated, and principal components are orthogonal by construction. Checked
+  on the real trios — the largest off-diagonal correlation among a trio's
+  retained PC columns is ~5e-15, and the standardized coefficients match
+  `cor(PC, Y)` to ~2e-15. Note this is the *marginal* correlation, not the
+  partial correlation (which differs by up to ~0.05).
 
 ## Result
 
-95,564 standardized PC effects per target:
+95,564 PC-gene correlations per target:
 
 | target | 2.5% | median | 97.5% | sd | max abs |
 | --- | --- | --- | --- | --- | --- |

@@ -22,7 +22,8 @@ SD.TOL <- 1e-08
 
 # `standardize` selects the scale the effects are reported on:
 #   FALSE  (default) raw slopes, in (response units) / (PC score units)
-#   TRUE             b * sd(PC) / sd(Y), the partial-correlation scale
+#   TRUE             b * sd(PC) / sd(Y), which here IS cor(PC, Y): see the note at
+#                    std.effects below
 #   "both"           a two column data.frame with one scale per column, so the combined
 #                    plot gets both without refitting every model twice
 select.effect.scale <- function(raw, standardized, standardize) {
@@ -90,7 +91,15 @@ get.conf.effects <- function(data, target, standardize = FALSE,
     # The raw slope is in units of (response units) / (PC score units), and the
     # responses are residualized expression whose SD ranges over 8 orders of magnitude
     # across trios (4e-04 to 3.8e+04), so raw slopes are not comparable trio-to-trio.
-    # b * sd(PC) / sd(Y) puts every trio on the common (partial-correlation) scale.
+    # b * sd(PC) / sd(Y) puts every trio on a common, unit-free scale.
+    #
+    # That scale is exactly the Pearson correlation cor(PC_j, Y). A standardized
+    # regression coefficient equals the marginal correlation whenever the predictors
+    # are mutually uncorrelated, and these predictors are principal components, so
+    # they are orthogonal by construction (checked: the largest off-diagonal
+    # correlation among the retained PC columns of a trio is ~5e-15, and the
+    # standardized coefficients match cor(PC_j, Y) to ~2e-15). Note this is the
+    # marginal correlation, NOT the partial correlation, which differs by up to ~0.05.
     # Both are computed here; `standardize` only decides which is returned.
     std.effects <- conf.effects * cov.sd[names(conf.effects)] / sd(Y)
 
@@ -124,7 +133,7 @@ summarize.effects <- function(effects, target) {
     # scales are present, since the two live on completely different scales.
     if (is.data.frame(effects)) {
         summarize.effects(effects$raw, paste0(target, " (raw slopes)"))
-        summarize.effects(effects$standardized, paste0(target, " (standardized)"))
+        summarize.effects(effects$standardized, paste0(target, " (correlation)"))
         return(invisible(NULL))
     }
     cat("\n--- ", target, ": ", length(effects), " PC effects from ",
@@ -223,7 +232,8 @@ plot.raw.boxplot <- function(raw, panel.label) {
 }
 
 
-plot.std.histogram <- function(standardized, panel.label, trim) {
+plot.std.histogram <- function(standardized, panel.label, trim,
+                               x.label = "Effect Size") {
     # Restrict to the central quantile window before binning, and report the count that
     # falls outside in the caption rather than hiding it.
     outside <- rep(FALSE, length(standardized))
@@ -244,7 +254,7 @@ plot.std.histogram <- function(standardized, panel.label, trim) {
         geom_histogram(aes(y = after_stat(density)), binwidth = fd.binwidth,
                        fill = "lightblue", color = "black") +
         geom_density(color = "red", linewidth = 1) +
-        labs(title = panel.label, x = "Effect Size", y = "Density",
+        labs(title = panel.label, x = x.label, y = "Density",
              caption = caption) +
         theme_minimal() +
         theme(plot.title = element_text(size = 10, hjust = 0.5),
@@ -265,7 +275,8 @@ plot.distribution <- function(effects, target, save=FALSE, filename=NULL,
     # the taller share: the boxplot is one row of ink plus its labels.
     p <- plot.raw.boxplot(effects$raw, "raw slope, b") /
         plot.std.histogram(effects$standardized,
-                           "standardized, b * sd(PC) / sd(Y)", trim) +
+                           "correlation, r(PC, Y) = b * sd(PC) / sd(Y)", trim,
+                           x.label = "Correlation") +
         plot_layout(heights = c(1, 2)) +
         plot_annotation(
             title = paste("Distribution of PC Effects on", target),

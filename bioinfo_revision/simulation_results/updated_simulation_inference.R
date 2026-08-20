@@ -22,17 +22,17 @@
 library(MRGN)
 library(MRPC)
 library(parallel)
-source("bioinfo_revision/simulation_utils.R")
-source("bioinfo_revision/inference_utils.R")
+source("bioinfo_revision/simulation/simulation_utils.R")
+source("bioinfo_revision/simulation_results/inference_utils.R")
 
 
 # ---------------------------------------------------------------------------------------
 # configuration
 # ---------------------------------------------------------------------------------------
 
-sim.data.file   <- "bioinfo_revision/simulated_data/simulated_trios.RData"
+sim.data.file   <- "bioinfo_revision/simulation/simulated_data/simulated_trios.RData"
 clinical.file   <- "./GTEx/data/kclist_top5_tiss.RData"
-out.dir         <- "bioinfo_revision/simulated_data"
+out.dir         <- "bioinfo_revision/simulation_results"
 n.bootstrap     <- 1000    # bootstrap replicates per MRGN fit
 mrpc.timeout    <- 120     # seconds; MRPC has taken hours on trios with many confounders
 gmac.nperm      <- 1000

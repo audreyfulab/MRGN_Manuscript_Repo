@@ -5,7 +5,7 @@ library(gridExtra)
 # simulation utilities (draw.effect.sizes, simulate.dataset, name.trio.columns,
 # conf.r.squared, write.rdata, simulate.all.datasets). Paths here are relative to the
 # repository root, which is where this script is meant to be run from.
-source("./bioinfo_revision/simulation_utils.R")
+source("./bioinfo_revision/simulation/simulation_utils.R")
 
 # set simulation conditions
 # -----------------------------
@@ -15,9 +15,29 @@ set.seed(234)
 # replicates = 3750 datasets (the pre-revision simulation ran 1500 at a single sample size)
 number_of_replicates <- 50
 
+# Effect size ranges, one set per parameter, each split into tertiles by the scenario's
+# effect_size stratum. b.snp spans (0, 1.5] and b.med spans (0, 1].
+#
+# The SNP gets its own, wider range because it is what drives everything downstream:
+# cor(V1, T1) sets a ceiling on cor(V1, W) and cor(V1, Z), since W and Z are children of
+# the genes and correlation multiplies along a path. Measured on the previous run, the
+# common child's detection rate correlates 0.52 with b.snp but only 0.04 with
+# b.snp / b.med -- the SNP's absolute size matters, its size relative to the mediation
+# effect does not. The old shared range of (0.1, 1.0] topped out at cor(V1, T1) = 0.29.
+#
+# No range may start at 0: b.snp = 0 removes the V1 -> T1 edge, so a "model0" trio would
+# have no edges and its M0.1 truth label would be wrong, and b.med = 0 does the same to
+# model1, model2 and model4.
+#
 # a list, not c(): c(small = c(0.1, 0.3), ...) flattens and names the elements
 # "small1", "small2", ..., so effect_sizes[["small"]] would be a subscript error.
-effect_sizes <- list(small = c(0.1, 0.3), medium = c(0.3, 0.5), large = c(0.5, 1))
+effect_sizes <- list(
+    b.snp = list(small  = c(0.05, 0.50),
+                 medium = c(0.55, 1.00),
+                 large  = c(1.05, 1.50)),
+    b.med = list(small  = c(0.05, 0.35),
+                 medium = c(0.40, 0.70),
+                 large  = c(0.75, 1.00)))
 
 # stringsAsFactors = FALSE matters here: gen.graph.skel() dispatches on the model with
 # switch(model, model0 = ..., ...), and a factor is silently treated as its integer
@@ -72,7 +92,7 @@ scenarios$U_n <- pmin(sample(1:50, n, replace = TRUE),
 
 
 root = getwd()
-setwd("./bioinfo_revision/simulated_data/")
+setwd("./bioinfo_revision/simulation/simulated_data/")
 result <- simulate.all.datasets(
     scenarios,
     clinical.covs,

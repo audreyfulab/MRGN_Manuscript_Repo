@@ -14,12 +14,12 @@
 
 library(MRGN)
 library(ggplot2)
-source("bioinfo_revision/simulation_utils.R")
+source("bioinfo_revision/simulation/simulation_utils.R")
 
 args <- commandArgs(trailingOnly = TRUE)
-SIM.FILE  <- if (length(args) > 0) args[1] else "bioinfo_revision/simulated_data/simulated_trios.RData"
-POOL.FILE <- "bioinfo_revision/real_pc_effect_pools.RData"
-PLOT.FILE <- "bioinfo_revision/simulated_vs_real_conf_effects.png"
+SIM.FILE  <- if (length(args) > 0) args[1] else "bioinfo_revision/simulation/simulated_data/simulated_trios.RData"
+POOL.FILE <- "bioinfo_revision/pc_distribution_invest/data/real_pc_effect_pools.RData"
+PLOT.FILE <- "bioinfo_revision/simulation_results/simulated_vs_real_conf_effects.png"
 
 # real Whole Blood reference values
 REAL <- list(R2.cis = 0.412, R2.trans = 0.307,     # median R2 of a gene on its own PCs

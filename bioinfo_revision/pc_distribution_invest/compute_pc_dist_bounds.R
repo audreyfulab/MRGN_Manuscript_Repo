@@ -304,6 +304,7 @@ plot.distribution <- function(effects, target, save=FALSE, filename=NULL,
 
 
 cache.effect.pools <- function(cis.effects, trans.effects, path) {
+    dir.create(dirname(path), showWarnings = FALSE, recursive = TRUE)
     # Write the pooled STANDARDIZED effects to disk for simulation_utils.R to resample
     # from. Only the standardized column crosses over: it is the Pearson correlation
     # cor(PC, gene), which is unit-free, so a value of 0.117 means the same thing in a
@@ -357,10 +358,9 @@ trans.effects <- collect.pc.effects(data.with.pcs, target = "trans", standardize
 summarize.effects(trans.effects, "trans")
 plot.distribution(trans.effects, target = "trans", save = TRUE, filename = "PC_effects_distribution_trans.png")
 
-# the simulation resamples from these, so they are written one directory up, next to
-# simulation_utils.R, rather than into this investigation folder
 cache.effect.pools(cis.effects, trans.effects,
-                   path = file.path(root, "bioinfo_revision", "real_pc_effect_pools.RData"))
+                   path = file.path(root, "bioinfo_revision", "pc_distribution_invest",
+                                    "data", "real_pc_effect_pools.RData"))
 
 
 setwd(root)

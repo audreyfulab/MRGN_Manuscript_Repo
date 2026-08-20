@@ -7,14 +7,15 @@ Run everything from the **repository root**.
 
 | stage | script | output |
 | --- | --- | --- |
-| real-data confounder effects | `pc_distribution_invest/compute_pc_dist_bounds.R` | `real_pc_effect_pools.RData`, 2 PNGs |
+| real-data confounder effects | `pc_distribution_invest/compute_pc_dist_bounds.R` | `pc_distribution_invest/data/real_pc_effect_pools.RData`, 2 PNGs |
 | real-data SNP effects | `pc_distribution_invest/compute_effects_snp_on_gene.R` | 2 PNGs |
-| simulation | `updated_data_simulation.R` | `simulated_data/simulated_trios.RData` |
-| calibration check | `verify_simulation.R` | console report |
-| inference | `updated_simulation_inference.R` | `simulated_data/inference_results.RData` |
+| simulation | `simulation/updated_data_simulation.R` | `simulation/simulated_data/simulated_trios.RData` |
+| calibration check | `simulation/verify_simulation.R` | console report + `simulation_results/simulated_vs_real_conf_effects.png` |
+| inference | `simulation_results/updated_simulation_inference.R` | `simulation_results/inference_results.RData` |
 
-Shared helpers live in `simulation_utils.R` and `inference_utils.R`, both free of
-top-level side effects so they can be sourced anywhere.
+Shared helpers live in `simulation/simulation_utils.R` and
+`simulation_results/inference_utils.R`, both free of top-level side effects so
+they can be sourced anywhere.
 
 ---
 
@@ -67,8 +68,8 @@ replicates = 3,750 datasets`, one row per dataset in `scenarios`.
 | parameter | draw |
 | --- | --- |
 | `minor.freq` (θ) | `Uniform{0.01, 0.02, …, 0.50}` |
-| `b.snp` | `Uniform` over the stratum: small `[0.1, 0.3]`, medium `[0.3, 0.5]`, large `[0.5, 1.0]`, step 0.05 |
-| `b.med` | same stratum as `b.snp`, drawn independently |
+| `b.snp` | stratum tertile of `(0, 1.5]`: small `[0.05, 0.50]`, medium `[0.55, 1.00]`, large `[1.05, 1.50]`, step 0.05 |
+| `b.med` | stratum tertile of `(0, 1.0]`: small `[0.05, 0.35]`, medium `[0.40, 0.70]`, large `[0.75, 1.00]`, step 0.05 |
 | `SD` (residual σ) | 1, following Yang et al. 2017 |
 | `U_n` | `Uniform{1..50}`, capped at `sample.size − 6` |
 | `W_n`, `Z_n` | 1 each |
@@ -79,6 +80,22 @@ genotype classes appear**. At θ = 0.01 and n = 50 this has taken up to 1,577
 resamples and inflates the realized MAF roughly 1.7× for nominal MAF ≤ 0.05, so
 the lowest-MAF scenarios do not simulate quite what their θ says. Known and
 accepted.
+
+**`b.snp` and `b.med` are drawn from separate ranges**, both indexed by the same
+`effect_size` stratum, and independently within a stratum. The SNP gets the wider
+range because it drives everything downstream: `cor(V1, T1)` caps `cor(V1, W)`
+and `cor(V1, Z)`, since `W` and `Z` are children of the genes and correlation
+multiplies along a path. Measured on the previous run, common-child detection
+correlates 0.52 with `b.snp` but only 0.04 with `b.snp/b.med` — absolute SNP
+size matters, its size relative to the mediation effect does not. The range
+`(0, 1.5]` also matches Yang et al. 2017, who drew `β₁c ~ U(0.5, 1.5)`.
+
+**Neither range may include 0.** `b.snp = 0` removes the `V1 → T1` edge, so a
+"model0" trio would carry no edges and its `M0.1` truth label would be wrong;
+`b.med = 0` does the same to model1, model2 and model4. `draw.effect.sizes()`
+errors on a zero lower bound. One consequence of the asymmetric ranges: in the
+large stratum `b.snp` always exceeds `b.med` (1.05–1.50 vs 0.75–1.00), so that
+cell cannot produce strong mediation with a weak SNP.
 
 **`SD` must not be scaled by `b.med`.** `Simulation/sim_data.R` used
 `SD = sample(seq(0.3, 1.5, 0.1)) * b.med`, but `b.med` here is drawn from the same
@@ -126,9 +143,9 @@ overlays the two densities for the cis and trans gene.
 
 | | n | sd | median \|r\| | max \|r\| |
 | --- | --- | --- | --- | --- |
-| simulated cis | 19,003 | 0.127 | 0.103 | 0.346 |
+| simulated cis | 19,591 | 0.123 | 0.098 | 0.336 |
 | real cis | 95,564 | 0.117 | 0.101 | 0.661 |
-| simulated trans | 19,003 | 0.127 | 0.102 | 0.370 |
+| simulated trans | 19,591 | 0.123 | 0.097 | 0.362 |
 | real trans | 95,564 | 0.104 | 0.077 | 0.653 |
 
 The distributions overlay closely. Two differences are visible in the plot: the
@@ -140,23 +157,34 @@ Adjusted `R²` of each gene on its own `U` block:
 
 | `U_n` | simulated `R²` | real |
 | --- | --- | --- |
-| ≤ 10 | 0.122 | 0.084 (at 9.5 PCs) |
-| 10–20 | 0.302 | 0.279 (at 18) |
-| 20–30 | 0.410 | 0.378 (at 26) |
-| 30–40 | 0.495 | 0.451 (at 34) |
-| 40–50 | 0.557 | 0.521 (at 43) |
+| ≤ 10 | 0.107 | 0.084 (at 9.5 PCs) |
+| 10–20 | 0.267 | 0.279 (at 18) |
+| 20–30 | 0.382 | 0.378 (at 26) |
+| 30–40 | 0.460 | 0.451 (at 34) |
+| 40–50 | 0.523 | 0.521 (at 43) |
 
-Overall median **0.400 cis against the real 0.412**, and the curve tracks the
-real one across the whole confounder-count range. Before the change the median
-was 0.65.
+The curve tracks the real one closely across the whole confounder-count range.
+Overall median **0.373 cis against the real 0.412** — the small gap is because
+`U_n` has median 26 while real trios carry a median of 30 selected PCs, and
+`R² = U_n × E[r²]`. Before the change the median was 0.65.
 
-By sample size the median adjusted `R²` is 0.360 / 0.401 / 0.406 / 0.404 / 0.411
+By sample size the median adjusted `R²` is 0.321 / 0.379 / 0.378 / 0.374 / 0.388
 at n = 50 / 150 / 300 / 670 / 1000 — flat, as it should be, since the confounding
 is a property of the generating model rather than of `n`.
 
-The realized SNP effect, median `|cor(V1,T1)|`, separates monotonically across
-the effect-size strata at 0.087 / 0.166 / 0.297, spanning the real Whole Blood
-distribution (modal ±0.13, central 99% within ±0.45).
+### The SNP effect now exceeds real Whole Blood
+
+Median `|cor(V1, T1)| = 0.286`, separating across the strata at **0.121 / 0.308 /
+0.473**. Real GTEx cis-eQTL partial correlations peak at ±0.13 with the central
+99% inside ±0.45, so the medium and large strata sit above what is observed, and
+the large stratum's median exceeds the real 99th percentile.
+
+This is a deliberate trade, made to give the confounder-selection filter enough
+signal to be testable (§4), and it has precedent — Yang et al. 2017 simulate
+`β₁c ~ U(0.5, 1.5)` with no confounding on the cis gene at all, which yields
+`cor(L, C) ≈ 0.39`. It should nonetheless be stated plainly in the manuscript
+that the simulated SNP effects are stronger than GTEx's, so method performance
+here is an upper bound on what the same methods would achieve on real trios.
 
 ### Known limitation
 
@@ -218,42 +246,56 @@ the point:
 
 | n | med \|rVW\| | true rW | med \|rVZ\| | true rZ | W pooled | Z pooled | W α=.05 | Z α=.05 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 50 | 0.110 | 0.065 | 0.155 | 0.168 | 0.000 | 0.008 | 0.077 | 0.207 |
-| 150 | 0.073 | 0.072 | 0.105 | 0.165 | 0.003 | 0.067 | 0.127 | 0.344 |
-| 300 | 0.058 | 0.071 | 0.103 | 0.165 | 0.004 | 0.149 | 0.211 | 0.468 |
-| 670 | 0.046 | 0.072 | 0.090 | 0.167 | 0.052 | 0.273 | 0.296 | 0.591 |
-| 1000 | 0.040 | 0.068 | 0.089 | 0.163 | 0.080 | 0.337 | 0.351 | 0.616 |
+| 50 | 0.135 | 0.128 | 0.207 | 0.269 | 0.000 | 0.063 | 0.147 | 0.380 |
+| 150 | 0.098 | 0.134 | 0.183 | 0.270 | 0.028 | 0.240 | 0.288 | 0.537 |
+| 300 | 0.081 | 0.119 | 0.167 | 0.268 | 0.073 | 0.331 | 0.352 | 0.637 |
+| 670 | 0.067 | 0.124 | 0.164 | 0.276 | 0.164 | 0.491 | 0.465 | 0.717 |
+| 1000 | 0.061 | 0.121 | 0.161 | 0.268 | 0.233 | 0.557 | 0.497 | 0.752 |
 
-1. **Effect size.** The true `|cor(V1, W)| ≈ 0.068` and `|cor(V1, Z)| ≈ 0.163`.
-   From `n = (z/r)²`, `W` needs n ≈ 823 uncorrected or ≈ 4,207 at the pooled
-   threshold; `Z` needs ≈ 145 and ≈ 743. `Z` is roughly 2.4× better coupled
+1. **Effect size.** The true `|cor(V1, W)| ≈ 0.121` and `|cor(V1, Z)| ≈ 0.268`.
+   From `n = (z/r)²`, `W` needs n ≈ 262 uncorrected or ≈ 1,337 at the pooled
+   threshold; `Z` needs ≈ 54 and ≈ 273. `Z` is roughly 2.2× better coupled
    because it hangs off the trio by two edges with coefficients `U(1, 1.5)`,
    while `W` hangs off one with `U(0.05, 0.5)`.
-2. **Sample size.** At n = 50 even the *uncorrected* pass rate for `W` is 0.077,
-   barely above the 0.05 null rate — power is the binding constraint there.
-3. **Multiplicity.** At n = 1000 the uncorrected rate for `W` is 0.351 but the
-   pooled rate is 0.080; for `Z`, 0.616 against 0.337. At large `n` the pooled
+2. **Sample size.** At n = 50 the uncorrected pass rate for `W` is 0.147 against
+   a 0.05 null rate — power is the binding constraint there.
+3. **Multiplicity.** At n = 1000 the uncorrected rate for `W` is 0.497 but the
+   pooled rate is 0.233; for `Z`, 0.752 against 0.557. At large `n` the pooled
    threshold, not power, is what binds.
 
-Both blocks are capped above by `|cor(V1, T1)| ≈ 0.156`, since `W` and `Z` are
-downstream of `T1` and correlation multiplies along a path. Measured at n = 1000:
+Widening `b.snp` to `(0, 1.5]` roughly doubled both effects (`rW` 0.068 → 0.121,
+`rZ` 0.163 → 0.268) and the required sample sizes fell accordingly — `Z` now
+clears the pooled threshold from about n = 273, so the n = 300, 670 and 1000
+groups detect common children in 33%, 49% and 56% of trios.
+
+**The n = 50 group no longer returns nothing.** 6.3% of its trios now have a
+detectable common child, so `get.conf.trios()` should no longer raise "No common
+child or intermediate variables detected" and `select.confounders()` should no
+longer fall back to `filter_int_child = FALSE`. Confirm this on the next
+inference run via the `CSq.filter_int_child` / `CSa.filter_int_child` columns.
+Detection at n = 50 is still poor in absolute terms, so the group's confounder
+sets will contain colliders for most trios and should be caveated.
+
+Both blocks are capped above by `|cor(V1, T1)|`, since `W` and `Z` are downstream
+of `T1` and correlation multiplies along a path. Measured at n = 1000:
 
 | link | median \|r\| |
 | --- | --- |
-| `cor(V1, T1)` variant → cis gene | 0.156 |
-| `cor(T1, W)` | 0.312 |
+| `cor(V1, T1)` variant → cis gene | 0.280 |
+| `cor(T1, W)` | 0.325 |
 | `cor(T1, Z)` | 0.664 |
 
-`0.156 × 0.664 = 0.104` against an observed `cor(V1, Z)` of 0.089. `Z`'s effect on
+`0.280 × 0.664 = 0.186` against an observed `cor(V1, Z)` of 0.161. `Z`'s effect on
 the *genes* is large, but the filter tests it against the *variant*, and the first
-link is the bottleneck. That ceiling is set by the real cis-eQTL effect (~0.13),
-so no recalibration moves it.
+link is the bottleneck — which is why widening `b.snp` was the effective lever and
+recalibrating the confounders was not.
 
 `Z` is already at its structural ceiling — with two roughly equal parents
 `cor(T1, Z) → 1/√2 = 0.707` as the coefficients grow, and `U(1, 1.5)` already
 reaches 0.664. `W` is not: a single parent means `cor(T1, W) → 1`, and
-`U(0.05, 0.5)` reaches only 0.312. Moving `W` to `Z`'s range would roughly triple
-`cor(V1, W)`. `W`'s range is the same `c(0.05, 0.5)` the `U` block used before it
+`U(0.05, 0.5)` reaches only 0.325. Moving `W` to `Z`'s range would roughly triple
+`cor(V1, W)` and is the remaining lever if the intermediate needs to be more
+detectable. `W`'s range is the same `c(0.05, 0.5)` the `U` block used before it
 was recalibrated, which may be a copy rather than a considered choice.
 
 ### The failure is conditional, not universal
@@ -263,18 +305,10 @@ Detection depends on `b.snp` and `n`, not on the model or on `b.snp` relative to
 `cor(Z pass, b.snp) = 0.523` — which follows from `b.med` being the `T1 → T2`
 edge, not on the path from `V1` to `W` or `Z`.
 
-`Z` pass rate by effect-size stratum:
-
-| n | small | medium | large |
-| --- | --- | --- | --- |
-| 50 | 0.000 | 0.004 | 0.020 |
-| 300 | 0.000 | 0.088 | 0.360 |
-| 670 | 0.056 | 0.204 | 0.560 |
-| 1000 | 0.060 | 0.296 | 0.656 |
-
-So the filter works where the SNP effect is strong and `n` is adequate. **n = 50
-fails at every stratum**: even the large-effect cases reach only
-`cor(V1, Z) = 0.224` against a pooled threshold demanding ~0.55.
+So the filter works where the SNP effect is strong and `n` is adequate, and n = 50
+remains the weakest case by a wide margin. Rerun the stratum breakdown after any
+change to the effect ranges — it is the quickest check on whether the filter has
+anything to work with.
 
 Two per-model details, both correct behaviour rather than defects: in **model2**
 the intermediate is upstream (`T2 → W → T1`), so `W` and `V1` are both parents of

@@ -6,34 +6,45 @@
 # the calling script.
 
 
-draw.effect.sizes <- function(scenarios, effect_sizes) {
+# b.snp and b.med are drawn from SEPARATE ranges, both indexed by the scenario's
+# effect_size stratum. The SNP effect spans (0, 1.5] and the mediation effect (0, 1],
+# split into tertiles, so `effect_sizes` is a two-level list:
+#
+#   list(b.snp = list(small = c(lo, hi), medium = ..., large = ...),
+#        b.med = list(small = c(lo, hi), medium = ..., large = ...))
+#
+# Neither range may include exactly 0. b.snp = 0 makes V1 -> T1 a null edge, so a
+# "model0" dataset would carry no edges at all and its truth label M0.1 would be wrong;
+# b.med = 0 breaks model1, model2 and model4 the same way. The lower bound is 0.05.
+draw.effect.sizes <- function(scenarios, effect_sizes, step = 0.05) {
+
+    if (!all(c("b.snp", "b.med") %in% names(effect_sizes))) {
+        stop("effect_sizes must be a list with 'b.snp' and 'b.med' entries, each holding ",
+             "small/medium/large ranges")
+    }
 
     # the columns have to exist before they can be filled in per effect size:
     # scenarios[idx, ]$b.snp <- ... cannot create a column that isn't there yet
     scenarios$b.snp <- NA_real_
     scenarios$b.med <- NA_real_
 
-    for(effect_scene in c("small", "medium", "large")){
-        # get the indices of the scenarios with this effect size
-        idx <- which(scenarios$effect_size == effect_scene)
-        # sample b.snp from a uniform distribution over the range of effect sizes for this scenario
-        scenarios$b.snp[idx] <- sample(
-            seq(
-                from = effect_sizes[[effect_scene]][1],
-                to = effect_sizes[[effect_scene]][2],
-                by = 0.05),
-            size = length(idx),
-            replace = TRUE
-        )
-        # sample b.med from the same range as b.snp, drawn independently of b.snp
-        scenarios$b.med[idx] <- sample(
-            seq(
-                from = effect_sizes[[effect_scene]][1],
-                to = effect_sizes[[effect_scene]][2],
-                by = 0.05),
-            size = length(idx),
-            replace = TRUE
-        )
+    for (param in c("b.snp", "b.med")) {
+        for (effect_scene in c("small", "medium", "large")) {
+            rng <- effect_sizes[[param]][[effect_scene]]
+            if (is.null(rng)) {
+                stop("effect_sizes$", param, " is missing the '", effect_scene, "' range")
+            }
+            if (rng[1] <= 0) {
+                stop("effect_sizes$", param, "$", effect_scene, " starts at ", rng[1],
+                     ": a zero effect removes the edge and invalidates the model label")
+            }
+            # indices of the scenarios in this stratum
+            idx <- which(scenarios$effect_size == effect_scene)
+            # b.snp and b.med are drawn independently, so within a stratum a trio can
+            # have a SNP effect larger or smaller than its mediation effect
+            scenarios[[param]][idx] <- sample(seq(from = rng[1], to = rng[2], by = step),
+                                              size = length(idx), replace = TRUE)
+        }
     }
     return(scenarios)
 }

@@ -18,8 +18,8 @@ Shared helpers live in `simulation/simulation_utils.R` and
 they can be sourced anywhere. Each folder carries a `README.md` describing its
 scripts, data files and figures; this document covers the methodology only.
 
-Every measured number below was last reproduced on 2026-08-19 against the current
-`simulation/simulated_data/simulated_trios.RData` (3,750 datasets, `set.seed(234)`).
+Every measured number below was last reproduced on 2026-08-20 against the current
+`simulation/simulated_data/simulated_trios.RData` (1,500 datasets, `set.seed(234)`).
 The §3 and §4 tables come straight from `verify_simulation.R`; the per-model and
 resampling figures in §1, §2 and §4 are separate one-off diagnostics on the same
 file.
@@ -61,11 +61,11 @@ orthogonal, as principal components are in the real data.
   `Simulation/sim_data.R`. The clinical covariates are real observed data but
   carry no effect on `T1` or `T2`, so the n = 670 arm differs from the others
   only by three extra columns handed to every method as known confounders.
-  Verified in the generated data, over the 750 n = 670 datasets: the `K`
-  coefficients on `T1` are centred at zero (medians −0.0019 / −0.0033 / +0.0023)
-  and their p-values are uniform — median 0.48 and a rejection rate at α = 0.05
-  of 0.047 / 0.057 / 0.044, i.e. the nominal null rate. Individual trios do reach
-  small p-values (min 1e−04 over 2,250 tests), exactly as a null should.
+  Verified in the generated data, over the 300 n = 670 datasets: the `K`
+  coefficients on `T1` are centred at zero (medians +0.0065 / +0.0092 / +0.0061)
+  and their p-values are uniform — median 0.52 and a rejection rate at α = 0.05
+  of 0.040 / 0.033 / 0.030, i.e. the nominal null rate. Individual trios do reach
+  small p-values (min 0.0024 over 900 tests), exactly as a null should.
 - **`K` is only available at n = 670**, since `pcr`/`platform`/`sex` are observed
   for exactly the 670 Whole Blood donors.
 
@@ -94,12 +94,12 @@ read the marginals rather than individual cells.
 | `K_n` | 3 at n = 670, else 0 |
 
 Genotypes are drawn under Hardy-Weinberg and **resampled until all three
-genotype classes appear**. This bites only at low θ and small `n`: 430 of the
-3,750 datasets needed more than one draw, the median is 1, and the worst case
-took 1,156 resamples at θ = 0.01, n = 50. Where it does bite it inflates the
-realized MAF — 1.29× on average for nominal θ ≤ 0.05 pooled over sample sizes,
-and 1.92× for those same θ at n = 50 alone. Above θ = 0.10 the distortion is
-gone (ratio 1.007 for θ ∈ (0.10, 0.25], 0.997 above that). So the lowest-MAF,
+genotype classes appear**. This bites only at low θ and small `n`: 183 of the
+1,500 datasets needed more than one draw, the median is 1, and the worst case
+took 111 resamples at θ = 0.02, n = 50. Where it does bite it inflates the
+realized MAF — 1.31× on average for nominal θ ≤ 0.05 pooled over sample sizes,
+and 2.14× for those same θ at n = 50 alone. Above θ = 0.10 the distortion is
+gone (ratio 1.003 for θ ∈ (0.10, 0.25], 0.996 above that). So the lowest-MAF,
 smallest-`n` scenarios do not simulate quite what their θ says. Known and
 accepted.
 
@@ -444,14 +444,14 @@ was recalibrated, which may be a copy rather than a considered choice.
 ### The failure is conditional, not universal
 
 Detection depends on the absolute effect sizes and on `n`, not on `b.snp`
-relative to `b.med`. Measured over all 3,750 datasets, common-child detection at
+relative to `b.med`. Measured over all 1,500 datasets, common-child detection at
 the pooled threshold correlates:
 
 | with | `cor` |
 | --- | --- |
-| `b.snp` | 0.458 |
-| `b.med` | 0.422 |
-| `b.snp / b.med` | −0.036 |
+| `b.snp` | 0.414 |
+| `b.med` | 0.383 |
+| `b.snp / b.med` | −0.021 |
 
 **`b.med` matters about as much as `b.snp`**, which corrects an earlier reading
 of these numbers. `Z` is a common child of *both* genes, and `V1` reaches `T2`
@@ -467,11 +467,11 @@ filter has anything to work with.
 
 Two per-model details, both correct behaviour rather than defects. In **model2**
 the intermediate is upstream (`T2 → W → T1`), so `W` and `V1` are both parents of
-`T1` and marginally independent — median `|cor(V1, W)| = 0.021` at n = 1000,
-de-noising to exactly 0, and the filter can never find it. In **model3** `V1`
+`T1` and marginally independent — median `|cor(V1, W)| = 0.022` at n = 1000,
+de-noising to 0.012, and the filter can never find it. In **model3** `V1`
 reaches `Z` through both genes with independently signed coefficients, so the two
-paths partly cancel and the median `|cor(V1, Z)|` is 0.077 at n = 1000, the
-lowest of the five models (model1 is next at 0.110, model4 highest at 0.245).
+paths partly cancel and the median `|cor(V1, Z)|` is 0.086 at n = 1000, the
+lowest of the five models (model1 is next at 0.098, model4 highest at 0.211).
 Note the cancellation shows up in the *median*, not in the RMS: model3's
 de-noised `rZ` is not correspondingly low, because the cancellation is
 sign-dependent and leaves a wide spread rather than a uniformly small effect.

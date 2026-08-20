@@ -11,8 +11,8 @@ source("./bioinfo_revision/simulation_utils.R")
 # -----------------------------
 # seed
 set.seed(234)
-# number of replicates of each scenario
-# (previously 300, dropping to 100 now with more scenarios)
+# number of replicates of each scenario. 5 models x 5 sample sizes x 3 effect sizes x 50
+# replicates = 3750 datasets (the pre-revision simulation ran 1500 at a single sample size)
 number_of_replicates <- 50
 
 # a list, not c(): c(small = c(0.1, 0.3), ...) flattens and names the elements
@@ -47,7 +47,14 @@ scenarios$minor.freq <- sample(seq(0.01, 0.5, 0.01), n, replace = TRUE)
 # b.med never make it into scenarios and simData.from.graph() fails on B[1, 2] <- 1 * b.snp
 scenarios <- draw.effect.sizes(scenarios, effect_sizes)
 
-scenarios$SD <- 1 #just use 1 for now (same as Yang et al. 2017)
+# residual SD, fixed at 1 following Yang et al. 2017.
+#
+# Do not scale this by b.med the way Simulation/sim_data.R did: b.med is drawn from the
+# same small/medium/large stratum as b.snp, so scaling the noise by it holds b.snp/SD
+# roughly constant across strata and flattens the effect-size factor (measured: partial
+# |cor(V1,T1)| of 0.55 / 0.63 / 0.48 for small / medium / large). The original script had
+# no effect-size strata, so its formula does not transfer.
+scenarios$SD <- 1
 
 # number of each type of confounding variable, drawn per scenario so the whole design
 # is recorded in one table.

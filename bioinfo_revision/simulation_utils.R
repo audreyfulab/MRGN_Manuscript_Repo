@@ -95,7 +95,19 @@ simulate.dataset <- function(settings, clinical.covs, verbose = TRUE) {
                             # all four entries must stay in this list even when a block
                             # is empty: gen.graph.skel indexes it positionally (K,U,W,Z)
                             conf.coef.ranges = list(K = c(0, 0),
-                                                    U = c(0.05, 0.5), # follows from actual pc effect range
+                                                    # real PC effects on cis/trans genes
+                                                    # in Whole Blood run to +/- 0.20 at
+                                                    # the central 95% and +/- 0.27 at the
+                                                    # central 99% (see pc_distribution_
+                                                    # invest/README.md); gen.conf.coefs
+                                                    # draws |a| from this interval and
+                                                    # flips the sign at neg.freq = 0.5.
+                                                    # The old upper bound of 0.5 sat well
+                                                    # past the real distribution and gave
+                                                    # R2(T1 | U) = 0.65 against 0.41 in
+                                                    # real data; 0.3 lands the realized
+                                                    # R2 near the real value.
+                                                    U = c(0, 0.3),
                                                     W = c(0.05, 0.5), # follows from actual pc effect range
                                                     Z = c(1, 1.5))) #GMAC setting
         init=unique(sim_data$data$V1)

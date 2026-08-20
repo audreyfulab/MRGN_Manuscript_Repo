@@ -303,6 +303,45 @@ plot.distribution <- function(effects, target, save=FALSE, filename=NULL,
 }
 
 
+cache.effect.pools <- function(cis.effects, trans.effects, path) {
+    # Write the pooled STANDARDIZED effects to disk for simulation_utils.R to resample
+    # from. Only the standardized column crosses over: it is the Pearson correlation
+    # cor(PC, gene), which is unit-free, so a value of 0.117 means the same thing in a
+    # GTEx trio and in a simulated one. The raw slopes cannot cross over -- sd(cis gene)
+    # spans 0.042 to 3.75e+04 across trios, so a raw slope carries the units of one
+    # particular trio's residualized expression and is meaningless outside it.
+    #
+    # The pools are conditional on selection: these PCs were retained at FDR 0.05 by
+    # get.conf.trios(), which is why the distributions dip at zero. That is the relevant
+    # distribution for choosing simulation parameters (see the README), but it means the
+    # simulated U confounders represent confounders strong enough to have been found.
+    pools <- list(cis = cis.effects$standardized,
+                  trans = trans.effects$standardized,
+                  n.trios = length(data.with.pcs),
+                  source = "GTEx/data/data.with.PCs.WholeBlood.RData",
+                  scale = "Pearson correlation cor(PC, gene), = b * sd(PC) / sd(Y)")
+
+    # a raw slope leaking into the pool would break the calibration silently, and the
+    # cheapest tell is a value outside [-1, 1]
+    for (nm in c("cis", "trans")) {
+        if (any(abs(pools[[nm]]) > 1)) {
+            stop("standardized ", nm, " effects outside [-1, 1]: the pool is not on the ",
+                 "correlation scale")
+        }
+    }
+
+    save(pools, file = path)
+    cat("\ncached effect pools ->", path, "\n")
+    for (nm in c("cis", "trans")) {
+        cat("  ", nm, ": n = ", length(pools[[nm]]),
+            ", sd = ", round(sd(pools[[nm]]), 4),
+            ", E[r^2] = ", round(mean(pools[[nm]]^2), 5),
+            ", max|r| = ", round(max(abs(pools[[nm]])), 4), "\n", sep = "")
+    }
+    return(invisible(pools))
+}
+
+
 # run for each target variable: cis, trans
 # standardize = "both" so the summary and the figure cover the raw and the standardized
 # scale from one pass of the regressions
@@ -318,6 +357,10 @@ trans.effects <- collect.pc.effects(data.with.pcs, target = "trans", standardize
 summarize.effects(trans.effects, "trans")
 plot.distribution(trans.effects, target = "trans", save = TRUE, filename = "PC_effects_distribution_trans.png")
 
+# the simulation resamples from these, so they are written one directory up, next to
+# simulation_utils.R, rather than into this investigation folder
+cache.effect.pools(cis.effects, trans.effects,
+                   path = file.path(root, "bioinfo_revision", "real_pc_effect_pools.RData"))
 
 
 setwd(root)

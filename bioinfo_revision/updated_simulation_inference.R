@@ -352,5 +352,5 @@ combine.groups <- function(sample.sizes = NULL, save.csv = TRUE) {
 }
 
 
-# run.all.inference()
-# inference.results <- combine.groups()
+run.all.inference()
+inference.results <- combine.groups()

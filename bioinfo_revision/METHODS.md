@@ -126,33 +126,37 @@ overlays the two densities for the cis and trans gene.
 
 | | n | sd | median \|r\| | max \|r\| |
 | --- | --- | --- | --- | --- |
-| simulated cis | 19,003 | 0.101 | 0.081 | 0.295 |
+| simulated cis | 19,003 | 0.127 | 0.103 | 0.346 |
 | real cis | 95,564 | 0.117 | 0.101 | 0.661 |
-| simulated trans | 19,003 | 0.101 | 0.080 | 0.292 |
+| simulated trans | 19,003 | 0.127 | 0.102 | 0.370 |
 | real trans | 95,564 | 0.104 | 0.077 | 0.653 |
 
 The distributions overlay closely. Two differences are visible in the plot: the
 real densities dip at zero, because those PCs were *selected* at FDR 0.05 and
 near-null effects are filtered out by construction, and the real tails reach
-±0.66 where the simulated ones stop at ±0.30.
+±0.66 where the simulated ones stop near ±0.35.
 
 Adjusted `R²` of each gene on its own `U` block:
 
 | `U_n` | simulated `R²` | real |
 | --- | --- | --- |
-| ≤ 10 | 0.056 | 0.084 (at 9.5 PCs) |
-| 10–20 | 0.161 | 0.279 (at 18) |
-| 20–30 | 0.236 | 0.378 (at 26) |
-| 30–40 | 0.303 | 0.451 (at 34) |
-| 40–50 | 0.358 | 0.521 (at 43) |
+| ≤ 10 | 0.122 | 0.084 (at 9.5 PCs) |
+| 10–20 | 0.302 | 0.279 (at 18) |
+| 20–30 | 0.410 | 0.378 (at 26) |
+| 30–40 | 0.495 | 0.451 (at 34) |
+| 40–50 | 0.557 | 0.521 (at 43) |
 
-Overall median 0.226 cis and 0.221 trans, against 0.412 and 0.307 in real data.
-**The simulation is now under-confounded by roughly a factor of two**, where
-before it was over-confounded by 1.6× (`R²` 0.65). Two causes, both arithmetic:
-the realized effect sd is 0.101 against 0.117, and `U_n` has median 26 against 30
-selected PCs in real trios, and `R² = U_n × E[r²]`. Raising the interval to about
-`c(0, 0.25)` would land the median `R²` on the real 0.41; `c(0, 0.2)` keeps the
-effect *range* inside the real central 95% and errs conservative.
+Overall median **0.400 cis against the real 0.412**, and the curve tracks the
+real one across the whole confounder-count range. Before the change the median
+was 0.65.
+
+By sample size the median adjusted `R²` is 0.360 / 0.401 / 0.406 / 0.404 / 0.411
+at n = 50 / 150 / 300 / 670 / 1000 — flat, as it should be, since the confounding
+is a property of the generating model rather than of `n`.
+
+The realized SNP effect, median `|cor(V1,T1)|`, separates monotonically across
+the effect-size strata at 0.087 / 0.166 / 0.297, spanning the real Whole Blood
+distribution (modal ±0.13, central 99% within ±0.45).
 
 ### Known limitation
 
@@ -203,22 +207,88 @@ group and raises "No common child or intermediate variables detected";
 `select.confounders()` catches this and falls back to `filter_int_child = FALSE`,
 recording it in the `CSq.filter_int_child` / `CSa.filter_int_child` columns.
 
-**This is a power limit, not a calibration artefact.** `W` and `Z` are downstream
-of `T1`, so `|cor(V1, W)| ≤ |cor(V1, T1)|`, and the real cis-eQTL partial
-correlation is ~0.13. At n = 50 the standard error of a correlation is 0.14, so
-an `r` of 0.15 is undetectable as a *single* test (p ≈ 0.30), before any
-multiplicity correction.
+**This is not a calibration artefact — it persists after the confounder effects
+are corrected.** There are three distinct obstacles, and which one binds depends
+on `n`.
 
-It persists after the confounder effects are reduced — measured on the current
-simulation, the fraction of each block clearing the pooled threshold:
+`verify_simulation.R` separates them. The observed correlations *fall* with `n`
+because a sample correlation carries about `1/√n` of noise; de-noising with
+`√(mean(r²) − 1/n)` recovers a true effect that is constant across `n`, which is
+the point:
 
-| n | median \|cor(V1,W)\| | median \|cor(V1,Z)\| | W pass | Z pass |
-| --- | --- | --- | --- | --- |
-| 50 | 0.111 | 0.163 | 0.000 | 0.013 |
-| 150 | 0.073 | 0.111 | 0.003 | 0.087 |
-| 300 | 0.059 | 0.112 | 0.007 | 0.184 |
-| 670 | 0.046 | 0.101 | 0.060 | 0.297 |
-| 1000 | 0.041 | 0.098 | 0.083 | 0.367 |
+| n | med \|rVW\| | true rW | med \|rVZ\| | true rZ | W pooled | Z pooled | W α=.05 | Z α=.05 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 50 | 0.110 | 0.065 | 0.155 | 0.168 | 0.000 | 0.008 | 0.077 | 0.207 |
+| 150 | 0.073 | 0.072 | 0.105 | 0.165 | 0.003 | 0.067 | 0.127 | 0.344 |
+| 300 | 0.058 | 0.071 | 0.103 | 0.165 | 0.004 | 0.149 | 0.211 | 0.468 |
+| 670 | 0.046 | 0.072 | 0.090 | 0.167 | 0.052 | 0.273 | 0.296 | 0.591 |
+| 1000 | 0.040 | 0.068 | 0.089 | 0.163 | 0.080 | 0.337 | 0.351 | 0.616 |
+
+1. **Effect size.** The true `|cor(V1, W)| ≈ 0.068` and `|cor(V1, Z)| ≈ 0.163`.
+   From `n = (z/r)²`, `W` needs n ≈ 823 uncorrected or ≈ 4,207 at the pooled
+   threshold; `Z` needs ≈ 145 and ≈ 743. `Z` is roughly 2.4× better coupled
+   because it hangs off the trio by two edges with coefficients `U(1, 1.5)`,
+   while `W` hangs off one with `U(0.05, 0.5)`.
+2. **Sample size.** At n = 50 even the *uncorrected* pass rate for `W` is 0.077,
+   barely above the 0.05 null rate — power is the binding constraint there.
+3. **Multiplicity.** At n = 1000 the uncorrected rate for `W` is 0.351 but the
+   pooled rate is 0.080; for `Z`, 0.616 against 0.337. At large `n` the pooled
+   threshold, not power, is what binds.
+
+Both blocks are capped above by `|cor(V1, T1)| ≈ 0.156`, since `W` and `Z` are
+downstream of `T1` and correlation multiplies along a path. Measured at n = 1000:
+
+| link | median \|r\| |
+| --- | --- |
+| `cor(V1, T1)` variant → cis gene | 0.156 |
+| `cor(T1, W)` | 0.312 |
+| `cor(T1, Z)` | 0.664 |
+
+`0.156 × 0.664 = 0.104` against an observed `cor(V1, Z)` of 0.089. `Z`'s effect on
+the *genes* is large, but the filter tests it against the *variant*, and the first
+link is the bottleneck. That ceiling is set by the real cis-eQTL effect (~0.13),
+so no recalibration moves it.
+
+`Z` is already at its structural ceiling — with two roughly equal parents
+`cor(T1, Z) → 1/√2 = 0.707` as the coefficients grow, and `U(1, 1.5)` already
+reaches 0.664. `W` is not: a single parent means `cor(T1, W) → 1`, and
+`U(0.05, 0.5)` reaches only 0.312. Moving `W` to `Z`'s range would roughly triple
+`cor(V1, W)`. `W`'s range is the same `c(0.05, 0.5)` the `U` block used before it
+was recalibrated, which may be a copy rather than a considered choice.
+
+### The failure is conditional, not universal
+
+Detection depends on `b.snp` and `n`, not on the model or on `b.snp` relative to
+`b.med`. The ratio is irrelevant — `cor(Z pass, b.snp/b.med) = 0.036`, against
+`cor(Z pass, b.snp) = 0.523` — which follows from `b.med` being the `T1 → T2`
+edge, not on the path from `V1` to `W` or `Z`.
+
+`Z` pass rate by effect-size stratum:
+
+| n | small | medium | large |
+| --- | --- | --- | --- |
+| 50 | 0.000 | 0.004 | 0.020 |
+| 300 | 0.000 | 0.088 | 0.360 |
+| 670 | 0.056 | 0.204 | 0.560 |
+| 1000 | 0.060 | 0.296 | 0.656 |
+
+So the filter works where the SNP effect is strong and `n` is adequate. **n = 50
+fails at every stratum**: even the large-effect cases reach only
+`cor(V1, Z) = 0.224` against a pooled threshold demanding ~0.55.
+
+Two per-model details, both correct behaviour rather than defects: in **model2**
+the intermediate is upstream (`T2 → W → T1`), so `W` and `V1` are both parents of
+`T1` and marginally independent — `cor(V1, W) = 0.022`, and the filter can never
+find it. In **model3** `V1` reaches `Z` through both genes with independently
+signed coefficients, so the two paths partly cancel and `cor(V1, Z) = 0.046`,
+the lowest of the five models.
+
+There is also a design mismatch worth recording. `get.conf.trios()` identifies an
+intermediate or common child by its correlation with variants **across the whole
+group**: in real GTEx every trio is scored against the same PC matrix, so a PC
+that is a common child for many trios correlates with many variants and stands
+out. Here each trio owns a private `W` and `Z` correlated with exactly one
+variant out of 750, which is not the setting the filter was designed for.
 
 The consequence is material: with the filter off, the common child `Z` is
 selected as a confounder for essentially every n = 50 trio (measured on the
@@ -247,9 +317,6 @@ on PCs only.
 
 ## 6. Open items
 
-- **Confounding is about half the real level** (`R²` 0.23 vs 0.41). `c(0, 0.25)`
-  would match it; `c(0, 0.2)` matches the effect *range* instead and errs
-  conservative. One number, §3.
 - The real effect pools are **conditional on selection** (those PCs were retained
   at FDR 0.05), so they describe confounders strong enough to have been found.
   Recovery rates should not be read as covering near-null confounders.

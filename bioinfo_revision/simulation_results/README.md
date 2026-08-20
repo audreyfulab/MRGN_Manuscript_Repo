@@ -139,7 +139,7 @@ inference itself took, in seconds, so the three methods are directly comparable.
 
 | function | what it does |
 | --- | --- |
-| `select.confounders(trios, cov.pool, known.conf, ...)` | runs `MRGN::get.conf.trios()` twice over one group — **CS-q** (`adjust_by = "all"`, FDR 5%) and **CS-α** (`adjust_by = "none"`, per-test α = 0.01) — and returns, per setting, one `trio + known + selected` data frame per trio, the raw selection, the timing, and whether the intermediate/common-child filter actually applied |
+| `select.confounders(trios, cov.pool, known.conf, ...)` | calls `MRGN::get.conf.trios()` **once** per group with `adjust_by = "all"`, giving **CS-q** (FDR 5%); **CS-α** (per-test α = 0.01) is derived by thresholding the returned `reg.pvalues`, which is exactly what `adjust_by = "none"` does internally. Returns, per setting, one `trio + known + selected` data frame per trio, the raw selection, the timing, and whether the intermediate/common-child filter actually applied |
 | `apply.mrgn(data, bootstrap, number_of_samples, cl, ...)` | `MRGN::infer.trio()` plus optional bootstrap; `time.seconds` covers the fit only, the bootstrap is timed separately |
 | `boostrap_edge_probabilities(trio, number_of_samples, cl)` | resamples rows, keeps the first six elements of each `infer.trio()` result, and returns per-indicator means, the majority-vote model, and the weakest supported edge probability |
 | `apply.mrpc(data, timeout, ...)` | `MRPC()` capped with `R.utils::withTimeout()`, then classified against the eight trio adjacencies |
@@ -161,12 +161,19 @@ Three behaviours worth knowing before editing:
   `withTimeout()` interrupts between R evaluation steps, which is where MRPC spends its
   time; it cannot break into long-running compiled code.
 
-`select.confounders()` also guards two failure modes with explicit errors or a
-documented fallback: `blocksize` must not exceed the number of trios (`propagate::bigcor()`
-mis-blocks the correlation otherwise, failing later with an opaque `'x' is empty`), and
-`get.conf.trios()` stops outright with "No common child or intermediate variables
-detected" when nothing in the pool associates with any variant — caught, retried with
-`filter_int_child = FALSE`, and recorded in the `*.filter_int_child` output columns.
+`select.confounders()` also guards three failure modes with explicit errors, a
+normalization, or a documented fallback:
+
+- `blocksize` must not exceed the number of trios — `propagate::bigcor()` mis-blocks the
+  correlation otherwise and fails later with an opaque `'x' is empty`.
+- `get.conf.trios()` stops outright with "No common child or intermediate variables
+  detected" when nothing in the pool associates with any variant. Caught, retried with
+  `filter_int_child = FALSE`, and recorded in the `*.filter_int_child` output columns.
+  Because one call now serves both settings, the two columns always agree.
+- `sig.asso.covs` comes back from `apply(reg.sigmat, 1, which)`, which simplifies to a
+  **matrix** if every trio happens to select the same number of covariates. Everything
+  downstream indexes it with `[[i]]`, so `as.cov.list()` normalizes it to a list of
+  integer vectors first.
 
 ## `simulated_vs_real_conf_effects.png`
 

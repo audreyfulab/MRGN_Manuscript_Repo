@@ -11,11 +11,18 @@ Run everything from the **repository root**.
 | real-data SNP effects | `pc_distribution_invest/compute_effects_snp_on_gene.R` | 2 PNGs |
 | simulation | `simulation/updated_data_simulation.R` | `simulation/simulated_data/simulated_trios.RData` |
 | calibration check | `simulation/verify_simulation.R` | console report + `simulation_results/simulated_vs_real_conf_effects.png` |
-| inference | `simulation_results/updated_simulation_inference.R` | `simulation_results/inference_results.RData` |
+| inference | `simulation_results/updated_simulation_inference.R` | `simulation_results/inference_group_n*.RData`, then `inference_results.RData` + `.csv` |
 
 Shared helpers live in `simulation/simulation_utils.R` and
 `simulation_results/inference_utils.R`, both free of top-level side effects so
-they can be sourced anywhere.
+they can be sourced anywhere. Each folder carries a `README.md` describing its
+scripts, data files and figures; this document covers the methodology only.
+
+Every measured number below was last reproduced on 2026-08-19 against the current
+`simulation/simulated_data/simulated_trios.RData` (3,750 datasets, `set.seed(234)`).
+The §3 and §4 tables come straight from `verify_simulation.R`; the per-model and
+resampling figures in §1, §2 and §4 are separate one-off diagnostics on the same
+file.
 
 ---
 
@@ -43,7 +50,7 @@ input does not contain all five models.
 | block | role | count | `conf.coef.ranges` |
 | --- | --- | --- | --- |
 | `K` | known clinical covariates (`pcr`, `platform`, `sex`) | 3 at n = 670, else 0 | `c(0, 0)` |
-| `U` | unobserved confounders, `U → T1` and `U → T2` | `Uniform{1..50}` | `c(0, 0.2)` |
+| `U` | unobserved confounders, `U → T1` and `U → T2` | `Uniform{1..50}` | `c(0, 0.3)` |
 | `W` | intermediate, `T1 → W → T2` (reversed for model2) | 1 | `c(0.05, 0.5)` |
 | `Z` | common child, `T1 → Z ← T2` | 1 | `c(1, 1.5)` |
 
@@ -54,7 +61,11 @@ orthogonal, as principal components are in the real data.
   `Simulation/sim_data.R`. The clinical covariates are real observed data but
   carry no effect on `T1` or `T2`, so the n = 670 arm differs from the others
   only by three extra columns handed to every method as known confounders.
-  Verified in the generated data: `K` coefficients ≈ 0, p > 0.09.
+  Verified in the generated data, over the 750 n = 670 datasets: the `K`
+  coefficients on `T1` are centred at zero (medians −0.0019 / −0.0033 / +0.0023)
+  and their p-values are uniform — median 0.48 and a rejection rate at α = 0.05
+  of 0.047 / 0.057 / 0.044, i.e. the nominal null rate. Individual trios do reach
+  small p-values (min 1e−04 over 2,250 tests), exactly as a null should.
 - **`K` is only available at n = 670**, since `pcr`/`platform`/`sex` are observed
   for exactly the 670 Whole Blood donors.
 
@@ -62,8 +73,15 @@ orthogonal, as principal components are in the real data.
 
 ## 2. Scenario grid
 
-`5 models × 5 sample sizes (50, 150, 300, 670, 1000) × 3 effect sizes × 50
-replicates = 3,750 datasets`, one row per dataset in `scenarios`.
+`5 models × 5 sample sizes (50, 150, 300, 670, 1000) × 3 effect sizes × 20
+replicates = 1,500 datasets`, 300 per sample-size group, one row per dataset in
+`scenarios`.
+
+The replicate count is set by the cost of **confounder selection**, not by the
+cost of simulating — see §4. Cutting it from 50 to 20 leaves detection power
+essentially unchanged and costs only per-cell precision: with 75 cells, 20
+replicates gives a standard error near 0.11 on a per-cell accuracy of 0.5, so
+read the marginals rather than individual cells.
 
 | parameter | draw |
 | --- | --- |
@@ -76,18 +94,22 @@ replicates = 3,750 datasets`, one row per dataset in `scenarios`.
 | `K_n` | 3 at n = 670, else 0 |
 
 Genotypes are drawn under Hardy-Weinberg and **resampled until all three
-genotype classes appear**. At θ = 0.01 and n = 50 this has taken up to 1,577
-resamples and inflates the realized MAF roughly 1.7× for nominal MAF ≤ 0.05, so
-the lowest-MAF scenarios do not simulate quite what their θ says. Known and
+genotype classes appear**. This bites only at low θ and small `n`: 430 of the
+3,750 datasets needed more than one draw, the median is 1, and the worst case
+took 1,156 resamples at θ = 0.01, n = 50. Where it does bite it inflates the
+realized MAF — 1.29× on average for nominal θ ≤ 0.05 pooled over sample sizes,
+and 1.92× for those same θ at n = 50 alone. Above θ = 0.10 the distortion is
+gone (ratio 1.007 for θ ∈ (0.10, 0.25], 0.997 above that). So the lowest-MAF,
+smallest-`n` scenarios do not simulate quite what their θ says. Known and
 accepted.
 
 **`b.snp` and `b.med` are drawn from separate ranges**, both indexed by the same
 `effect_size` stratum, and independently within a stratum. The SNP gets the wider
 range because it drives everything downstream: `cor(V1, T1)` caps `cor(V1, W)`
 and `cor(V1, Z)`, since `W` and `Z` are children of the genes and correlation
-multiplies along a path. Measured on the previous run, common-child detection
-correlates 0.52 with `b.snp` but only 0.04 with `b.snp/b.med` — absolute SNP
-size matters, its size relative to the mediation effect does not. The range
+multiplies along a path. Measured on the current run, common-child detection
+correlates 0.46 with `b.snp` and 0.42 with `b.med`, but −0.04 with `b.snp/b.med`
+— the two absolute effect sizes both matter, their ratio does not (§4). The range
 `(0, 1.5]` also matches Yang et al. 2017, who drew `β₁c ~ U(0.5, 1.5)`.
 
 **Neither range may include 0.** `b.snp = 0` removes the `V1 → T1` edge, so a
@@ -111,29 +133,44 @@ does not transfer.
 
 ### The change
 
-`conf.coef.ranges$U` was `c(0.05, 0.5)`; it is now `c(0, 0.2)`.
+`conf.coef.ranges$U` was `c(0.05, 0.5)`; it is now `c(0, 0.3)`.
 
 `gen.conf.coefs()` draws `|a| ~ Uniform` over this interval and flips the sign at
-`neg.freq = 0.5`. The bound of 0.2 is the central 95% of the real confounder
-effects on cis and trans genes in Whole Blood, measured by
+`neg.freq = 0.5`. The target is the distribution of real confounder effects on
+cis and trans genes in Whole Blood, measured by
 `pc_distribution_invest/compute_pc_dist_bounds.R` over 3,248 trios:
 
 | per-PC effect on the cis gene, 95,564 values | 2.5% | 50% | 97.5% | sd | max |
 | --- | --- | --- | --- | --- | --- |
 | standardized `b·sd(PC)/sd(Y)` | −0.203 | 0.000 | 0.200 | 0.117 | 0.661 |
 
-The previous upper bound of 0.5 sat well above the real 97.5% point and produced
-`R²(T1 | U) = 0.65` against 0.41 in real data — roughly 1.9× too much
-confounding, since `R²` is additive over an orthogonal block
-(`R² = Σᵢ cor(Uᵢ, T)²`) and each trio carries ~26 confounders.
+That is ±0.20 at the central 95% and ±0.27 at the central 99%. The bound is set
+at 0.3 rather than 0.2 because **the interval is a raw slope while the target is
+a correlation** — the two differ by `sd(T1)`, which exceeds 1 and grows with
+`U_n`, so a nominal 0.3 realizes a standardized effect well below 0.3 (measured
+median `|r|` 0.098, sd 0.123, max 0.336 against the real 0.101 / 0.117 / 0.661).
+The bound was chosen on the realized scale, which is the one that has to match;
+see the caveat below.
+
+The previous upper bound of 0.5 sat well above the real distribution on either
+scale and produced an adjusted `R²(T1 | U)` of 0.676 against 0.412 in real data
+— roughly 1.6× too much confounding, since `R²` is additive over an orthogonal
+block (`R² = Σᵢ cor(Uᵢ, T)²`) and each trio carries ~26 confounders.
 
 ### One caveat on scale
 
-`conf.coef.ranges` is consumed as a **raw regression slope**, while the 0.2 above
-is a **correlation**. The two differ by `sd(T1)`, which is not 1 and which grows
-with `U_n`, so the realized standardized effect comes out somewhat below 0.2 and
-drifts with the confounder count. The interval is therefore a defensible bound
-rather than an exact match; `verify_simulation.R` reports what is realized.
+`conf.coef.ranges` is consumed as a **raw regression slope**, while the ±0.20 /
+±0.27 real bounds above are **correlations**. The two differ by `sd(T1)`, which
+is not 1 and which grows with `U_n`, so the realized standardized effect comes
+out well below the nominal 0.3 and drifts with the confounder count. The
+nominal interval is therefore not directly comparable to the real quantiles;
+what matters is the realized distribution, which `verify_simulation.R` reports
+and which is tabulated next.
+
+This also means the nominal bound is not portable: change `U_n`'s range, `SD`,
+or `b.snp`, and the same 0.3 realizes a different correlation. Rerun
+`verify_simulation.R` after any such change rather than assuming the calibration
+holds.
 
 ### Measured result
 
@@ -143,10 +180,12 @@ overlays the two densities for the cis and trans gene.
 
 | | n | sd | median \|r\| | max \|r\| |
 | --- | --- | --- | --- | --- |
-| simulated cis | 19,591 | 0.123 | 0.098 | 0.336 |
+| simulated cis | 8,021 | 0.122 | 0.098 | 0.320 |
 | real cis | 95,564 | 0.117 | 0.101 | 0.661 |
-| simulated trans | 19,591 | 0.123 | 0.097 | 0.362 |
+| simulated trans | 8,021 | 0.123 | 0.098 | 0.360 |
 | real trans | 95,564 | 0.104 | 0.077 | 0.653 |
+
+![confounder effects, simulated vs real](simulation_results/simulated_vs_real_conf_effects.png)
 
 The distributions overlay closely. Two differences are visible in the plot: the
 real densities dip at zero, because those PCs were *selected* at FDR 0.05 and
@@ -157,34 +196,63 @@ Adjusted `R²` of each gene on its own `U` block:
 
 | `U_n` | simulated `R²` | real |
 | --- | --- | --- |
-| ≤ 10 | 0.107 | 0.084 (at 9.5 PCs) |
-| 10–20 | 0.267 | 0.279 (at 18) |
-| 20–30 | 0.382 | 0.378 (at 26) |
-| 30–40 | 0.460 | 0.451 (at 34) |
-| 40–50 | 0.523 | 0.521 (at 43) |
+| ≤ 10 | 0.109 | 0.084 (at 9.5 PCs) |
+| 10–20 | 0.260 | 0.279 (at 18) |
+| 20–30 | 0.388 | 0.378 (at 26) |
+| 30–40 | 0.468 | 0.451 (at 34) |
+| 40–50 | 0.521 | 0.521 (at 43) |
 
-The curve tracks the real one closely across the whole confounder-count range.
-Overall median **0.373 cis against the real 0.412** — the small gap is because
+![R2 vs confounder count](simulation_results/r2_vs_confounder_count.png)
+
+The figure plots this per trio rather than binned: adjusted `R²` against the
+number of confounders acting on the trio, simulated (`U_n`) against real
+(selected PCs), with a median line each. The two medians sit almost on top of one
+another across the whole range, which is the relationship the calibration is
+really trying to reproduce — a single median `R²` would hide whether the slope is
+right. Simulated points are restricted to n ≥ 300, since adjusted `R²` is noisy
+once `U_n` is an appreciable fraction of `n`.
+
+Overall median **0.367 cis against the real 0.412** — the small gap is because
 `U_n` has median 26 while real trios carry a median of 30 selected PCs, and
-`R² = U_n × E[r²]`. Before the change the median was 0.65.
+`R² = U_n × E[r²]`. Before the change the median was 0.676.
 
-By sample size the median adjusted `R²` is 0.321 / 0.379 / 0.378 / 0.374 / 0.388
-at n = 50 / 150 / 300 / 670 / 1000 — flat, as it should be, since the confounding
-is a property of the generating model rather than of `n`.
+One caveat on that before-and-after: `simulated_trios_precalibration.RData` was
+generated with both the old `U` bound *and* the old shared `b.snp`/`b.med` range
+of `(0.1, 1.0]`, so the drop from 0.676 to 0.373 is not attributable to the `U`
+bound alone. A larger `b.snp` puts more variance into `T1` that the `U` block
+does not explain, which lowers `R²` on its own. Both changes push the same way.
 
-### The SNP effect now exceeds real Whole Blood
+By sample size the median adjusted `R²` is 0.267 / 0.368 / 0.365 / 0.392 / 0.391
+at n = 50 / 150 / 300 / 670 / 1000 — flat apart from n = 50, where adjusted `R²`
+is unreliable because `U_n` reaches 44 against 50 observations.
 
-Median `|cor(V1, T1)| = 0.286`, separating across the strata at **0.121 / 0.308 /
-0.473**. Real GTEx cis-eQTL partial correlations peak at ±0.13 with the central
-99% inside ±0.45, so the medium and large strata sit above what is observed, and
-the large stratum's median exceeds the real 99th percentile.
+### The SNP effect brackets real Whole Blood
 
-This is a deliberate trade, made to give the confounder-selection filter enough
-signal to be testable (§4), and it has precedent — Yang et al. 2017 simulate
-`β₁c ~ U(0.5, 1.5)` with no confounding on the cis gene at all, which yields
-`cor(L, C) ≈ 0.39`. It should nonetheless be stated plainly in the manuscript
-that the simulated SNP effects are stronger than GTEx's, so method performance
-here is an upper bound on what the same methods would achieve on real trios.
+The real reference is a **partial** correlation: `compute_effects_snp_on_gene.R`
+regresses each gene on the genotype adjusted for that trio's PCs. The comparable
+simulated quantity is therefore `cor(V1, T1 | U)`, not the marginal
+`cor(V1, T1)` — conditioning on `U` removes ~37% of `T1`'s variance, so the two
+differ substantially (median 0.364 partial against 0.276 marginal). Comparing the
+marginal to the real value understates the simulated effect, which an earlier
+draft of this document did.
+
+| stratum | 2.5% | median | 97.5% |
+| --- | --- | --- | --- |
+| small | 0.015 | **0.146** | 0.388 |
+| medium | 0.109 | 0.398 | 0.669 |
+| large | 0.185 | 0.572 | 0.780 |
+
+Real GTEx cis-eQTL partial correlations peak near ±0.13 with the central 99%
+inside ±0.45. **The small stratum is the GTEx-like case** — its median of 0.146
+sits essentially on the real modal value — while medium and large deliberately
+extend past the real range to give the confounder-selection filter something to
+detect (§4). Overall, 62.9% of simulated trios fall inside the real central 99%.
+
+The extension has precedent: Yang et al. 2017 simulate `β₁c ~ U(0.5, 1.5)` with
+no confounding on the cis gene at all, yielding `cor(L, C) ≈ 0.39`. The
+manuscript should still say plainly that the medium and large strata are stronger
+than GTEx, so results pooled across strata are an upper bound on what the same
+methods would achieve on real trios; the small stratum is the honest estimate.
 
 ### Known limitation
 
@@ -208,10 +276,32 @@ without leaving `simData.from.graph()`.
 | MRPC | CS-α selected |
 | GMAC | whatever GMAC selects for itself |
 
-`MRGN::get.conf.trios()` runs in two settings via `select.confounders()`:
+`select.confounders()` produces two confounder sets per trio:
 
 - **CS-q** — q-value FDR at 5%, `adjust_by = "all"`
-- **CS-α** — no multiplicity correction, per-test α = 0.01, `adjust_by = "none"`
+- **CS-α** — no multiplicity correction, per-test α = 0.01
+
+`MRGN::get.conf.trios()` is called **once per group**, with `adjust_by = "all"`.
+CS-q is its output directly; CS-α is derived by thresholding the returned
+`reg.pvalues` at α, which is exactly what `adjust_by = "none"` does internally —
+the package builds `sigmat = reg.pvalues < alpha` and then
+`apply(sigmat, 1, which)`, so the two routes are identical.
+
+Everything expensive inside `get.conf.trios()` — `propagate::bigcor()` over the
+variant/covariate correlations and the per-trio-per-covariate regressions in
+`p.from.reg()` — is common to both settings and does not depend on `adjust_by`,
+so calling it twice doubled the cost for nothing. Measured at ~0.955 ms per
+(trio × covariate) test, a 300-trio group with an 8,340-column pool takes ~40 min
+per call.
+
+Two consequences for the recorded results:
+
+- `CSq.filter_int_child` and `CSa.filter_int_child` now **always agree**, since
+  one call serves both settings and the `filter_int_child = FALSE` fallback is
+  therefore shared. Both columns are still written, so the results schema is
+  unchanged. (They agreed under the two-call version as well — the fallback is
+  deterministic — but only by construction rather than by design.)
+- `sel$time.seconds` is now the wall clock of the single call, not the sum of two.
 
 Selection and GMAC both index a covariate pool by row, so datasets are processed
 in groups sharing a sample size, and each group is checkpointed.
@@ -219,14 +309,29 @@ in groups sharing a sample size, and each group is checkpointed.
 ### The pooled covariate design
 
 Each trio contributes its own private `U`/`W`/`Z` columns to a shared pool, so a
-group's pool is ~21,000 columns over 750 trios. This differs from the real
-analysis, where every trio is scored against one common ~670-PC matrix. Two
-consequences, recorded rather than fixed:
+group's pool is ~8,340 columns over 300 trios (mean 27.8 confounder columns per
+trio). This differs from the real analysis, where every trio is scored against
+one common ~670-PC matrix, and from Yang et al. 2017, whose pool is 350 variables
+for 1,000 trios. Two consequences, recorded rather than fixed:
 
-- `filter_int_child = TRUE` q-values 750 × 21,000 ≈ 15.8M correlations together,
-  so a covariate must clear `|r| ≈ 0.55` at n = 50 to survive.
-- CS-α at α = 0.01 over 21,000 columns implies ~210 false-positive confounders
-  per trio, which is why every fit in `run.group()` is wrapped in `safely()`.
+- `filter_int_child = TRUE` q-values 300 × 8,340 ≈ 2.5M correlations together, so
+  a covariate must clear `|r| ≈ 0.60` at n = 50 to survive.
+- CS-α at α = 0.01 over 8,340 columns implies ~83 false-positive confounders per
+  trio, which is why every fit in `run.group()` is wrapped in `safely()`.
+
+**This is what sets the replicate count.** The pool grows with the trio count, so
+selection costs `O(trios × pool) = O(replicates²)`:
+
+| replicates | trios/group | pool | min/group | ×5 groups |
+| --- | --- | --- | --- | --- |
+| 50 | 750 | 20,850 | 249 | 20.7 h |
+| **20 (chosen)** | **300** | **8,340** | **40** | **3.3 h** |
+| 10 | 150 | 4,170 | 10 | 0.8 h |
+
+Cutting replicates is nearly free statistically. The pooled q-value threshold is
+roughly `0.2 / pool_size`, so a 2.5× smaller pool moves the z cutoff only from
+4.42 to 4.22 — measured, the common-child pass rate at n = 1000 went 0.557 (50
+replicates) to 0.547 (20). What shrinks is per-cell precision, not sensitivity.
 
 ### Confounder selection has no power at n = 50
 
@@ -246,25 +351,29 @@ the point:
 
 | n | med \|rVW\| | true rW | med \|rVZ\| | true rZ | W pooled | Z pooled | W α=.05 | Z α=.05 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 50 | 0.135 | 0.128 | 0.207 | 0.269 | 0.000 | 0.063 | 0.147 | 0.380 |
-| 150 | 0.098 | 0.134 | 0.183 | 0.270 | 0.028 | 0.240 | 0.288 | 0.537 |
-| 300 | 0.081 | 0.119 | 0.167 | 0.268 | 0.073 | 0.331 | 0.352 | 0.637 |
-| 670 | 0.067 | 0.124 | 0.164 | 0.276 | 0.164 | 0.491 | 0.465 | 0.717 |
-| 1000 | 0.061 | 0.121 | 0.161 | 0.268 | 0.233 | 0.557 | 0.497 | 0.752 |
+| 50 | 0.124 | 0.114 | 0.212 | 0.273 | 0.000 | 0.073 | 0.130 | 0.400 |
+| 150 | 0.094 | 0.130 | 0.178 | 0.284 | 0.040 | 0.260 | 0.273 | 0.530 |
+| 300 | 0.078 | 0.118 | 0.161 | 0.269 | 0.093 | 0.360 | 0.323 | 0.617 |
+| 670 | 0.059 | 0.116 | 0.173 | 0.282 | 0.177 | 0.513 | 0.423 | 0.743 |
+| 1000 | 0.070 | 0.116 | 0.166 | 0.262 | 0.243 | 0.547 | 0.557 | 0.753 |
 
-1. **Effect size.** The true `|cor(V1, W)| ≈ 0.121` and `|cor(V1, Z)| ≈ 0.268`.
-   From `n = (z/r)²`, `W` needs n ≈ 262 uncorrected or ≈ 1,337 at the pooled
-   threshold; `Z` needs ≈ 54 and ≈ 273. `Z` is roughly 2.2× better coupled
+1. **Effect size.** The true `|cor(V1, W)| ≈ 0.116` and `|cor(V1, Z)| ≈ 0.262`.
+   From `n = (z/r)²`, `W` needs n ≈ 286 uncorrected or ≈ 1,332 at the pooled
+   threshold; `Z` needs ≈ 56 and ≈ 260. `Z` is roughly 2.3× better coupled
    because it hangs off the trio by two edges with coefficients `U(1, 1.5)`,
    while `W` hangs off one with `U(0.05, 0.5)`.
-2. **Sample size.** At n = 50 the uncorrected pass rate for `W` is 0.147 against
+2. **Sample size.** At n = 50 the uncorrected pass rate for `W` is 0.130 against
    a 0.05 null rate — power is the binding constraint there.
-3. **Multiplicity.** At n = 1000 the uncorrected rate for `W` is 0.497 but the
-   pooled rate is 0.233; for `Z`, 0.752 against 0.557. At large `n` the pooled
+3. **Multiplicity.** At n = 1000 the uncorrected rate for `W` is 0.557 but the
+   pooled rate is 0.243; for `Z`, 0.753 against 0.547. At large `n` the pooled
    threshold, not power, is what binds.
 
-Widening `b.snp` to `(0, 1.5]` roughly doubled both effects (`rW` 0.068 → 0.121,
-`rZ` 0.163 → 0.268) and the required sample sizes fell accordingly — `Z` now
+The recalibration roughly doubled both effects — de-noised at n = 1000, `rW`
+went 0.063 → 0.121 and `rZ` 0.130 → 0.268 against the pre-recalibration run —
+and the required sample sizes fell accordingly. Widening `b.snp` is the main
+lever, but the lower `U` bound pushes the same way (less `U` variance in `T1`
+leaves the SNP a larger share), and the two cannot be separated from the two
+saved runs. `Z` now
 clears the pooled threshold from about n = 273, so the n = 300, 670 and 1000
 groups detect common children in 33%, 49% and 56% of trios.
 
@@ -287,8 +396,10 @@ of `T1` and correlation multiplies along a path. Measured at n = 1000:
 
 `0.280 × 0.664 = 0.186` against an observed `cor(V1, Z)` of 0.161. `Z`'s effect on
 the *genes* is large, but the filter tests it against the *variant*, and the first
-link is the bottleneck — which is why widening `b.snp` was the effective lever and
-recalibrating the confounders was not.
+link is the bottleneck — which is why the levers that worked were the ones acting
+on `cor(V1, T1)`: a wider `b.snp` directly, and a smaller `U` block indirectly, by
+leaving less competing variance in `T1`. Raising `Z`'s own coefficients would not
+have helped, since `cor(T1, Z)` is already near its ceiling (below).
 
 `Z` is already at its structural ceiling — with two roughly equal parents
 `cor(T1, Z) → 1/√2 = 0.707` as the coefficients grow, and `U(1, 1.5)` already
@@ -300,22 +411,38 @@ was recalibrated, which may be a copy rather than a considered choice.
 
 ### The failure is conditional, not universal
 
-Detection depends on `b.snp` and `n`, not on the model or on `b.snp` relative to
-`b.med`. The ratio is irrelevant — `cor(Z pass, b.snp/b.med) = 0.036`, against
-`cor(Z pass, b.snp) = 0.523` — which follows from `b.med` being the `T1 → T2`
-edge, not on the path from `V1` to `W` or `Z`.
+Detection depends on the absolute effect sizes and on `n`, not on `b.snp`
+relative to `b.med`. Measured over all 3,750 datasets, common-child detection at
+the pooled threshold correlates:
 
-So the filter works where the SNP effect is strong and `n` is adequate, and n = 50
-remains the weakest case by a wide margin. Rerun the stratum breakdown after any
-change to the effect ranges — it is the quickest check on whether the filter has
-anything to work with.
+| with | `cor` |
+| --- | --- |
+| `b.snp` | 0.458 |
+| `b.med` | 0.422 |
+| `b.snp / b.med` | −0.036 |
 
-Two per-model details, both correct behaviour rather than defects: in **model2**
+**`b.med` matters about as much as `b.snp`**, which corrects an earlier reading
+of these numbers. `Z` is a common child of *both* genes, and `V1` reaches `T2`
+through `b.med` in model1 and model4, so the mediation coefficient does sit on a
+`V1 → T2 → Z` path — it is not confined to the `T1 → T2` edge. What the ratio
+measures is the *balance* between two coefficients that both help, which is why
+it carries no signal.
+
+So the filter works where the trio's effects are strong and `n` is adequate, and
+n = 50 remains the weakest case by a wide margin. Rerun the stratum breakdown
+after any change to the effect ranges — it is the quickest check on whether the
+filter has anything to work with.
+
+Two per-model details, both correct behaviour rather than defects. In **model2**
 the intermediate is upstream (`T2 → W → T1`), so `W` and `V1` are both parents of
-`T1` and marginally independent — `cor(V1, W) = 0.022`, and the filter can never
-find it. In **model3** `V1` reaches `Z` through both genes with independently
-signed coefficients, so the two paths partly cancel and `cor(V1, Z) = 0.046`,
-the lowest of the five models.
+`T1` and marginally independent — median `|cor(V1, W)| = 0.021` at n = 1000,
+de-noising to exactly 0, and the filter can never find it. In **model3** `V1`
+reaches `Z` through both genes with independently signed coefficients, so the two
+paths partly cancel and the median `|cor(V1, Z)|` is 0.077 at n = 1000, the
+lowest of the five models (model1 is next at 0.110, model4 highest at 0.245).
+Note the cancellation shows up in the *median*, not in the RMS: model3's
+de-noised `rZ` is not correspondingly low, because the cancellation is
+sign-dependent and leaves a wide spread rather than a uniformly small effect.
 
 There is also a design mismatch worth recording. `get.conf.trios()` identifies an
 intermediate or common child by its correlation with variants **across the whole
@@ -338,9 +465,11 @@ group should be caveated or excluded in the analysis.**
 `R2.T1.U` / `R2.T2.U`.
 
 > `R2.T1.U` / `R2.T2.U` are **unadjusted** `R²`, inflated whenever `U_n` is an
-> appreciable fraction of `n` — at n = 50 with `U_n = 26` the inflation is about
-> 0.35 regardless of the true value. Compare `verify_simulation.R`'s adjusted
-> figures against the real 0.41 / 0.31 instead.
+> appreciable fraction of `n`. Measured on the current run: median 0.456
+> unadjusted against 0.373 adjusted overall, and 0.712 against 0.321 at n = 50
+> with median `U_n = 26` — an inflation of 0.39 there, regardless of the true
+> value. Compare `verify_simulation.R`'s adjusted figures against the real
+> 0.41 / 0.31 instead.
 
 `conf.effects` holds the cis and trans regressions of each gene on all
 covariates. These condition on the collider `Z` and the mediator `W` and omit
@@ -355,6 +484,16 @@ on PCs only.
   at FDR 0.05), so they describe confounders strong enough to have been found.
   Recovery rates should not be read as covering near-null confounders.
 - The cis/trans asymmetry (§3) is not reproduced.
-- `conf.coef.ranges` is a raw slope while the bound is a correlation (§3).
+- `conf.coef.ranges` is a raw slope while the bound is a correlation (§3), so the
+  nominal 0.3 is calibrated only for the current `U_n`, `SD` and `b.snp`.
 - `conf.r.squared()` reports unadjusted `R²` (§5).
 - The low-MAF resampling distortion (§2) is unaddressed.
+- The before/after comparisons against
+  `simulated_trios_precalibration.RData` (§3, §4) confound two changes — the `U`
+  bound and the `b.snp`/`b.med` ranges moved in the same run. Isolating either
+  would need a third run.
+- `W`'s `c(0.05, 0.5)` is the range the `U` block used before recalibration and
+  may be a copy rather than a considered choice (§4). It is the remaining lever
+  if the intermediate needs to be more detectable.
+- The n = 50 group's `CSq.filter_int_child` / `CSa.filter_int_child` columns still
+  need checking on the next inference run (§4).

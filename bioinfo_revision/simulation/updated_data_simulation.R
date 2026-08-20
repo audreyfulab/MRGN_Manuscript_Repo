@@ -11,9 +11,23 @@ source("./bioinfo_revision/simulation/simulation_utils.R")
 # -----------------------------
 # seed
 set.seed(234)
-# number of replicates of each scenario. 5 models x 5 sample sizes x 3 effect sizes x 50
-# replicates = 3750 datasets (the pre-revision simulation ran 1500 at a single sample size)
-number_of_replicates <- 50
+# Number of replicates of each scenario. 5 models x 5 sample sizes x 3 effect sizes x 20
+# replicates = 1500 datasets, 300 per sample-size group. (The pre-revision simulation ran
+# 1500 at a single sample size.)
+#
+# This is set by the cost of confounder selection, not by the cost of simulating. Every
+# trio contributes its own U/W/Z columns to its group's shared covariate pool, so the pool
+# grows with the trio count and get.conf.trios() costs O(trios x pool) = O(replicates^2).
+# Measured at ~0.955 ms per (trio x covariate) test: 20 replicates is 300 trios against an
+# ~8,340 column pool, about 40 min per group and ~3.3 h over the five groups. At 50
+# replicates it was ~20.7 h.
+#
+# The statistical cost is small. The pooled q-value threshold in the filtering step is
+# roughly 0.2 / pool_size, so shrinking the pool moves the z cutoff only from 4.42 to 4.22
+# -- detection power is essentially unchanged. What shrinks is per-cell precision: 20
+# replicates gives a standard error near 0.11 on a per-cell accuracy of 0.5 across the 75
+# model x sample size x effect size cells, so read the marginals rather than single cells.
+number_of_replicates <- 20
 
 # Effect size ranges, one set per parameter, each split into tertiles by the scenario's
 # effect_size stratum. b.snp spans (0, 1.5] and b.med spans (0, 1].

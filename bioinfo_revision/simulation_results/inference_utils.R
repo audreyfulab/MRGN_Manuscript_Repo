@@ -18,15 +18,26 @@ source("adapted_GMAC_func/GMAC_moded/R/GMAC.R")
 # confounder selection (MRGN and MRPC)
 # ---------------------------------------------------------------------------------------
 
-# Confounder selection for one group of trios via MRGN::get.conf.trios(), run in both
-# selection settings and returned side by side:
+# Confounder selection for one group of trios via MRGN::get.conf.trios(), returning both
+# selection settings side by side:
 #
 #   CS-q     - q-value method controlling FDR at 5% (adjust_by = "all", selection_fdr = 0.05)
 #   CS-alpha - no multiple-testing correction, each test at a fixed type I error rate
-#              alpha < 0.01 (adjust_by = "none", alpha = 0.01)
+#              alpha < 0.01 (equivalent to adjust_by = "none", alpha = 0.01)
 #
 # Same pairing as the original scripts: MRGN_sim2_filter_int_child.R uses the CS-q call and
 # its _liberal.R counterpart the CS-alpha one, identical in every other argument.
+#
+# get.conf.trios() is called ONCE and both settings are derived from that one result. Every
+# expensive step inside it -- propagate::bigcor() over the variant/covariate correlation and
+# the per-trio-per-covariate regressions in p.from.reg() -- is identical for the two
+# settings; only the final switch(adjust_by, ...) thresholding of reg.pvalues differs, and
+# reg.pvalues is returned. Calling it twice therefore doubled the cost for nothing: measured
+# at ~0.955 ms per (trio x covariate) test, a 300-trio group with an 8,340 column pool takes
+# ~40 min per call.
+#
+# CS-alpha is reproduced exactly by thresholding reg.pvalues at alpha, which is all
+# adjust_by = "none" does internally.
 #
 # trios:      list of n x 3 trio matrices (V1, T1, T2) that all share the same sample size
 # cov.pool:   n x p matrix of candidate covariates pooled over those trios. The confounder
@@ -62,47 +73,28 @@ select.confounders <- function(trios, cov.pool, known.conf = NULL, blocksize = 5
                     length(trios), "): propagate::bigcor() mis-blocks the correlation otherwise"))
     }
 
-    # one selection setting, with the fallback described below
-    run.selection <- function(adjust_by, setting) {
+    # get.conf.trios() returns sig.asso.covs from apply(reg.sigmat, 1, which), which
+    # simplifies to a matrix on the (unlikely but possible) occasion that every trio
+    # selects the same number of covariates. Everything downstream indexes it with [[i]],
+    # so normalise it to a list of integer vectors first.
+    as.cov.list <- function(x, n.trios, nms) {
+        if (!is.list(x)) {
+            x <- if (is.matrix(x)) {
+                lapply(seq_len(ncol(x)), function(i) as.integer(x[, i]))
+            } else {
+                lapply(seq_len(n.trios), function(i) as.integer(x[i]))
+            }
+        }
+        x <- lapply(x, function(v) unname(as.integer(v)))
+        names(x) <- nms
+        return(x)
+    }
 
-        filter.applied <- filter_int_child
-        start.time <- Sys.time()
-        # get.conf.trios() stops outright when filter_int_child = TRUE and not one
-        # covariate in the pool comes back associated with any variant in the group: its
-        # apply(sigmat, 1, which) simplifies the all-empty result to a zero-length vector
-        # and it errors with "No common child or intermediate variables detected". There is
-        # nothing to filter in that case, so fall back to the unfiltered selection and say so.
-        selection <- tryCatch(
-            get.conf.trios(trios = trios,
-                           cov.pool = cov.pool,
-                           blocksize = blocksize,
-                           filter_int_child = filter_int_child,
-                           selection_fdr = selection_fdr,
-                           filter_fdr = filter_fdr,
-                           adjust_by = adjust_by,
-                           alpha = alpha),
-            error = function(e) {
-                if (!grepl("No common child or intermediate variables detected", conditionMessage(e))) {
-                    stop(e)
-                }
-                message("No common child or intermediate variables detected in this group (",
-                        setting, "): re-running get.conf.trios() with filter_int_child = FALSE")
-                filter.applied <<- FALSE
-                get.conf.trios(trios = trios,
-                               cov.pool = cov.pool,
-                               blocksize = blocksize,
-                               filter_int_child = FALSE,
-                               selection_fdr = selection_fdr,
-                               filter_fdr = filter_fdr,
-                               adjust_by = adjust_by,
-                               alpha = alpha)
-            })
-        end.time <- Sys.time()
+    # trio + known confounders + selected confounders, one data.frame per trio, plus the
+    # per-trio covariate frame the original scripts kept. Shared by both settings.
+    assemble <- function(sig.asso.covs, setting, elapsed) {
+        conf.list <- lapply(sig.asso.covs, function(x, y) { y[, x] }, y = cov.pool)
 
-        # one data.frame of selected covariates per trio, as in the original scripts
-        conf.list <- lapply(selection$sig.asso.covs, function(x, y) { y[, x] }, y = cov.pool)
-
-        # trio + known confounders + selected confounders, one data.frame per trio.
         # drop = FALSE keeps a single selected covariate a data.frame rather than a vector,
         # which would otherwise lose its column name in the cbind.
         trios.with.confs <- vector("list", length(trios))
@@ -111,7 +103,7 @@ select.confounders <- function(trios, cov.pool, known.conf = NULL, blocksize = 5
             if (!is.null(known.conf)) {
                 assembled <- cbind.data.frame(assembled, as.data.frame(known.conf))
             }
-            selected <- selection$sig.asso.covs[[i]]
+            selected <- sig.asso.covs[[i]]
             if (length(selected) > 0) {
                 assembled <- cbind.data.frame(assembled, cov.pool[, selected, drop = FALSE])
             }
@@ -123,19 +115,74 @@ select.confounders <- function(trios, cov.pool, known.conf = NULL, blocksize = 5
              conf.list = conf.list,
              selection = selection,
              setting = setting,
-             adjust_by = adjust_by,
-             # FALSE when this setting fell back to the unfiltered selection above, so the
-             # groups that were not filtered stay identifiable in the saved results
+             # FALSE when the group fell back to the unfiltered selection below. Both
+             # settings share the one call, so they now always agree; both are still
+             # reported so the results schema in run.group() is unchanged.
              filter_int_child = filter.applied,
-             time.seconds = as.numeric(difftime(end.time, start.time, units = "secs")))
+             time.seconds = elapsed)
     }
 
-    CS.q <- run.selection(adjust_by = "all", setting = "CS-q")
-    CS.alpha <- run.selection(adjust_by = "none", setting = "CS-alpha")
+    filter.applied <- filter_int_child
+    start.time <- Sys.time()
+    # get.conf.trios() stops outright when filter_int_child = TRUE and not one covariate in
+    # the pool comes back associated with any variant in the group: its apply(sigmat, 1,
+    # which) simplifies the all-empty result to a zero-length vector and it errors with
+    # "No common child or intermediate variables detected". There is nothing to filter in
+    # that case, so fall back to the unfiltered selection and say so.
+    #
+    # adjust_by = "all" gives CS-q directly; CS-alpha is derived from reg.pvalues below.
+    selection <- tryCatch(
+        get.conf.trios(trios = trios,
+                       cov.pool = cov.pool,
+                       blocksize = blocksize,
+                       filter_int_child = filter_int_child,
+                       selection_fdr = selection_fdr,
+                       filter_fdr = filter_fdr,
+                       adjust_by = "all",
+                       alpha = alpha),
+        error = function(e) {
+            if (!grepl("No common child or intermediate variables detected", conditionMessage(e))) {
+                stop(e)
+            }
+            message("No common child or intermediate variables detected in this group: ",
+                    "re-running get.conf.trios() with filter_int_child = FALSE")
+            filter.applied <<- FALSE
+            get.conf.trios(trios = trios,
+                           cov.pool = cov.pool,
+                           blocksize = blocksize,
+                           filter_int_child = FALSE,
+                           selection_fdr = selection_fdr,
+                           filter_fdr = filter_fdr,
+                           adjust_by = "all",
+                           alpha = alpha)
+        })
+    elapsed <- as.numeric(difftime(Sys.time(), start.time, units = "secs"))
 
+    trio.names <- names(trios)
+    csq.covs <- as.cov.list(selection$sig.asso.covs, length(trios), trio.names)
+
+    # CS-alpha: threshold the same regression p-values at alpha, which is exactly what
+    # adjust_by = "none" does inside get.conf.trios(). Row-wise lapply rather than
+    # apply(..., 1, which), which would simplify to a matrix when every trio happens to
+    # select the same number of covariates. which() drops NA on its own, matching the
+    # existing behaviour for the rank-deficient fits that occur at small n.
+    reg.p <- as.matrix(selection$reg.pvalues)
+    csa.covs <- lapply(seq_len(nrow(reg.p)), function(i) unname(which(reg.p[i, ] < alpha)))
+    names(csa.covs) <- trio.names
+
+    CS.q <- assemble(csq.covs, setting = "CS-q", elapsed = elapsed)
+    CS.alpha <- assemble(csa.covs, setting = "CS-alpha", elapsed = elapsed)
+    # sig.asso.covs on the shared `selection` object is the CS-q one; give each setting its
+    # own so run.group() can read sel$CS.*$selection$sig.asso.covs as before
+    CS.q$selection$sig.asso.covs <- csq.covs
+    CS.alpha$selection$sig.asso.covs <- csa.covs
+    CS.q$adjust_by <- "all"
+    CS.alpha$adjust_by <- "none"
+
+    # one call now serves both settings, so this is the wall clock for the pair
     return(list(CS.q = CS.q,
                 CS.alpha = CS.alpha,
-                time.seconds = CS.q$time.seconds + CS.alpha$time.seconds))
+                time.seconds = elapsed))
 }
 
 

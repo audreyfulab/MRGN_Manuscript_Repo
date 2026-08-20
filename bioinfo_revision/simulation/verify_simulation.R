@@ -20,6 +20,7 @@ args <- commandArgs(trailingOnly = TRUE)
 SIM.FILE  <- if (length(args) > 0) args[1] else "bioinfo_revision/simulation/simulated_data/simulated_trios.RData"
 POOL.FILE <- "bioinfo_revision/pc_distribution_invest/data/real_pc_effect_pools.RData"
 PLOT.FILE <- "bioinfo_revision/simulation_results/simulated_vs_real_conf_effects.png"
+R2.PLOT.FILE <- "bioinfo_revision/simulation_results/r2_vs_confounder_count.png"
 
 # real Whole Blood reference values
 REAL <- list(R2.cis = 0.412, R2.trans = 0.307,     # median R2 of a gene on its own PCs
@@ -44,10 +45,19 @@ measure <- function(dat, params) {
     # into, so the adjusted value is the one to compare against the real 0.41 / 0.31.
     fit <- function(y) if (U_n > n - 3) NA_real_ else summary(lm(y ~ U))$adj.r.squared
 
+    # SNP effect on the PARTIAL scale, cor(V1, T1 | U). compute_effects_snp_on_gene.R
+    # measures the real SNP effect adjusted for that trio's PCs, so the marginal
+    # cor(V1, T1) is not the comparable quantity -- conditioning on U removes ~37% of T1's
+    # variance and raises the correlation substantially (0.286 marginal vs 0.360 partial
+    # on the 50-replicate run). Both are reported, each labelled.
+    partial.V1.T1 <- if (U_n > n - 3) NA_real_ else
+        cor(resid(lm(V1 ~ U)), resid(lm(T1 ~ U)))
+
     list(n = n, U_n = U_n, model = params$model, effect_size = params$effect_size,
          R2.cis = fit(T1), R2.trans = fit(T2),
          r.cis = as.vector(cor(U, T1)), r.trans = as.vector(cor(U, T2)),
          cor.V1.T1 = cor(V1, T1),
+         partial.V1.T1 = partial.V1.T1,
          cor.V1.W = if (length(w.idx)) cor(V1, dat[, w.idx[1]]) else NA_real_,
          cor.V1.Z = if (length(z.idx)) cor(V1, dat[, z.idx[1]]) else NA_real_,
          n.cov = ncol(dat) - 3)
@@ -102,6 +112,56 @@ plot.effect.comparison <- function(sim.cis, sim.trans, pools, filename = PLOT.FI
               strip.text = element_text(face = "bold"))
 
     ggsave(filename, plot = p, width = 7, height = 7, dpi = 150)
+    cat("\nwrote", filename, "\n")
+    return(invisible(p))
+}
+
+
+plot.r2.vs.count <- function(m, pools, filename = R2.PLOT.FILE) {
+    # How the confounding a gene carries grows with the number of confounders acting on
+    # it, simulated against real. R2 is additive over an orthogonal block, so this is the
+    # relationship the calibration is really trying to reproduce -- the single-number
+    # median hides whether the slope is right.
+    #
+    # Simulated points are restricted to n >= 300. Adjusted R2 is noisy when U_n is an
+    # appreciable fraction of n, and at n = 50 with U_n up to 44 it is unusable.
+    if (is.null(pools$trio.r2)) {
+        cat("\n  (effect pool file has no trio.r2 table; rerun",
+            "compute_pc_dist_bounds.R to enable the R2 figure)\n")
+        return(invisible(NULL))
+    }
+
+    keep <- which(sapply(m, function(x) x$n) >= 300)
+    sim <- data.frame(
+        count = sapply(m[keep], function(x) x$U_n),
+        R2    = sapply(m[keep], function(x) x$R2.cis),
+        source = "simulated")
+    real <- data.frame(count = pools$trio.r2$nPC,
+                       R2 = pools$trio.r2$R2.cis,
+                       source = "real (GTEx Whole Blood)")
+    df <- rbind(sim, real)
+    df <- df[is.finite(df$R2) & is.finite(df$count), ]
+    df$source <- factor(df$source, levels = c("simulated", "real (GTEx Whole Blood)"))
+
+    cols <- c("simulated" = "#D95F02", "real (GTEx Whole Blood)" = "#1B9E77")
+    p <- ggplot(df, aes(x = count, y = R2, colour = source, fill = source)) +
+        geom_point(alpha = 0.12, size = 0.7, stroke = 0) +
+        # median rather than mean: the simulated R2 at small U_n is bounded below by 0
+        # and skewed, so a mean line sits above the bulk of the points
+        stat_summary(aes(group = source), fun = median, geom = "line", linewidth = 1.1,
+                     na.rm = TRUE) +
+        scale_colour_manual(values = cols) +
+        scale_fill_manual(values = cols) +
+        coord_cartesian(ylim = c(0, 1)) +
+        labs(title = "Confounding grows with the number of confounders",
+             subtitle = paste("adjusted R2 of the cis gene on its own confounder block;",
+                              "simulated trios with n >= 300"),
+             x = "Confounders acting on the trio (simulated U_n / real selected PCs)",
+             y = "Adjusted R2, cis gene", colour = NULL, fill = NULL) +
+        theme_minimal(base_size = 11) +
+        theme(legend.position = "top", panel.grid.minor = element_blank())
+
+    ggsave(filename, plot = p, width = 7, height = 5, dpi = 150)
     cat("\nwrote", filename, "\n")
     return(invisible(p))
 }
@@ -164,16 +224,36 @@ bin <- cut(sapply(m[big], function(x) x$U_n), c(0, 10, 20, 30, 40, 50))
 agg <- tapply(sapply(m[big], function(x) x$R2.cis), bin, median, na.rm = TRUE)
 for (b in names(agg)) cat(sprintf("  U_n in %-9s  R2 = %.3f\n", b, agg[[b]]))
 
+plot.r2.vs.count(m, pools)
+
 # ---- 4. SNP effect ----
+#
+# The real reference is a PARTIAL correlation: compute_effects_snp_on_gene.R regresses the
+# gene on the genotype adjusted for that trio's PCs. The simulated partial correlation is
+# therefore the like-for-like comparison; the marginal is reported alongside because it is
+# what drives cor(V1, W) and cor(V1, Z) in the detectability section below.
 cat("\n=== SNP effect ===\n")
-snp <- abs(sapply(m, function(x) x$cor.V1.T1))
-cat(sprintf("  median |cor(V1, T1)| = %.3f   (real partial correlation peaks at %.2f,\n",
-            median(snp), REAL$snp.cor))
-cat("                                  central 99% within +/-0.45)\n")
-by.eff <- tapply(snp, sapply(m, function(x) x$effect_size), median)
+cat(sprintf("  real Whole Blood, partial |r(V, T1 | PCs)|: peaks near %.2f, central 99%% within 0.45\n",
+            REAL$snp.cor))
+partial <- abs(sapply(m, function(x) x$partial.V1.T1))
+marginal <- abs(sapply(m, function(x) x$cor.V1.T1))
+cat(sprintf("\n  simulated partial  |cor(V1, T1 | U)| : median %.3f\n", median(partial, na.rm = TRUE)))
+cat(sprintf("  simulated marginal |cor(V1, T1)|     : median %.3f  (not comparable to the real value)\n",
+            median(marginal)))
+
+cat("\n  partial correlation by effect-size stratum:\n")
+cat(sprintf("    %-8s %8s %8s %8s\n", "stratum", "2.5%", "median", "97.5%"))
+eff <- sapply(m, function(x) x$effect_size)
 for (e in c("small", "medium", "large")) {
-    if (!is.na(by.eff[e])) cat(sprintf("    %-7s %.3f\n", e, by.eff[e]))
+    g <- partial[eff == e & is.finite(partial)]
+    if (length(g) == 0) next
+    cat(sprintf("    %-8s %8.3f %8.3f %8.3f\n", e,
+                quantile(g, 0.025), median(g), quantile(g, 0.975)))
 }
+cat(sprintf("\n  inside the real central 99%% (|r| <= 0.45): %.1f%% of trios\n",
+            100 * mean(partial <= 0.45, na.rm = TRUE)))
+cat("  The small stratum is the GTEx-like case; medium and large deliberately extend\n")
+cat("  past the real range to give the confounder filter something to detect.\n")
 
 # ---- 5. can the filter see W and Z? ----
 cat("\n=== intermediate / common child detectability ===\n")

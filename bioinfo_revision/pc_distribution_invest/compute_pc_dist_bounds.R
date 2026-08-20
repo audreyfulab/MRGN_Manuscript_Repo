@@ -303,7 +303,33 @@ plot.distribution <- function(effects, target, save=FALSE, filename=NULL,
 }
 
 
-cache.effect.pools <- function(cis.effects, trans.effects, path) {
+per.trio.r2 <- function(data.with.pcs) {
+    # One row per trio: how many PCs it retained, and the proportion of each gene's
+    # variance they explain. simulation/verify_simulation.R plots the simulated
+    # R2-versus-confounder-count relationship against this.
+    #
+    # R2 is the sum of squared marginal correlations rather than an lm() fit. The two are
+    # identical here because principal components are orthogonal (the same identity the
+    # standardized effects rely on above), and it avoids fitting 3,248 models with up to
+    # 51 predictors each.
+    rows <- lapply(data.with.pcs, function(x) {
+        covs <- x[, -c(1:3), drop = FALSE]
+        covs <- covs[, grepl("^PC[0-9]+$", colnames(covs)), drop = FALSE]
+        cov.sd <- apply(covs, 2, sd)
+        covs <- covs[, is.finite(cov.sd) & cov.sd > SD.TOL, drop = FALSE]
+        if (ncol(covs) == 0) {
+            return(NULL)
+        }
+        P <- as.matrix(covs)
+        data.frame(nPC = ncol(P),
+                   R2.cis = sum(cor(P, x[, 2])^2),
+                   R2.trans = sum(cor(P, x[, 3])^2))
+    })
+    return(do.call(rbind, rows))
+}
+
+
+cache.effect.pools <- function(cis.effects, trans.effects, path, trio.r2 = NULL) {
     dir.create(dirname(path), showWarnings = FALSE, recursive = TRUE)
     # Write the pooled STANDARDIZED effects to disk for simulation_utils.R to resample
     # from. Only the standardized column crosses over: it is the Pearson correlation
@@ -318,6 +344,9 @@ cache.effect.pools <- function(cis.effects, trans.effects, path) {
     # simulated U confounders represent confounders strong enough to have been found.
     pools <- list(cis = cis.effects$standardized,
                   trans = trans.effects$standardized,
+                  # one row per trio: nPC, R2.cis, R2.trans. The reference curve for
+                  # verify_simulation.R's R2-versus-confounder-count figure.
+                  trio.r2 = trio.r2,
                   n.trios = length(data.with.pcs),
                   source = "GTEx/data/data.with.PCs.WholeBlood.RData",
                   scale = "Pearson correlation cor(PC, gene), = b * sd(PC) / sd(Y)")
@@ -339,6 +368,11 @@ cache.effect.pools <- function(cis.effects, trans.effects, path) {
             ", E[r^2] = ", round(mean(pools[[nm]]^2), 5),
             ", max|r| = ", round(max(abs(pools[[nm]])), 4), "\n", sep = "")
     }
+    if (!is.null(trio.r2)) {
+        cat("  per-trio R2: ", nrow(trio.r2), " trios, median nPC = ",
+            median(trio.r2$nPC), ", median R2 cis = ", round(median(trio.r2$R2.cis), 3),
+            ", trans = ", round(median(trio.r2$R2.trans), 3), "\n", sep = "")
+    }
     return(invisible(pools))
 }
 
@@ -358,9 +392,13 @@ trans.effects <- collect.pc.effects(data.with.pcs, target = "trans", standardize
 summarize.effects(trans.effects, "trans")
 plot.distribution(trans.effects, target = "trans", save = TRUE, filename = "PC_effects_distribution_trans.png")
 
+print("Collecting per-trio confounder counts and R2...")
+trio.r2 <- per.trio.r2(data.with.pcs)
+
 cache.effect.pools(cis.effects, trans.effects,
                    path = file.path(root, "bioinfo_revision", "pc_distribution_invest",
-                                    "data", "real_pc_effect_pools.RData"))
+                                    "data", "real_pc_effect_pools.RData"),
+                   trio.r2 = trio.r2)
 
 
 setwd(root)

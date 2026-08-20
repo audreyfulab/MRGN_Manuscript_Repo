@@ -128,11 +128,11 @@ names matching the node names (`U1`..`Ud`, `K1`..`K3`) — an unnamed matrix sil
 produces all-`NA` confounder columns that propagate into T1/T2 as `NaN`, and an unnamed
 data frame errors with "undefined columns selected".
 
-> **Note on the `U` bound.** The code currently uses `U = c(0, 0.3)`; `METHODS.md` §3
-> describes the change as `c(0, 0.2)`, the central 95% of the real per-PC effects. The
-> data in `simulated_data/simulated_trios.RData` was generated with 0.3, which lands the
-> realized adjusted `R²` at ~0.37 against the real 0.41. Treat the script as
-> authoritative and the METHODS figure as the interval it was derived from.
+> **Note on the `U` bound.** `U = c(0, 0.3)` is a **raw slope**, while the real bound it
+> targets (±0.20 at the central 95% of the per-PC effects) is a **correlation**. The two
+> differ by `sd(T1)`, so the nominal 0.3 realizes a median `|r|` of 0.098 — see
+> [`../METHODS.md`](../METHODS.md) §3. The number is calibrated for the current `U_n`,
+> `SD` and `b.snp`; rerun `verify_simulation.R` after changing any of them.
 
 ## `verify_simulation.R`
 

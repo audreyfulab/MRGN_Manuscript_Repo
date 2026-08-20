@@ -333,6 +333,35 @@ roughly `0.2 / pool_size`, so a 2.5× smaller pool moves the z cutoff only from
 4.42 to 4.22 — measured, the common-child pass rate at n = 1000 went 0.557 (50
 replicates) to 0.547 (20). What shrinks is per-cell precision, not sensitivity.
 
+### What the two settings actually select
+
+Measured end to end on the n = 50 group: 300 trios, 7,967 pool columns, **30.2
+min for both settings** from the single `get.conf.trios()` call.
+
+| setting | median selected/trio | range | trios with none |
+| --- | --- | --- | --- |
+| CS-q | 1 | 0–3 | 9 |
+| CS-α | **82** | 61–105 | 0 |
+
+Neither is close to the ~26 confounders actually acting on a trio, and they fail
+in opposite directions:
+
+- **CS-q is far too conservative here.** A q-value FDR across 300 × 7,967 ≈ 2.4M
+  tests leaves a median of one selected covariate per trio. Most of a trio's true
+  confounders go unadjusted.
+- **CS-α is unusable at n = 50.** α = 0.01 over 7,967 columns yields ~80 false
+  positives by construction (`7967 × 0.01 = 80`, against 82 observed), and at
+  n = 50 almost no true confounder clears p < 0.01 anyway — that needs
+  `|r| > 0.36`, while the true per-confounder effect is ~0.12. So essentially all
+  82 are false positives, handed to MRGN and MRPC as 82 covariates against 50
+  observations. Every such fit is rank-deficient, which is what `safely()` in
+  `run.group()` is absorbing.
+
+Both are consequences of the pooled private-covariate design rather than of the
+methods: each trio is scored against 7,967 columns of which ~28 are its own. The
+n = 50 CS-α arm in particular should be treated as uninformative rather than as a
+measurement of how MRGN or MRPC behave.
+
 ### Confounder selection has no power at n = 50
 
 `get.conf.trios()` finds no intermediate or common child variables in the n = 50
@@ -373,17 +402,20 @@ went 0.063 → 0.121 and `rZ` 0.130 → 0.268 against the pre-recalibration run 
 and the required sample sizes fell accordingly. Widening `b.snp` is the main
 lever, but the lower `U` bound pushes the same way (less `U` variance in `T1`
 leaves the SNP a larger share), and the two cannot be separated from the two
-saved runs. `Z` now
-clears the pooled threshold from about n = 273, so the n = 300, 670 and 1000
-groups detect common children in 33%, 49% and 56% of trios.
+saved runs. `Z` now clears the pooled threshold from about n = 260, so the
+n = 300, 670 and 1000 groups detect common children in 36%, 51% and 55% of trios.
 
-**The n = 50 group no longer returns nothing.** 6.3% of its trios now have a
-detectable common child, so `get.conf.trios()` should no longer raise "No common
-child or intermediate variables detected" and `select.confounders()` should no
-longer fall back to `filter_int_child = FALSE`. Confirm this on the next
-inference run via the `CSq.filter_int_child` / `CSa.filter_int_child` columns.
+**The n = 50 group no longer returns nothing — confirmed by running it.** 7.3% of
+its trios now carry a detectable common child, which is enough that
+`get.conf.trios()` passes the filtering step instead of raising "No common child
+or intermediate variables detected", and `select.confounders()` no longer falls
+back to `filter_int_child = FALSE`. This was the symptom that started the
+revision.
+
 Detection at n = 50 is still poor in absolute terms, so the group's confounder
-sets will contain colliders for most trios and should be caveated.
+sets will contain colliders for most trios and should be caveated in the
+analysis. Check `CSq.filter_int_child` / `CSa.filter_int_child` on each run:
+they record whether the fallback fired.
 
 Both blocks are capped above by `|cor(V1, T1)|`, since `W` and `Z` are downstream
 of `T1` and correlation multiplies along a path. Measured at n = 1000:
@@ -459,7 +491,241 @@ group should be caveated or excluded in the analysis.**
 
 ---
 
-## 5. Diagnostics recorded per dataset
+## 5. Why confounder selection now looks worse than in the published study
+
+The pre-revision simulation reported confounder-selection recall above 90%
+(`MRGN_v8.pdf`, lines 219–222: ">90% when the number of true confounders per trio
+was modest (<25)", dropping "to approximately 65% for trios with many (>25)").
+The revised simulation gets 52.9% at n = 670. **The whole difference is the
+confounder effect size, and the revised value is the honest one.**
+
+This section documents the comparison because the drop looks alarming and is
+easy to mistake for a regression in the pipeline.
+
+### The two runs are directly comparable
+
+`Simulation/sim_data_with_many_confounders.R` produced 300 trios at n = 670 — the
+same sample size and trio count as the revised n = 670 group.
+
+| | old many-confounder | revised n = 670 | real GTEx |
+| --- | --- | --- | --- |
+| sample size | 670 | 670 | 670 |
+| trios | 300 | 300 | 3,248 |
+| pooled covariates | 10,550 | 8,621 | 670 |
+| `conf.coef.ranges$U` | `c(0.15, 0.5)` | `c(0, 0.3)` | — |
+| `U_n` | 15–50 (median 34) | 1–50 (median 26) | 6–51 (median 30) |
+| `SD` | ≈0.63 (`b.med`-scaled) | 1 | — |
+| `b.snp` | `U(0.5, 1.5)` | `(0, 1.5]` stratified | — |
+| **median \|cor(U, T1)\|** | **0.149** | **0.098** | **0.101** |
+| **adjusted R²(T1 \| U)** | **0.830** | **0.370** | **0.412** |
+
+The old simulation carried **twice the confounding of real Whole Blood**; the
+revised one sits essentially on it, matched on both the aggregate `R²` and the
+per-confounder correlation.
+
+### Recall, same measurement on both
+
+Recall of a trio's own `U` block by CS-q (`adjust_by = "all"`, FDR 5%). The old
+columns are computed from the selection output saved with the paper
+(`confs_mrgn_mrpc_get_conf_out_all.RData`,
+`many_conf_data/confs_mrgn_mrpc_REG.RData`), not re-run.
+
+| true confounders | old 5k | old many-conf | revised n = 670 | revised n = 1000 |
+| --- | --- | --- | --- | --- |
+| ≤ 10 | 98.4% | — | 71.4% | 82.6% |
+| 10–15 | 95.5% | 96.2% | 61.1% | 75.3% |
+| 15–20 | — | 94.6% | 59.2% | 72.5% |
+| 20–25 | — | 93.2% | 54.9% | 72.5% |
+| 25–30 | — | 89.0% | 48.6% | 67.8% |
+| 30–35 | — | 84.9% | 48.3% | 66.0% |
+| 35–40 | — | 80.6% | 43.1% | 64.3% |
+| 40–45 | — | 75.9% | 42.9% | 62.4% |
+| 45–51 | — | 70.8% | 38.9% | 57.9% |
+| **overall** | **97.5%** | **83.9%** | **52.9%** | **70.2%** |
+
+The old columns reproduce Figure 3 of the manuscript. The revised curve has the
+**same shape shifted down ~30 points at every confounder count** — a uniform
+level shift, which already rules out anything count-dependent.
+
+### It is not sample size, pool size or multiplicity
+
+Sample size and trio count are identical by construction. The pools differ by
+22%, but what sets the Benjamini-Hochberg threshold is the *fraction* of tests
+that are true positives, and that is nearly the same:
+
+| | true positives | total tests | fraction |
+| --- | --- | --- | --- |
+| old many-conf | 300 × 34 = 10,200 | 3.17M | 0.00322 |
+| revised n = 670 | 300 × 26 = 7,800 | 2.59M | 0.00301 |
+
+Within 7% of each other, so both runs face effectively the same multiplicity
+burden.
+
+### It is the per-confounder effect size
+
+```
+OLD:  sd(T1) = sqrt(34 × 0.1158 + 0.375 + 0.63²) = 2.17   r = 0.340 / 2.17 = 0.157
+NEW:  sd(T1) = sqrt(26 × 0.0300 + 0.225 + 1.00²) = 1.42   r = 0.173 / 1.42 = 0.122
+```
+
+At n = 670 that is the difference between p ≈ 1e-4, which clears the ~1.6e-4
+threshold, and p ≈ 1e-2, which misses it by two orders of magnitude.
+
+The `U` coefficient interval is the dominant term but not the only one — `U_n`
+and `SD` also changed. Isolating the interval:
+
+| change applied | R²(T1 \| U) | per-confounder `r` |
+| --- | --- | --- |
+| old settings | 0.836 | 0.157 |
+| `U` interval only, `c(0.15,0.5)` → `c(0,0.3)` | 0.569 | 0.129 |
+| plus `U_n` 34 → 26 and `SD` 0.63 → 1 | 0.389 | 0.122 |
+
+So the interval accounts for roughly 80% of the move in `r` and two-thirds of the
+move in `R²`.
+
+### The controlled test
+
+Taking the **revised** n = 670 data and scaling only the true confounders' effect
+back to old strength, changing nothing else:
+
+| | recall |
+| --- | --- |
+| revised, as calibrated (R² 0.37) | 52.9% |
+| revised, scaled to R² ≈ 0.62 | 72.6% |
+| revised, scaled to old strength (R² ≈ 0.83) | **80.1%** |
+| old run, actually observed | **82.7%** |
+
+Scaling the confounders alone reproduces the old result on the new data. Nothing
+else is required to explain the gap.
+
+### What this means for the manuscript
+
+**With GTEx-realistic confounding, CS-q recovers about 53% of true confounders at
+n = 670 and 70% at n = 1000, not >90%.** The published figure is contingent on a
+confounding level roughly twice what Whole Blood shows. Matching real `R²`
+exactly (0.412 against the current 0.370) would not change this — that is a
+1.06× scaling of `r`, worth perhaps three points of recall.
+
+Two caveats to weigh alongside it:
+
+- **The benchmark is mildly circular.** The real PC effect pool is *conditional
+  on selection* — those are the PCs that FDR 0.05 already found. Generating from
+  that distribution and then asking CS-q to recover them should in principle give
+  high recall. That it gives 53% says the simulated selection problem is harder
+  than the real one, most plausibly because the real analysis scores each trio
+  against 670 shared PCs while the simulation uses 8,621 trio-private columns.
+- **The simulation does not run the procedure the paper applied to GTEx.**
+  `GTEx/data/PC_LRNA_PC_Selection_manu.R:127` uses `adjust_by = 'individual'`;
+  `select.confounders()` uses `'all'`. Worth about 2 points at n = 670 (52.9% →
+  ~55%) but it is a different estimator, and the mismatch should be reconciled
+  before the manuscript claims to evaluate the deployed method.
+
+### Reproducing this comparison
+
+Not part of the pipeline; run ad hoc. `get.conf.trios()`'s `reg.pvalues` is a
+2-df F test of `lm(covariate ~ T1 + T2)`, so the whole matrix has a closed form
+in `cor(cov, T1)`, `cor(cov, T2)` and `cor(T1, T2)` and can be computed
+vectorized in seconds instead of the ~40 min the package takes. Validated
+against the saved old run: the vectorized route gives 82.7% where the saved
+`get.conf.trios()` output gives 83.9%, the 1.2-point gap being the
+`filter_int_child` step the shortcut skips.
+
+
+## 6. The private covariate pool, and what it costs
+
+§5 shows the confounder effect size explains the drop from the published recall.
+This section covers a second, independent understatement — the **structure** of
+the covariate pool — which has been present in every version of the simulation,
+old and new, and so explains none of that gap while depressing both sides of it.
+
+Every trio generates its own `U`/`W`/`Z` columns and contributes them to the
+group's shared pool. No covariate is ever a candidate confounder for more than
+the one trio that produced it. The real analysis and Yang et al. 2017 both do the
+opposite: one modest pool of candidates that many trios draw on.
+
+| | distinct covariates | trios per covariate | candidates per trio | signal density |
+| --- | --- | --- | --- | --- |
+| this simulation, n = 670 | 8,621 | 1 | 8,621 | **0.3%** |
+| real GTEx Whole Blood | 670 PCs | ~142 | 670 | **4.5%** |
+| Yang et al. 2017 | 350 | many | 350 | ~0.5–5% |
+
+Signal density — a trio's true confounders as a fraction of the candidates it is
+scored against — is what sets the Benjamini-Hochberg threshold, and it is 15×
+lower here than in the real analysis.
+
+### Measured cost
+
+Same simulated data, same effects, same `n`; each trio keeps its own confounders
+and is given a random draw of null columns to hit the target pool width, which
+reproduces a shared pool's density without altering a single effect size.
+
+CS-q recall at n = 670, 300 trios:
+
+| | private pool (8,621) | shared-like pool (670) |
+| --- | --- | --- |
+| calibrated confounders, R² = 0.37 | **52.9%** | **66.2%** |
+| old-strength confounders, R² = 0.83 | 80.1% | 85.7% |
+
+At n = 1000 the same manipulation moves recall from 70.2% to 79.1%.
+
+**The private pool costs about 13 points at realistic confounder strength but
+only 6 at the old strength.** Strong effects clear any threshold, so multiplicity
+barely bites; weak ones sit right at it. The design has therefore been hiding its
+own cost — it looked harmless in the published simulation precisely because the
+confounders there were twice as strong as real ones.
+
+Combining with §5, the most realistic cell — GTEx-calibrated confounders and
+GTEx-like density — is **66.2% at n = 670**. That is probably the closest
+available estimate of what confounder selection achieves on the real Whole Blood
+data, where there is no ground truth to check against.
+
+`adjust_by` does not rescue this, and for a reason worth recording: both schemes
+see the *same* signal density. `"all"` sees `U_n/P` true positives across all
+tests; `"individual"` corrects within a covariate column and sees
+`(NT × U_n / P) / NT = U_n/P`. Identical. Measured, the two converge as the pool
+becomes shared — 7.2 points apart under a private pool, 1.5 points under a shared
+one. `"individual"`'s small edge is π₀-estimation behaviour, not structure.
+
+### The deeper mismatch: every covariate has exactly one role
+
+Density is the measurable part. The structural problem is larger.
+
+**In the real data a single PC can be a confounder for trio A and a common child
+for trio B.** That is the entire premise of `filter_int_child`: it flags
+covariates correlated with *many variants across the group*, on the logic that a
+covariate sitting downstream of many genes will show up that way.
+
+**The current design makes that impossible.** Every covariate belongs to exactly
+one trio and holds exactly one role, permanently. Each `W` and `Z` therefore
+correlates with precisely one variant out of 300 — which is why the filter has so
+little to work with (§4), and it is arguably a more serious mismatch than the
+density arithmetic. **The filter is not being tested on the problem it was
+designed for.**
+
+This reframes the n = 50 filter result in §4. That section attributes the failure
+to power, effect size and multiplicity, all of which hold. But even at n = 1000
+with a strong SNP the filter is being asked to detect a covariate that is
+downstream of a single trio, when the statistic it computes is designed to find
+covariates downstream of many. A shared pool would not merely raise the pass
+rates; it would change what the filter is being evaluated on.
+
+### What a shared design would require
+
+Not implemented. Recorded so the decision is informed:
+
+- **The pool must be per sample-size group.** Covariates have to share the trios'
+  row dimension, so the n = 670 group needs its own 670-row pool. This is natural
+  — selection already runs per group.
+- **`W` and `Z` must come from the shared pool too**, not stay trio-private.
+  Otherwise the design still has no covariate holding different roles for
+  different trios, and the point above is unaddressed.
+- **Trios within a group stop being independent.** Sharing confounders is exactly
+  what makes the design realistic, but replicates within a sample-size group
+  would no longer be i.i.d., which affects standard errors on the per-cell
+  accuracies in §2.
+
+
+## 7. Diagnostics recorded per dataset
 
 `params` carries every generating parameter plus `n.resamples` and
 `R2.T1.U` / `R2.T2.U`.
@@ -478,7 +744,7 @@ on PCs only.
 
 ---
 
-## 6. Open items
+## 8. Open items
 
 - The real effect pools are **conditional on selection** (those PCs were retained
   at FDR 0.05), so they describe confounders strong enough to have been found.
@@ -486,7 +752,7 @@ on PCs only.
 - The cis/trans asymmetry (§3) is not reproduced.
 - `conf.coef.ranges` is a raw slope while the bound is a correlation (§3), so the
   nominal 0.3 is calibrated only for the current `U_n`, `SD` and `b.snp`.
-- `conf.r.squared()` reports unadjusted `R²` (§5).
+- `conf.r.squared()` reports unadjusted `R²` (§6).
 - The low-MAF resampling distortion (§2) is unaddressed.
 - The before/after comparisons against
   `simulated_trios_precalibration.RData` (§3, §4) confound two changes — the `U`

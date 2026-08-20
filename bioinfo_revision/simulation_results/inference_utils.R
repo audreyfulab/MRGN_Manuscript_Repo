@@ -15,6 +15,84 @@ source("adapted_GMAC_func/GMAC_moded/R/GMAC.R")
 
 
 # ---------------------------------------------------------------------------------------
+# shared helpers
+# ---------------------------------------------------------------------------------------
+#
+# These live here rather than in updated_simulation_inference.R because
+# run_confounder_selection.R needs them too.
+
+# the generating model of each scenario, as the label the methods report. The simulation
+# always puts the cis gene in T1, so the truth is always the ".1" variant. An explicit
+# lookup rather than MRGN::convert.truth(), which maps by sorted position and silently
+# mislabels when the input does not contain all five models.
+TRUTH.LABEL <- c(model0 = "M0.1", model1 = "M1.1", model2 = "M2.1",
+                 model3 = "M3", model4 = "M4")
+
+coarse.model <- function(x) sub("\\..*$", "", x)
+
+# names of the columns of one dataset that belong to that dataset's own confounder blocks.
+# name.trio.columns() suffixed every simulated confounder with the dataset index, so a
+# column can be attributed to its trio and its block from the name alone.
+own.block.names <- function(nms, block, index) {
+    grep(paste0("^", block, "[0-9]+\\.", index, "$"), nms, value = TRUE)
+}
+
+# trio + known confounders + that trio's true confounders. The U variables are the true
+# confounders; W is an intermediate and Z a common child, so both are excluded.
+ground.truth.input <- function(dat, K_n, index) {
+    nms <- colnames(dat)
+    keep <- c(nms[1:3],
+              if (K_n > 0) nms[3 + seq_len(K_n)] else character(0),
+              own.block.names(nms, "U", index))
+    dat[, keep, drop = FALSE]
+}
+
+# score one selected confounder set against the truth for that trio
+score.selection <- function(selected, index, true.confs) {
+    own.suffix <- paste0("\\.", index, "$")
+    false.pos <- setdiff(selected, true.confs)
+    list(n.selected        = length(selected),
+         n.tp              = length(intersect(selected, true.confs)),
+         n.fp              = length(false.pos),
+         n.fn              = length(setdiff(true.confs, selected)),
+         # false positives borrowed from a different trio's confounder block, as opposed
+         # to this trio's own intermediate/common child
+         n.fp.other.trio   = sum(!grepl(own.suffix, false.pos)),
+         has.common.child  = length(own.block.names(selected, "Z", index)) > 0,
+         has.intermediate  = length(own.block.names(selected, "W", index)) > 0,
+         selected          = paste(selected, collapse = ";"))
+}
+
+# prefix a named list so it can be spliced into the wide row
+prefixed <- function(x, prefix) {
+    names(x) <- paste0(prefix, ".", names(x))
+    x
+}
+
+# every apply.* call is wrapped: at n = 50 a trio can carry up to 44 confounders, so
+# rank-deficient fits are expected and must not take down a whole run
+safely <- function(expr) {
+    tryCatch(list(value = expr, error = NA_character_),
+             error = function(e) list(value = NULL, error = conditionMessage(e)))
+}
+
+# the covariate pool and known-confounder block for one sample-size group. Every trio
+# contributes its own U/W/Z columns; the K block is shared by all trios in the group (the
+# same clinical covariates), so it is passed separately rather than repeated in the pool.
+group.cov.pool <- function(datasets) {
+    do.call(cbind.data.frame,
+            lapply(datasets, function(x) {
+                x$data[, (4 + x$params$K_n):ncol(x$data), drop = FALSE]
+            }))
+}
+
+group.known.conf <- function(datasets) {
+    K_n <- datasets[[1]]$params$K_n
+    if (K_n > 0) datasets[[1]]$data[, 3 + seq_len(K_n), drop = FALSE] else NULL
+}
+
+
+# ---------------------------------------------------------------------------------------
 # confounder selection (MRGN and MRPC)
 # ---------------------------------------------------------------------------------------
 
@@ -113,11 +191,11 @@ select.confounders <- function(trios, cov.pool, known.conf = NULL, blocksize = 5
 
         list(trios.with.confs = trios.with.confs,
              conf.list = conf.list,
-             selection = selection,
+             sig.asso.covs = sig.asso.covs,
              setting = setting,
              # FALSE when the group fell back to the unfiltered selection below. Both
              # settings share the one call, so they now always agree; both are still
-             # reported so the results schema in run.group() is unchanged.
+             # reported so the CSq./CSa. results columns stay symmetric.
              filter_int_child = filter.applied,
              time.seconds = elapsed)
     }
@@ -172,17 +250,142 @@ select.confounders <- function(trios, cov.pool, known.conf = NULL, blocksize = 5
 
     CS.q <- assemble(csq.covs, setting = "CS-q", elapsed = elapsed)
     CS.alpha <- assemble(csa.covs, setting = "CS-alpha", elapsed = elapsed)
-    # sig.asso.covs on the shared `selection` object is the CS-q one; give each setting its
-    # own so run.group() can read sel$CS.*$selection$sig.asso.covs as before
-    CS.q$selection$sig.asso.covs <- csq.covs
-    CS.alpha$selection$sig.asso.covs <- csa.covs
     CS.q$adjust_by <- "all"
     CS.alpha$adjust_by <- "none"
 
-    # one call now serves both settings, so this is the wall clock for the pair
-    return(list(CS.q = CS.q,
+    # `selection` is stored ONCE at the top level rather than copied into both settings.
+    # The two copies were identical apart from sig.asso.covs, which now lives on each
+    # setting, and the duplicate cost ~230 MB per group -- get.conf.trios() returns five
+    # numeric and two logical matrices of (trios x pool), ~8,400 columns wide here.
+    # Read a setting's selected indices as sel$CS.q$sig.asso.covs.
+    #
+    # one call now serves both settings, so time.seconds is the wall clock for the pair
+    return(list(selection = selection,
+                CS.q = CS.q,
                 CS.alpha = CS.alpha,
                 time.seconds = elapsed))
+}
+
+
+# ---------------------------------------------------------------------------------------
+# caching the selection
+# ---------------------------------------------------------------------------------------
+#
+# Confounder selection is by far the most expensive step in the pipeline -- ~0.955 ms per
+# (trio x covariate) test, so ~30 min for a 300-trio group against an ~8,400 column pool,
+# ~2.5 h over the five sample-size groups -- and it does not depend on which method is
+# fitted afterwards. Running it once and caching the result lets the inference script be
+# re-run freely.
+#
+# The cached file holds the whole select.confounders() result plus a provenance block, so
+# a stale cache can be detected rather than silently used. That matters here: the
+# simulated data has been regenerated more than once during this revision, and a cache
+# keyed only on sample size would survive a regeneration and quietly pair the wrong
+# confounder indices with the wrong trios.
+#
+# Size: ~1 GB on disk across the five groups. Dominated by `selection`'s (trios x pool)
+# matrices and by trios.with.confs.
+
+selection.cache.file <- function(out.dir, size) {
+    file.path(out.dir, paste0("selection_group_n", size, ".RData"))
+}
+
+
+# Everything the cache needs to prove it belongs to this request.
+selection.provenance <- function(datasets, cov.names, settings, sim.file) {
+    list(n = nrow(datasets[[1]]$data),
+         datasets = sapply(datasets, function(x) x$params$dataset),
+         cov.names = cov.names,
+         settings = settings,
+         sim.file = sim.file,
+         created = format(Sys.time(), "%Y-%m-%d %H:%M:%S"))
+}
+
+
+# Returns NULL when the cache matches the request, or a string describing the first
+# mismatch. Checked in the order a regeneration would break them.
+selection.cache.mismatch <- function(cached, want) {
+    if (is.null(cached$sel) || is.null(cached$datasets)) {
+        return("cache predates the provenance block")
+    }
+    if (!identical(cached$n, want$n)) {
+        return(paste0("sample size ", cached$n, " != ", want$n))
+    }
+    if (!identical(cached$datasets, want$datasets)) {
+        return(paste0("covers ", length(cached$datasets), " datasets, request covers ",
+                      length(want$datasets),
+                      if (length(cached$datasets) == length(want$datasets))
+                          " (same count, different dataset indices)" else ""))
+    }
+    if (!identical(cached$cov.names, want$cov.names)) {
+        return("covariate pool column names differ (simulated data regenerated?)")
+    }
+    changed <- names(want$settings)[!mapply(identical, cached$settings[names(want$settings)],
+                                            want$settings)]
+    if (length(changed) > 0) {
+        return(paste("selection settings changed:", paste(changed, collapse = ", ")))
+    }
+    return(NULL)
+}
+
+
+# Load the cached selection for one sample-size group, or compute and cache it.
+#
+# datasets: the simulated datasets for ONE sample-size group
+# rerun:    TRUE recomputes and overwrites even when a valid cache exists
+# save:     FALSE computes without writing. Pass this when running on a subset of a
+#           group (max.per.group), so a smoke test cannot overwrite a good full cache.
+get.selection <- function(datasets, out.dir, sim.file = NA_character_, rerun = FALSE,
+                          save = TRUE, verbose = TRUE, selection_fdr = 0.05,
+                          filter_fdr = 0.1, alpha = 0.01, filter_int_child = TRUE) {
+
+    size <- nrow(datasets[[1]]$data)
+    path <- selection.cache.file(out.dir, size)
+    cov.pool <- group.cov.pool(datasets)
+    known.conf <- group.known.conf(datasets)
+    blocksize <- min(500, length(datasets))
+
+    settings <- list(selection_fdr = selection_fdr, filter_fdr = filter_fdr,
+                     alpha = alpha, filter_int_child = filter_int_child,
+                     blocksize = blocksize)
+    want <- selection.provenance(datasets, colnames(cov.pool), settings, sim.file)
+
+    if (!rerun && file.exists(path)) {
+        cached <- loadRData(path)
+        bad <- selection.cache.mismatch(cached, want)
+        if (is.null(bad)) {
+            if (verbose) {
+                cat("  loaded cached selection:", basename(path),
+                    "(built", cached$created, ")\n")
+            }
+            return(cached$sel)
+        }
+        message("  cached selection at ", basename(path), " does not match this request (",
+                bad, "); recomputing")
+    }
+
+    if (verbose) {
+        cat("  selecting confounders:", length(datasets), "trios,", ncol(cov.pool),
+            "pooled covariates -- this is the slow step\n")
+    }
+    sel <- select.confounders(lapply(datasets, function(x) x$data[, 1:3]),
+                              cov.pool, known.conf = known.conf, blocksize = blocksize,
+                              filter_int_child = filter_int_child,
+                              selection_fdr = selection_fdr, filter_fdr = filter_fdr,
+                              alpha = alpha)
+
+    if (save) {
+        cache <- c(list(sel = sel), want)
+        base::save(cache, file = path)
+        if (verbose) {
+            cat("  cached ->", basename(path), "|",
+                round(file.size(path)/1024^2), "MB |",
+                round(sel$time.seconds/60, 1), "min\n")
+        }
+    } else if (verbose) {
+        cat("  not caching (save = FALSE)\n")
+    }
+    return(sel)
 }
 
 

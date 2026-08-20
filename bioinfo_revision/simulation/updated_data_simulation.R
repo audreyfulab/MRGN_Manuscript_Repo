@@ -39,19 +39,29 @@ number_of_replicates <- 20
 # b.snp / b.med -- the SNP's absolute size matters, its size relative to the mediation
 # effect does not. The old shared range of (0.1, 1.0] topped out at cor(V1, T1) = 0.29.
 #
-# No range may start at 0: b.snp = 0 removes the V1 -> T1 edge, so a "model0" trio would
-# have no edges and its M0.1 truth label would be wrong, and b.med = 0 does the same to
-# model1, model2 and model4.
+# The strata are CONTIGUOUS -- each one's upper bound is the next one's lower bound -- and
+# draw.effect.sizes() draws from them with runif() rather than off a 0.05 grid. Both
+# matter: disjoint intervals like small [0.05, 0.50] / medium [0.55, 1.00] leave every
+# value in (0.50, 0.55) unreachable, and a discrete grid leaves out 0.51 and 0.52
+# whatever the bounds are. draw.effect.sizes() errors if the strata do not join up.
+#
+# b.med keeps the breakpoints of the pre-revision simulation (0.3 and 0.5, from the
+# original effect_sizes list) rather than splitting (0, 1] into equal thirds, so the
+# mediation strata remain comparable with the published study. Only b.snp was widened.
+#
+# b.snp = 0 removes the V1 -> T1 edge, so a "model0" trio would have no edges and its
+# M0.1 truth label would be wrong; b.med = 0 does the same to model1, model2 and model4.
+# A lower bound of 0 is fine -- runif() does not return it, and the draws are floored.
 #
 # a list, not c(): c(small = c(0.1, 0.3), ...) flattens and names the elements
 # "small1", "small2", ..., so effect_sizes[["small"]] would be a subscript error.
 effect_sizes <- list(
-    b.snp = list(small  = c(0.05, 0.50),
-                 medium = c(0.55, 1.00),
-                 large  = c(1.05, 1.50)),
-    b.med = list(small  = c(0.05, 0.35),
-                 medium = c(0.40, 0.70),
-                 large  = c(0.75, 1.00)))
+    b.snp = list(small  = c(0.0, 0.5),
+                 medium = c(0.5, 1.0),
+                 large  = c(1.0, 1.5)),
+    b.med = list(small  = c(0.0, 0.3),
+                 medium = c(0.3, 0.5),
+                 large  = c(0.5, 1.0)))
 
 # stringsAsFactors = FALSE matters here: gen.graph.skel() dispatches on the model with
 # switch(model, model0 = ..., ...), and a factor is silently treated as its integer

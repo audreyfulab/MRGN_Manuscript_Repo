@@ -8,20 +8,36 @@
 
 # b.snp and b.med are drawn from SEPARATE ranges, both indexed by the scenario's
 # effect_size stratum. The SNP effect spans (0, 1.5] and the mediation effect (0, 1],
-# split into tertiles, so `effect_sizes` is a two-level list:
+# each split into three strata, so `effect_sizes` is a two-level list:
 #
 #   list(b.snp = list(small = c(lo, hi), medium = ..., large = ...),
 #        b.med = list(small = c(lo, hi), medium = ..., large = ...))
 #
-# Neither range may include exactly 0. b.snp = 0 makes V1 -> T1 a null edge, so a
-# "model0" dataset would carry no edges at all and its truth label M0.1 would be wrong;
-# b.med = 0 breaks model1, model2 and model4 the same way. The lower bound is 0.05.
-draw.effect.sizes <- function(scenarios, effect_sizes, step = 0.05) {
+# Two properties the strata must have, both checked below.
+#
+# CONTIGUOUS. Each stratum's upper bound is the next one's lower bound, so the three
+# together tile the whole range with no holes. An earlier version used disjoint
+# intervals -- small [0.05, 0.50], medium [0.55, 1.00] -- which made every value in
+# (0.50, 0.55) unreachable by construction, an artificial hole in the middle of the
+# effect-size axis.
+#
+# CONTINUOUS. Values are drawn with runif() over the interval rather than sampled from a
+# seq(..., by = 0.05) grid. On a grid only multiples of the step exist, so a trio could
+# never have b.snp = 0.51 or 0.52 no matter how the intervals line up.
+#
+# Neither parameter may be exactly 0: b.snp = 0 makes V1 -> T1 a null edge, so a "model0"
+# dataset would carry no edges at all and its truth label M0.1 would be wrong, and
+# b.med = 0 breaks model1, model2 and model4 the same way. A lower bound of 0 is allowed
+# in the spec -- runif() does not return its lower bound -- but the draws are floored to
+# keep that guarantee explicit rather than relying on the RNG.
+draw.effect.sizes <- function(scenarios, effect_sizes) {
 
     if (!all(c("b.snp", "b.med") %in% names(effect_sizes))) {
         stop("effect_sizes must be a list with 'b.snp' and 'b.med' entries, each holding ",
              "small/medium/large ranges")
     }
+
+    strata <- c("small", "medium", "large")
 
     # the columns have to exist before they can be filled in per effect size:
     # scenarios[idx, ]$b.snp <- ... cannot create a column that isn't there yet
@@ -29,21 +45,30 @@ draw.effect.sizes <- function(scenarios, effect_sizes, step = 0.05) {
     scenarios$b.med <- NA_real_
 
     for (param in c("b.snp", "b.med")) {
-        for (effect_scene in c("small", "medium", "large")) {
-            rng <- effect_sizes[[param]][[effect_scene]]
-            if (is.null(rng)) {
-                stop("effect_sizes$", param, " is missing the '", effect_scene, "' range")
+
+        rngs <- effect_sizes[[param]][strata]
+        if (any(sapply(rngs, is.null))) {
+            stop("effect_sizes$", param, " is missing one of small/medium/large")
+        }
+        if (rngs[["small"]][1] < 0) {
+            stop("effect_sizes$", param, "$small starts below 0")
+        }
+        for (k in 1:2) {
+            if (!isTRUE(all.equal(rngs[[k]][2], rngs[[k + 1]][1]))) {
+                stop("effect_sizes$", param, ": ", strata[k], " ends at ", rngs[[k]][2],
+                     " but ", strata[k + 1], " starts at ", rngs[[k + 1]][1],
+                     " -- strata must be contiguous or values in the gap are unreachable")
             }
-            if (rng[1] <= 0) {
-                stop("effect_sizes$", param, "$", effect_scene, " starts at ", rng[1],
-                     ": a zero effect removes the edge and invalidates the model label")
-            }
+        }
+
+        for (effect_scene in strata) {
+            rng <- rngs[[effect_scene]]
             # indices of the scenarios in this stratum
             idx <- which(scenarios$effect_size == effect_scene)
             # b.snp and b.med are drawn independently, so within a stratum a trio can
             # have a SNP effect larger or smaller than its mediation effect
-            scenarios[[param]][idx] <- sample(seq(from = rng[1], to = rng[2], by = step),
-                                              size = length(idx), replace = TRUE)
+            scenarios[[param]][idx] <- pmax(runif(length(idx), rng[1], rng[2]),
+                                            .Machine$double.eps)
         }
     }
     return(scenarios)

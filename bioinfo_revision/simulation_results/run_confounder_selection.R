@@ -5,7 +5,7 @@
 #
 # Selection is the most expensive step in the pipeline and does not depend on which
 # method is fitted afterwards, so it runs once here and is cached per sample-size group.
-# updated_simulation_inference.R then loads the cache instead of recomputing.
+# The apply_*.R scripts then load the cache instead of recomputing it.
 #
 # For each sample-size group this writes selection_group_n<size>.RData, and at the end a
 # single selection_results.RData / .csv scoring every trio's selected set against the
@@ -13,30 +13,20 @@
 #
 #   Rscript bioinfo_revision/simulation_results/run_confounder_selection.R
 #
-# Running it again is a no-op unless RERUN is TRUE: get.selection() loads each cache,
-# checks it against the current request, and only recomputes on a mismatch.
+# Running it again is a no-op unless rerun.selection is TRUE: get.selection() loads each
+# cache, checks it against the current request, and only recomputes on a mismatch.
 
 library(MRGN)
 source("bioinfo_revision/simulation/simulation_utils.R")
+source("bioinfo_revision/simulation_results/inference_config.R")
 source("bioinfo_revision/simulation_results/inference_utils.R")
 
-
-# ---------------------------------------------------------------------------------------
-# configuration
-# ---------------------------------------------------------------------------------------
-
-sim.data.file <- "bioinfo_revision/simulation/simulated_data/simulated_trios.RData"
-out.dir       <- "bioinfo_revision/simulation_results"
-RERUN         <- FALSE   # TRUE recomputes every group and overwrites its cache
-max.per.group <- NULL    # set to a small number to smoke test; caching is then disabled
-
-# selection settings, shared with updated_simulation_inference.R. CS-q is the q-value
-# method at FDR 5%; CS-alpha thresholds the same regression p-values at alpha with no
-# correction. Both come out of the one get.conf.trios() call.
-selection_fdr    <- 0.05
-filter_fdr       <- 0.1
-alpha            <- 0.01
-filter_int_child <- TRUE
+# Paths, the CS-q / CS-alpha settings, sample.sizes and max.per.group all come from
+# inference_config.R, so this stage and the apply_*.R scripts cannot drift apart. CS-q is
+# the q-value method at FDR 5%; CS-alpha thresholds the same regression p-values at alpha
+# with no correction. Both come out of the one get.conf.trios() call.
+#
+# rerun.selection (also from the config) recomputes every group and overwrites its cache.
 
 
 # ---------------------------------------------------------------------------------------
@@ -79,16 +69,16 @@ score.group <- function(datasets, sel) {
 # main
 # ---------------------------------------------------------------------------------------
 
-run.all.selection <- function(sample.sizes = NULL, rerun = RERUN, verbose = TRUE) {
+run.all.selection <- function(sizes = sample.sizes, rerun = rerun.selection, verbose = TRUE) {
 
     sim_data <- loadRData(file = sim.data.file)
     if (verbose) cat("loaded", length(sim_data), "simulated datasets\n")
 
     group.of <- sapply(sim_data, function(x) x$params$sample.size)
-    if (is.null(sample.sizes)) sample.sizes <- sort(unique(group.of))
+    if (is.null(sizes)) sizes <- sort(unique(group.of))
 
     scored <- list()
-    for (size in sample.sizes) {
+    for (size in sizes) {
         idx <- which(group.of == size)
         if (!is.null(max.per.group)) idx <- head(idx, max.per.group)
         datasets <- sim_data[idx]

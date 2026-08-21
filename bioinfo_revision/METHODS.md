@@ -405,12 +405,12 @@ was recovered exactly — varying how much of the true confounder set it was giv
 
 | metric | confounders MRGN adjusted for | weak conf. R² = 0.33 | strong conf. R² = 0.68 | change |
 | --- | --- | --- | --- | --- |
-| **overall accuracy**<br>(all 5 models pooled) | all of the true `U` block | 53.7% | 52.7% | −1.0 pp |
-| | a random 50% of it | 47.7% | 37.3% | **−10.4 pp** |
-| | none of it | 46.0% | 33.7% | **−12.3 pp** |
-| **recall for M1 only**<br>(true-M1 trios called M1) | all of the true `U` block | 66.7% | 66.7% | 0.0 pp |
-| | a random 50% of it | 65.0% | 56.7% | **−8.3 pp** |
-| | none of it | 61.7% | 50.0% | **−11.7 pp** |
+| **overall accuracy**<br>(all 5 models pooled) | all true confounders | 53.7% | 52.7% | −1.0 pp |
+| | random half of true confounders | 47.7% | 37.3% | **−10.4 pp** |
+| | no confounders | 46.0% | 33.7% | **−12.3 pp** |
+| **recall for M1 only**<br>(true-M1 trios called M1) | all true confounders | 66.7% | 66.7% | 0.0 pp |
+| | random half of true confounders | 65.0% | 56.7% | **−8.3 pp** |
+| | no confounders | 61.7% | 50.0% | **−11.7 pp** |
 
 **Table 9. Confounder strength costs performance only in proportion to what is
 left unadjusted.** All figures are at n = 300.
@@ -436,7 +436,8 @@ change. It is the quantity the experiment exists to measure.
 *Rows* are how much of that trio's true `U` block MRGN was handed. The sets are
 built directly from the known truth, so **confounder selection plays no part**:
 this separates the effect of confounding on causal inference from the effect of
-failing to find the confounders. `a random 50%` approximates the recall CS-q
+failing to find the confounders. `random half of true confounders` approximates
+the recall CS-q
 actually achieves (§5), and the same half is drawn in both arms.
 
 Read across a row for the cost of confounder strength at a fixed level of

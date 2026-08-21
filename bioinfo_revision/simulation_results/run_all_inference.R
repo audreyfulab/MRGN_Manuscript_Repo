@@ -35,6 +35,27 @@ apply.script <- function(method) {
     file.path("bioinfo_revision", "simulation_results", paste0("apply_", method, ".R"))
 }
 
+# Start one method in the background, logging to `logfile`.
+#
+# On Windows this deliberately does NOT use system2(stdout = logfile). That opens the log
+# with exclusive access, so nothing else can read it until the process exits -- the file
+# is visible but every read fails with "Permission denied" / "Device or resource busy",
+# including from the editor. Redirecting through cmd instead opens it shared, so a running
+# job's log can be tailed live:
+#
+#   PowerShell:  Get-Content bioinfo_revision/simulation_results/logs/apply_mrgn.log -Wait
+#
+# system2(stdout = ) is fine on Unix, which does not lock like this.
+launch.background <- function(script, args, logfile) {
+    if (.Platform$OS.type == "windows") {
+        system2("cmd", c("/c", "Rscript", shQuote(script), args,
+                         ">", shQuote(logfile), "2>&1"), wait = FALSE)
+    } else {
+        system2("Rscript", c(shQuote(script), args),
+                stdout = logfile, stderr = logfile, wait = FALSE)
+    }
+}
+
 # Core split. MRPC never builds a cluster -- MRPC() is single threaded -- so it gets one
 # core and the rest goes to the two methods that can use it. MRGN takes the larger share:
 # its bootstrap is n.bootstrap replicates x 3 confounder settings x every trio.
@@ -99,10 +120,10 @@ if (length(todo) == 0) {
     cat("\n=== launching", length(todo), "processes ===\n")
     for (m in todo) {
         logfile <- file.path(log.dir, paste0("apply_", m, ".log"))
-        args <- c(shQuote(apply.script(m)), "--cores", cores[[m]])
+        args <- c("--cores", cores[[m]])
         if (!is.null(sample.sizes)) args <- c(args, "--sizes", paste(sizes, collapse = ","))
         if (!is.null(max.per.group)) args <- c(args, "--max-per-group", max.per.group)
-        system2("Rscript", args, stdout = logfile, stderr = logfile, wait = FALSE)
+        launch.background(apply.script(m), args, logfile)
         cat(sprintf("  %-5s %2d cores -> %s\n", m, cores[[m]], logfile))
     }
 

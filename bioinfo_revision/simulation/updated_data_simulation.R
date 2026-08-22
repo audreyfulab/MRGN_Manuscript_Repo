@@ -56,10 +56,10 @@ number_of_replicates <- 20
 # a list, not c(): c(small = c(0.1, 0.3), ...) flattens and names the elements
 # "small1", "small2", ..., so effect_sizes[["small"]] would be a subscript error.
 effect_sizes <- list(
-    b.snp = list(small  = c(0.0, 0.5),
+    b.snp = list(small  = c(0.1, 0.5),
                  medium = c(0.5, 1.0),
                  large  = c(1.0, 1.5)),
-    b.med = list(small  = c(0.0, 0.3),
+    b.med = list(small  = c(0.1, 0.3),
                  medium = c(0.3, 0.5),
                  large  = c(0.5, 1.0)))
 

@@ -394,6 +394,25 @@ get.selection <- function(datasets, out.dir, sim.file = NA_character_, rerun = F
 # result rows
 # ---------------------------------------------------------------------------------------
 
+# What goes in the error column. No new columns are needed for the bootstrap: a row is a
+# failure if and only if model is NA, so a note on a row that HAS a model is informational
+# rather than fatal. run.mrpc.group() already uses the field this way for a disabled arm.
+mrgn.error.note <- function(res, error) {
+    if (!is.na(error)) return(error)                       # infer.trio() itself failed
+    if (!is.null(res$bootstrap.error) && !is.na(res$bootstrap.error)) {
+        return(paste("bootstrap failed, model retained:", res$bootstrap.error))
+    }
+    n <- res$bootstrap$n.dropped
+    if (!is.null(n) && !is.na(n) && n > 0) {
+        return(sprintf("bootstrap: %d of %d resamples dropped for no genotype variation",
+                       n, res$bootstrap$number_of_samples))
+    }
+    NA_character_
+}
+
+# A NULL res means infer.trio() itself failed and there is no inferred model. That is now
+# the only way model comes back NA -- a bootstrap that fails leaves the model intact and
+# explains itself in the error column. See apply.mrgn().
 mrgn.fields <- function(res, error, truth.label) {
     if (is.null(res)) {
         return(list(model = NA_character_, correct = NA, correct.coarse = NA,
@@ -416,7 +435,7 @@ mrgn.fields <- function(res, error, truth.label) {
          boot.p.V1T2            = if (is.null(ind)) NA_real_ else unname(ind[3]),
          boot.p.T2T1            = if (is.null(ind)) NA_real_ else unname(ind[4]),
          bootstrap.time.seconds = res$bootstrap.time.seconds,
-         error                  = error)
+         error                  = mrgn.error.note(res, error))
 }
 
 mrpc.fields <- function(res, error, truth.label) {
@@ -508,16 +527,31 @@ run.mrgn.group <- function(datasets, sel, cov.names, cl = NULL, bootstrap = TRUE
 
 
 # ---- MRPC: CS-q and CS-alpha ----
-run.mrpc.group <- function(datasets, sel, cov.names, timeout = mrpc.timeout, verbose = TRUE) {
+run.mrpc.group <- function(datasets, sel, cov.names, timeout = mrpc.timeout,
+                           arms = mrpc.arms, verbose = TRUE) {
     n.datasets <- length(datasets)
     rows <- vector("list", n.datasets)
+
+    # An arm that is switched off still produces its columns, so every mrpc_group_*.RData
+    # has the same schema and groups run under different settings still rbind. The reason
+    # goes in the error field, so "not attempted" is distinguishable from "timed out".
+    skipped <- function(arm) {
+        list(value = NULL,
+             error = paste0(arm, " arm disabled in mrpc.arms: the CS-alpha confounder ",
+                            "set is too large for MRPC to fit (see inference_config.R)"))
+    }
+
     for (i in seq_len(n.datasets)) {
         dat <- datasets[[i]]$data; params <- datasets[[i]]$params
         index <- params$dataset
         truth.label <- unname(TRUTH.LABEL[params$model])
 
-        mrpc.csq <- safely(apply.mrpc(sel$CS.q$trios.with.confs[[i]], timeout = timeout))
-        mrpc.csa <- safely(apply.mrpc(sel$CS.alpha$trios.with.confs[[i]], timeout = timeout))
+        mrpc.csq <- if ("CSq" %in% arms) {
+            safely(apply.mrpc(sel$CS.q$trios.with.confs[[i]], timeout = timeout))
+        } else skipped("CS-q")
+        mrpc.csa <- if ("CSa" %in% arms) {
+            safely(apply.mrpc(sel$CS.alpha$trios.with.confs[[i]], timeout = timeout))
+        } else skipped("CS-alpha")
 
         rows[[i]] <- as.data.frame(c(
             id.columns(dat, params, index),
@@ -610,11 +644,23 @@ boostrap_edge_probabilities <- function(trio, number_of_samples=1000, cl = NULL)
 
     one.replicate <- function(i, trio) {
         sampled_trio <- trio[sample(nrow(trio), replace=TRUE), ]
-        result <- MRGN::infer.trio(
-            trio = sampled_trio,
-            use.perm = FALSE
-        )
-        unlist(result[1:6])
+        # A resample can lose every copy of the minor allele -- at n = 50 and MAF 0.01 the
+        # three carriers are all missed about 5% of the time -- and a constant V1 breaks
+        # this in two different ways. Either the aliased genotype coefficient leaves a test
+        # statistic NA and class.vec() dies branching on it, or infer.trio() returns
+        # normally but with NA in the two correlation-based indicators, because cor() on a
+        # zero-variance column is NA.
+        #
+        # Both are the same useless draw: a resample with no genotype variation says
+        # nothing about the V1 edges. Both are dropped here, so neither can abort the
+        # bootstrap (the first case) nor poison every indicator mean through Reduce (the
+        # second). Returning NULL also keeps a worker-side error from surfacing as
+        # parLapply's "N nodes produced errors".
+        result <- tryCatch(MRGN::infer.trio(trio = sampled_trio, use.perm = FALSE),
+                           error = function(e) NULL)
+        if (is.null(result)) return(NULL)
+        stats <- unlist(result[1:6])
+        if (any(!is.finite(stats))) NULL else stats
     }
 
     if (is.null(cl)) {
@@ -623,8 +669,16 @@ boostrap_edge_probabilities <- function(trio, number_of_samples=1000, cl = NULL)
         indicators <- parallel::parLapply(cl, 1:number_of_samples, one.replicate, trio = trio)
     }
 
-    # proportion of replicates in which each indicator was called significant
-    indicator.means <- Reduce("+", indicators) / number_of_samples
+    unusable <- vapply(indicators, is.null, logical(1))
+    n.dropped <- sum(unusable)
+    indicators <- indicators[!unusable]
+    if (length(indicators) == 0) {
+        stop("every one of the ", number_of_samples, " bootstrap resamples failed")
+    }
+
+    # proportion of *usable* replicates in which each indicator was called significant, so
+    # dropped resamples do not silently deflate every probability toward zero
+    indicator.means <- Reduce("+", indicators) / length(indicators)
     edge.probabilities <- MRGN::get.adj(as.list(indicator.means))
 
     # the model the bootstrap supports: majority vote on each indicator, then MRGN's own
@@ -637,7 +691,9 @@ boostrap_edge_probabilities <- function(trio, number_of_samples=1000, cl = NULL)
                 indicator.means = indicator.means,
                 boot.model = as.character(boot.model),
                 min.edge.prob = if (length(present) > 0) min(present) else NA_real_,
-                number_of_samples = number_of_samples))
+                number_of_samples = number_of_samples,   # requested
+                n.used = length(indicators),             # actually contributing
+                n.dropped = n.dropped))
 }
 
 # This function applies the MRGN method to a single dataset (trio plus its selected
@@ -659,11 +715,28 @@ apply.mrgn <- function(data, use.perm = FALSE, bootstrap = FALSE, number_of_samp
     inferred_model <- result$Inferred.Model
     inferred_adj <- MRGN::get.adj(result)
 
+    # The bootstrap gets its own safely() so that a failure here costs only the bootstrap
+    # columns, not the model call above.
+    #
+    # It used to be a bare call, which meant one bad resample discarded a perfectly good
+    # inference. infer.trio() calls class.vec(), which branches on a test statistic; if a
+    # resample happens to draw a monomorphic V1 the genotype coefficient is aliased, the
+    # statistic is NA, and class.vec() dies on "missing value where TRUE/FALSE needed".
+    # parLapply reports that as "N nodes produced errors", the exception unwound all of
+    # apply.mrgn(), and the row came back with model = NA. That is how 57 trios -- almost
+    # all of them at n = 50, where a low-MAF SNP can lose every minor allele to resampling
+    # -- ended up with no inferred model despite infer.trio() having succeeded on the real
+    # data. See boostrap_edge_probabilities() for the resample-level handling.
     boot <- NULL
     bootstrap.time.seconds <- NA_real_
+    bootstrap.error <- NA_character_
     if (bootstrap) {
         boot.start <- Sys.time()
-        boot <- boostrap_edge_probabilities(data, number_of_samples = number_of_samples, cl = cl)
+        attempt <- safely(boostrap_edge_probabilities(data,
+                                                      number_of_samples = number_of_samples,
+                                                      cl = cl))
+        boot <- attempt$value
+        bootstrap.error <- attempt$error
         boot.end <- Sys.time()
         bootstrap.time.seconds <- as.numeric(difftime(boot.end, boot.start, units = "secs"))
     }
@@ -674,7 +747,8 @@ apply.mrgn <- function(data, use.perm = FALSE, bootstrap = FALSE, number_of_samp
                          bootstrap = boot,
                          details = result,
                          time.seconds = as.numeric(difftime(end.time, start.time, units = "secs")),
-                         bootstrap.time.seconds = bootstrap.time.seconds)
+                         bootstrap.time.seconds = bootstrap.time.seconds,
+                         bootstrap.error = bootstrap.error)
     return(final_result)
 }
 
@@ -977,7 +1051,7 @@ run.gmac.all <- function(trios, cov.pool, known.conf = NULL, nperm = 1000, nomin
 # Each method writes one checkpoint per sample-size group, so the three never touch the
 # same file and can run as concurrent processes. Combining is a separate step.
 
-ALL.METHODS <- c("mrgn", "mrpc", "gmac")
+ALL.METHODS <- c("mrgn", "mrpc", "gmac", "mrggi")
 
 method.checkpoint <- function(out.dir, method, size) {
     file.path(out.dir, paste0(method, "_group_n", size, ".RData"))
@@ -1111,4 +1185,101 @@ combine.all <- function(sample.sizes = NULL, save.csv = TRUE, verbose = TRUE,
             paste(names(per.method), collapse = ", "), "\n", sep = "")
     }
     return(inference.results)
+}
+
+
+# ---------------------------------------------------------------------------------------
+# MR-GGI
+# ---------------------------------------------------------------------------------------
+#
+# MR-GGI is a Mendelian randomisation method: it uses a genetic instrument to estimate the
+# causal effect of one gene on another, via the Wald ratio beta(V->outcome)/beta(V->exposure).
+# See MRGGI_METHODS.md for the full derivation and the measurements behind the choices here.
+#
+# TWO ADAPTATIONS ARE REQUIRED for trios, both forced by there being ONE variant.
+#
+# 1. The outcome gene must be given NO instrument. MRggi's .TSLS residualises the outcome
+#    on its own instruments before regressing on the exposure's:
+#         y2.resid = resid(lm(y2 ~ X2)); Bzy = coef(lm(y2.resid ~ X1))
+#    OLS residuals are orthogonal to their own regressors, so if X1 == X2 -- which is what
+#    FineMapping() produces for a trio, since V1 is the only variant and it is associated
+#    with both genes -- Bzy is forced to exactly zero and every estimate collapses.
+#    Measured: true effect 0.700 returns 0.0000 (p = 1.0) when both genes hold V1, and
+#    0.674 when the outcome holds none. FineMapping is therefore bypassed.
+#
+#    The "no instrument" entry must be a COLUMN OF ZEROS. NULL fails ("'data' must be of a
+#    vector type") and a zero-column matrix fails ("subscript out of bounds"), because
+#    MRggi runs lapply(X, scale) over every element before the loop.
+#
+# 2. Only the cis -> trans direction is reported. V1 is the cis gene's eQTL by
+#    construction, so T1 is the only gene with a legitimate instrument. The reverse is
+#    computed and stored, but not used for edge calls: with a single instrument MRggi's
+#    test statistic reduces to Bzy/se_Bzy, i.e. the instrument->OUTCOME t-statistic, and
+#    the exposure's first stage cancels out. On a known-null trio it reported B = -38.42
+#    at p = 0 with a first-stage F of 0.1. Hence the mrggi.min.F gate.
+
+# One trio: y = (T1, T2), instrument V1 given to whichever gene is the exposure.
+mrggi.one.trio <- function(trio, cor.thr = mrggi.cor.thr) {
+    V1 <- as.matrix(trio[, 1])
+    y  <- as.matrix(trio[, 2:3]); colnames(y) <- c("T1", "T2")
+    zeros <- matrix(0, nrow = nrow(y), ncol = 1)
+
+    # first-stage strength of V1 for each gene as exposure
+    fstat <- function(g) {
+        s <- summary(stats::lm(y[, g] ~ V1))
+        if (is.null(s$fstatistic)) NA_real_ else unname(s$fstatistic[1])
+    }
+    # whichever gene holds V1 is the exposure; the other direction returns NaN
+    fwd <- MRggi::MRggi(y = y, X = list(T1 = V1,    T2 = zeros), cor.thr = cor.thr)
+    rev <- MRggi::MRggi(y = y, X = list(T1 = zeros, T2 = V1),    cor.thr = cor.thr)
+
+    list(B.T1T2 = fwd$Bg1g2[1], p.T1T2 = fwd$pval_Bg1g2[1],
+         B.T2T1 = rev$Bg2g1[1], p.T2T1 = rev$pval_Bg2g1[1],
+         GGcor = fwd$GGcor[1], F.T1 = fstat("T1"), F.T2 = fstat("T2"))
+}
+
+
+mrggi.fields <- function(res, error) {
+    if (is.null(res)) {
+        return(list(B.T1T2 = NA_real_, p.T1T2 = NA_real_, F.T1 = NA_real_,
+                    B.T2T1 = NA_real_, p.T2T1 = NA_real_, F.T2 = NA_real_,
+                    GGcor = NA_real_, edge = NA_character_, weak.instrument = NA,
+                    time.seconds = NA_real_, error = error))
+    }
+    # Edge called on the cis -> trans direction only, and only when V1 is a usable
+    # instrument for T1. No `correct` flag: MR-GGI resolves the T1-T2 edge, not a model
+    # label, so model0/model3 and model1/model4 are indistinguishable to it. Same
+    # convention as gmac.fields() -- the cross-tab belongs in the analysis stage.
+    weak <- !is.na(res$F.T1) && res$F.T1 < mrggi.min.F
+    called <- !weak && !is.na(res$p.T1T2) && res$p.T1T2 < mrggi.alpha
+    list(B.T1T2 = res$B.T1T2, p.T1T2 = res$p.T1T2, F.T1 = res$F.T1,
+         B.T2T1 = res$B.T2T1, p.T2T1 = res$p.T2T1, F.T2 = res$F.T2,
+         GGcor = res$GGcor,
+         edge = if (called) "T1->T2" else "none",
+         weak.instrument = weak,
+         time.seconds = res$time.seconds, error = error)
+}
+
+
+run.mrggi.group <- function(datasets, verbose = TRUE) {
+    n.datasets <- length(datasets)
+    rows <- vector("list", n.datasets)
+    for (i in seq_len(n.datasets)) {
+        dat <- datasets[[i]]$data; params <- datasets[[i]]$params
+        index <- params$dataset
+
+        t0 <- Sys.time()
+        r <- safely(suppressMessages(mrggi.one.trio(dat[, 1:3])))
+        if (!is.null(r$value)) {
+            r$value$time.seconds <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
+        }
+
+        rows[[i]] <- as.data.frame(c(
+            id.columns(dat, params, index),
+            prefixed(mrggi.fields(r$value, r$error), "mrggi")),
+            stringsAsFactors = FALSE)
+
+        if (verbose && (i %% 25 == 0 || i == n.datasets)) cat("    mrggi", i, "/", n.datasets, "\n")
+    }
+    do.call(rbind, rows)
 }

@@ -64,7 +64,11 @@ core.budget <- function(methods) {
     share <- setNames(rep(1L, length(methods)), methods)
     rest <- setdiff(methods, "mrpc")
     if (length(rest) == 0) return(share)
-    avail <- if ("mrpc" %in% methods) max(1L, total - 1L) else total
+    avail <- max(1L, total - sum(c("mrpc","mrggi") %in% methods))
+    # MR-GGI is single threaded like MRPC, so it also takes one core
+    share[intersect(methods, "mrggi")] <- 1L
+    rest <- setdiff(rest, "mrggi")
+    if (length(rest) == 0) return(share)
     w <- ifelse(rest == "mrgn", 0.6, 0.4)
     share[rest] <- pmax(1L, as.integer(round(avail * w / sum(w))))
     share

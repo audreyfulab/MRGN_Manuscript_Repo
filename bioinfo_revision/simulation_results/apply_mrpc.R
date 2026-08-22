@@ -5,9 +5,14 @@
 #
 #   Rscript bioinfo_revision/simulation_results/apply_mrpc.R
 #
-# Two confounder settings per trio, the CS-q and CS-alpha selected sets. MRPC gets no
-# ground-truth arm: the comparison of interest is against MRGN under the same selected
-# confounders.
+# Which confounder sets are attempted is set by `mrpc.arms` in inference_config.R, and is
+# currently CS-q only: the CS-alpha set is too large for MRPC to fit, timing out on 79% of
+# trios at n = 150 and heading to ~100% at larger n. See the note on mrpc.arms for the
+# measurements. A disabled arm still gets its columns, with the reason in
+# mrpc.CSa.error, so every group's checkpoint keeps the same schema.
+#
+# MRPC gets no ground-truth arm: the comparison of interest is against MRGN under the same
+# selected confounders.
 #
 # Writes mrpc_group_n<size>.RData per sample-size group, then inference_mrpc.RData/.csv.
 #
@@ -22,7 +27,8 @@ source("bioinfo_revision/simulation/simulation_utils.R")
 source("bioinfo_revision/simulation_results/inference_config.R")
 source("bioinfo_revision/simulation_results/inference_utils.R")
 
-cat("=== MRPC ===  timeout:", mrpc.timeout, "s per fit |",
+cat("=== MRPC ===  arms:", paste(mrpc.arms, collapse = ", "),
+    "| timeout:", mrpc.timeout, "s per fit |",
     "sizes:", if (is.null(sample.sizes)) "all" else paste(sample.sizes, collapse = ","), "\n")
 
 run.method.groups(

@@ -18,6 +18,28 @@ mrpc.timeout    <- 120     # seconds; MRPC has taken hours on trios with many co
 gmac.nperm      <- 1000
 selection.alpha <- 0.05    # significance cutoff for the GMAC mediation calls
 
+# Which confounder sets MRPC is run against. Both were attempted originally; CS-alpha is
+# now off because it does not finish.
+#
+# CS-alpha hands MRPC alpha x pool false-positive covariates by construction -- a median
+# of 95 at n = 150 -- and MRPC cannot fit that many. Measured on the completed groups:
+#
+#   n = 50   CS-q  2 confounders,  0% timeout, median 0.0 s   |  group took 48 min
+#   n = 150  CS-q  2 confounders,  0% timeout, median 0.0 s   |  group took 8.8 h
+#   n = 50   CS-a 82 confounders,  0% timeout, median 7.8 s
+#   n = 150  CS-a 95 confounders, 79% timeout, ~106 s/trio
+#
+# The n = 50 CS-alpha fits are fast only because 82 covariates on 50 observations is
+# rank deficient and bails early. By n = 150 the fits are estimable, MRPC genuinely
+# attempts a PC algorithm over ~98 nodes, and the timeout rate jumps to 79% -- heading to
+# ~100% at larger n, i.e. ~10 h per group to produce a column of NAs. CS-q costs nothing
+# because it selects a median of 2 covariates.
+#
+# Groups already run with both arms (n = 50, n = 150) keep their real CS-alpha results.
+# Groups run under this setting record CS-alpha as not attempted, with the reason in
+# mrpc.CSa.error, rather than silently NA.
+mrpc.arms <- c("CSq")      # c("CSq", "CSa") to attempt both again
+
 # ---- confounder selection, kept in step with run_confounder_selection.R ----
 selection_fdr    <- 0.05
 filter_fdr       <- 0.1
@@ -70,3 +92,18 @@ if (!is.null(inference.opt("--sizes"))) {
 if (!is.null(inference.opt("--max-per-group"))) {
     max.per.group <- as.integer(inference.opt("--max-per-group"))
 }
+
+# ---- MR-GGI ----
+# Edge called at raw p < mrggi.alpha, matching how mrpc.alpha and selection.alpha are
+# applied per trio. cor.thr = 0 is the package default: with a single gene pair the screen
+# only decides whether the trio is tested at all.
+mrggi.alpha   <- 0.05
+mrggi.cor.thr <- 0
+
+# Minimum first-stage F for the exposure's instrument. MRggi's p-value with a single
+# instrument reduces to the instrument->OUTCOME t-statistic, so the exposure's first stage
+# cancels out of the test entirely and nothing stops it reporting p ~ 0 for a ratio whose
+# denominator is ~0. Measured on a known-null trio: reported B = -38.42 at p = 0 with a
+# first-stage F of 0.1. F > 10 is the conventional weak-instrument rule (Staiger & Stock).
+# See mrggi_feasibility.R sections 5-6.
+mrggi.min.F   <- 10

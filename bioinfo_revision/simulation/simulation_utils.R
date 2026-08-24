@@ -143,9 +143,9 @@ simulate.dataset <- function(settings, clinical.covs, verbose = TRUE) {
                                                     # R2(T1 | U) = 0.65 against 0.41 in
                                                     # real data; 0.3 lands the realized
                                                     # R2 near the real value.
-                                                    U = c(0, 0.3),
-                                                    W = c(0.05, 0.5), # follows from actual pc effect range
-                                                    Z = c(1, 1.5))) #GMAC setting
+                                                    U = c(0.05, 0.3),
+                                                    W = c(0.05, 0.3), # follows from actual pc effect range
+                                                    Z = c(0.3, 0.5))) #GMAC setting
         init=unique(sim_data$data$V1)
     }
     cat("resampled", attempts, "times before 3 genotypes were represented\n")

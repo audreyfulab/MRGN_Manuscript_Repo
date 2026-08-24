@@ -67,10 +67,10 @@
 # last column and recall along the bottom row. All five sample sizes are stacked in one
 # file.
 #
-# Writes, under simulation_results/tables/:
-#   mrggi/confusion_mrggi.csv                       five stacked tables
-#   by_effect_size/mrggi/confusion_mrggi_<eff>.csv  3, five stacked tables each
-# and leaves the long-format counts in mrggi.confusion.long for make_all_tables.R.
+# Writes no files of its own. Every cell it computes -- all five sample sizes, pooled and
+# split by effect size -- is returned as long-format counts in mrggi.confusion.long, which
+# make_all_tables.R stacks into tables/confusion_counts_long.csv and renders into
+# tables/confusion_matrices.md.
 
 source("bioinfo_revision/simulation_results/results_scripts/confusion_utils.R")
 
@@ -98,9 +98,6 @@ build.mrggi.confusion <- function(results = load.method("mrggi")) {
              "tabulating them; the edge column for a failed fit is not an edge call.")
     }
 
-    pooled.blocks <- list()
-    eff.blocks <- setNames(vector("list", length(EFFECT.SIZES)), EFFECT.SIZES)
-
     for (size in SAMPLE.SIZES) {
         rows <- results[results$sample.size == size, , drop = FALSE]
 
@@ -109,9 +106,6 @@ build.mrggi.confusion <- function(results = load.method("mrggi")) {
         m <- confusion(rows$truth.model,
                        mrggi.edge(rows$mrggi.edge, rows$mrggi.weak.instrument),
                        MRGGI.EDGE.LEVELS, coarse.pred = FALSE)
-        st <- scored.table(m, EDGE.CORRECT)
-
-        pooled.blocks[[sprintf("n = %d", size)]] <- st
         long[[length(long) + 1]] <- confusion.long(m, "mrggi", "mrggi", size, "all", "edge")
 
         es <- edge.scores(m, no.call.level = MRGGI.EDGE.LEVELS[3])
@@ -125,25 +119,11 @@ build.mrggi.confusion <- function(results = load.method("mrggi")) {
             me <- confusion(sub$truth.model,
                             mrggi.edge(sub$mrggi.edge, sub$mrggi.weak.instrument),
                             MRGGI.EDGE.LEVELS, coarse.pred = FALSE)
-            eff.blocks[[eff]][[sprintf("n = %d", size)]] <- scored.table(me, EDGE.CORRECT)
             long[[length(long) + 1]] <- confusion.long(me, "mrggi", "mrggi", size, eff, "edge")
         }
-    }
-
-    path <- file.path(tables.dir, "mrggi", "confusion_mrggi.csv")
-    write.scored.csv(pooled.blocks, path)
-    cat(sprintf("        -> %s (%d tables)\n", basename(path), length(pooled.blocks)))
-
-    for (eff in EFFECT.SIZES) {
-        write.scored.csv(eff.blocks[[eff]],
-                         file.path(tables.dir, "by_effect_size", "mrggi",
-                                   sprintf("confusion_mrggi_%s.csv", eff)))
     }
 
     do.call(rbind, long)
 }
 
 mrggi.confusion.long <- build.mrggi.confusion()
-
-cat(sprintf("  wrote %d MR-GGI files (1 pooled, %d by effect size), %d tables each\n",
-            1 + length(EFFECT.SIZES), length(EFFECT.SIZES), length(SAMPLE.SIZES)))

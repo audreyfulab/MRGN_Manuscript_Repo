@@ -11,8 +11,8 @@ Run everything from the **repository root**.
 | real-data SNP effects | `pc_distribution_invest/compute_effects_snp_on_gene.R` | 2 PNGs |
 | simulation | `simulation/updated_data_simulation.R` | `simulation/simulated_data/simulated_trios.RData` |
 | calibration check | `simulation/verify_simulation.R` | console report + `simulation_results/simulated_vs_real_conf_effects.png`, `r2_vs_confounder_count.png` |
-| confounder selection | `simulation_results/run_confounder_selection.R` | `simulation_results/selection_group_n*.RData`, then `selection_results.RData` + `.csv` |
-| inference | `simulation_results/updated_simulation_inference.R` | `simulation_results/{mrgn,mrpc,gmac}_group_n*.RData`, then `inference_{method}.RData` + `.csv` and the joined `inference_results.RData` + `.csv` |
+| confounder selection | `simulation_results/run_confounder_selection.R` | `simulation_results/data/selection_group_n*.RData`, then `selection_results.RData` + `.csv` |
+| inference | `simulation_results/run_all_inference.R` (drives `apply_{mrgn,mrpc,gmac,mrggi}.R`) | `simulation_results/data/{mrgn,mrpc,gmac,mrggi}_group_n*.RData`, then `inference_{method}.RData` + `.csv` and the joined `inference_results.RData` + `.csv` |
 
 **Table 1. The six stages of the pipeline, in dependency order.** Stages 1–2
 measure the real GTEx data that sets the simulation's parameter bounds; stage 3
@@ -76,7 +76,7 @@ MRGN's scheme gives M4 a single label. This is the mapping `TRUTH.LABEL` encodes
 written out explicitly rather than deferring to `MRGN::convert.truth()`.
 
 The cis gene is always `T1`, so the truth is always the `.1` variant. The label
-lookup is explicit in `updated_simulation_inference.R` rather than
+lookup is explicit in `inference_utils.R` (`TRUTH.LABEL`) rather than
 `MRGN::convert.truth()`, which maps by sorted position and mislabels when the
 input does not contain all five models.
 
@@ -481,7 +481,8 @@ without leaving `simData.from.graph()`.
 
 ## 4. Confounder selection and inference
 
-`updated_simulation_inference.R` runs six inferences per trio:
+`run_all_inference.R` drives one `apply_<method>.R` process per method; together they run
+these inferences per trio:
 
 | method | confounders |
 | --- | --- |

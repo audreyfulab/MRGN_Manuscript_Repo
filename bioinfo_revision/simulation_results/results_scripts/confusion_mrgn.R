@@ -35,12 +35,10 @@
 #           the model level at all; this is the level the two methods share, and the only
 #           one on which they can be compared head to head.
 #
-# Writes, under simulation_results/tables/:
-#   mrgn/confusion_mrgn_<arm>.csv                            3, five stacked tables each
-#   mrgn/confusion_mrgn_<arm>_edge.csv                       3, five stacked tables each
-#   by_effect_size/mrgn/confusion_mrgn_<arm>_<eff>.csv       9
-#   by_effect_size/mrgn/confusion_mrgn_<arm>_<eff>_edge.csv  9
-# and leaves the long-format counts in mrgn.confusion.long for make_all_tables.R.
+# Writes no files of its own. Every cell it computes -- both levels, all three arms, all
+# five sample sizes, pooled and split by effect size -- is returned as long-format counts
+# in mrgn.confusion.long, which make_all_tables.R stacks into
+# tables/confusion_counts_long.csv and renders into tables/confusion_matrices.md.
 
 source("bioinfo_revision/simulation_results/results_scripts/confusion_utils.R")
 
@@ -63,11 +61,6 @@ build.mrgn.confusion <- function(results = load.method("mrgn")) {
             stop("results have no column '", model.col, "'")
         }
 
-        # one block per sample size, all of them written to a single file per arm
-        pooled.blocks <- list();      pooled.edge <- list()
-        eff.blocks <- setNames(vector("list", length(EFFECT.SIZES)), EFFECT.SIZES)
-        eff.edge   <- setNames(vector("list", length(EFFECT.SIZES)), EFFECT.SIZES)
-
         for (size in SAMPLE.SIZES) {
             rows <- results[results$sample.size == size, , drop = FALSE]
             m <- confusion(rows$truth.model, rows[[model.col]], MRGN.LEVELS)
@@ -88,13 +81,10 @@ build.mrgn.confusion <- function(results = load.method("mrgn")) {
                              arm, size, observed, correct.col, expected))
             }
 
-            caption <- sprintf("n = %d", size)
-            pooled.blocks[[caption]] <- scored.table(m, MRGN.CORRECT)
             long[[length(long) + 1]] <- confusion.long(m, "mrgn", arm, size, "all", "model")
 
             e <- confusion(rows$truth.model, mrgn.edge(rows[[model.col]]),
                            MRGN.EDGE.LEVELS, coarse.pred = FALSE)
-            pooled.edge[[caption]] <- scored.table(e, EDGE.CORRECT)
             long[[length(long) + 1]] <- confusion.long(e, "mrgn", arm, size, "all", "edge")
 
             es <- edge.scores(e)
@@ -105,33 +95,14 @@ build.mrgn.confusion <- function(results = load.method("mrgn")) {
             for (eff in EFFECT.SIZES) {
                 sub <- rows[rows$effect_size == eff, , drop = FALSE]
                 me <- confusion(sub$truth.model, sub[[model.col]], MRGN.LEVELS)
-                eff.blocks[[eff]][[caption]] <- scored.table(me, MRGN.CORRECT)
                 long[[length(long) + 1]] <-
                     confusion.long(me, "mrgn", arm, size, eff, "model")
 
                 ee <- confusion(sub$truth.model, mrgn.edge(sub[[model.col]]),
                                 MRGN.EDGE.LEVELS, coarse.pred = FALSE)
-                eff.edge[[eff]][[caption]] <- scored.table(ee, EDGE.CORRECT)
                 long[[length(long) + 1]] <-
                     confusion.long(ee, "mrgn", arm, size, eff, "edge")
             }
-        }
-
-        path <- file.path(tables.dir, "mrgn", sprintf("confusion_mrgn_%s.csv", arm))
-        write.scored.csv(pooled.blocks, path)
-        edge.path <- file.path(tables.dir, "mrgn",
-                               sprintf("confusion_mrgn_%s_edge.csv", arm))
-        write.scored.csv(pooled.edge, edge.path)
-        cat(sprintf("        -> %s, %s (%d tables each)\n",
-                    basename(path), basename(edge.path), length(pooled.blocks)))
-
-        for (eff in EFFECT.SIZES) {
-            write.scored.csv(eff.blocks[[eff]],
-                             file.path(tables.dir, "by_effect_size", "mrgn",
-                                       sprintf("confusion_mrgn_%s_%s.csv", arm, eff)))
-            write.scored.csv(eff.edge[[eff]],
-                             file.path(tables.dir, "by_effect_size", "mrgn",
-                                       sprintf("confusion_mrgn_%s_%s_edge.csv", arm, eff)))
         }
     }
 
@@ -139,9 +110,3 @@ build.mrgn.confusion <- function(results = load.method("mrgn")) {
 }
 
 mrgn.confusion.long <- build.mrgn.confusion()
-
-cat(sprintf("  wrote %d MRGN files (%d pooled, %d by effect size), %d tables each\n",
-            2 * length(MRGN.ARMS) * (1 + length(EFFECT.SIZES)),
-            2 * length(MRGN.ARMS),
-            2 * length(MRGN.ARMS) * length(EFFECT.SIZES),
-            length(SAMPLE.SIZES)))

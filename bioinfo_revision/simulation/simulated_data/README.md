@@ -1,23 +1,24 @@
 # `simulation/simulated_data/`
 
-Output of `../updated_data_simulation.R`. **Not tracked in git** — each file is ~368 MB,
+Output of `../updated_data_simulation.R`. **Not tracked in git** — the files run to hundreds of MB,
 well past GitHub's limits. Regenerate by rerunning the driver from the repository root;
 it seeds with `set.seed(234)`, so a rerun on the same R version reproduces the same
 trios.
 
 | file | size | what it is |
 | --- | --- | --- |
-| `simulated_trios.RData` | 368 MB | **current** — the 3,750 trios the inference stage consumes |
-| `simulated_trios_precalibration.RData` | 367 MB | superseded — the run before the effect-size and confounder recalibration, kept for comparison |
+| `simulated_trios.RData` | 146 MB | **current** — the 1,500 trios the inference stage consumes. Regenerated 2026-08-22 under raised `b.snp`/`b.med` floors and narrowed `U`/`W`/`Z` coefficient ranges; the run it superseded is described in [`../../simulation_results/legacy/first_pass/README.md`](../../simulation_results/legacy/first_pass/README.md) |
+| `simulated_trios_precalibration.RData` | 367 MB | superseded — 3,750 trios at a single sample size, from before the effect-size and confounder recalibration; kept for comparison |
 
 ## Structure
 
-Both files load a single object named `data`: a length-3,750 list, one element per
-dataset, each a three-element list.
+Both files load a single object named `data`: a list with one element per dataset — 1,500
+in `simulated_trios.RData`, 3,750 in the precalibration file — each element
+a three-element list.
 
 ```r
 sim <- MRGN::loadRData("bioinfo_revision/simulation/simulated_data/simulated_trios.RData")
-length(sim)            # 3750
+length(sim)            # 1500
 names(sim[[1]])        # "data" "params" "conf.effects"
 dim(sim[[1]]$data)     # 50 24
 ```
@@ -40,7 +41,7 @@ Every simulated confounder is suffixed with `.<dataset index>` by
 `name.trio.columns()`. That suffix is what lets the inference stage pool all the
 confounders of a sample-size group into one matrix and still attribute a selected
 column back to its trio and its block — see `own.block.names()` in
-`../../simulation_results/updated_simulation_inference.R`.
+`../../simulation_results/inference_utils.R`.
 
 ### `$params` — a one-row data frame
 

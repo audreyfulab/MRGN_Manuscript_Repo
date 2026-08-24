@@ -12,12 +12,12 @@
 # it (coarse.model) is re-declared below instead of sourced. Second, these tables are the
 # artefact a reader is most likely to want to regenerate without a working MRGN install.
 #
-# inference_config.R IS sourced, for out.dir, so paths stay in step with the rest of the
-# stage rather than being hardcoded a second time.
+# inference_config.R IS sourced, for out.dir and tables.dir, so paths stay in step with the
+# rest of the stage rather than being hardcoded a second time. Note that tables.dir is a
+# sibling of out.dir, not a child of it: out.dir is `data/`, which holds only the generated
+# .RData/.csv, and these tables are the report rather than the data.
 
 source("bioinfo_revision/simulation_results/inference_config.R")
-
-tables.dir <- file.path(out.dir, "tables")
 
 
 # ---------------------------------------------------------------------------------------
@@ -384,38 +384,12 @@ ensure.dir <- function(path) {
 
 CORNER <- "inferred \\ true"
 
-# One CSV per arm rather than per sample size, with the five sample-size tables stacked
-# inside it under `n = <size>` captions and separated by a blank line. Five files that have
-# to be opened side by side to be compared is the wrong unit: the whole point of these
-# tables is reading a method down the sample sizes, so the sample sizes belong in one file.
-#
-# Hand-rolled CSV rather than write.csv() because a stacked file is not one rectangle and
-# write.csv() only knows how to write one. Fields are quoted only when they need it, which
-# keeps the counts unquoted and diffable.
-csv.field <- function(x) {
-    if (grepl('[",\n]', x)) paste0('"', gsub('"', '""', x, fixed = TRUE), '"') else x
-}
-csv.row <- function(x) paste(vapply(as.character(x), csv.field, character(1)), collapse = ",")
-
-# st: a scored.table() character matrix. Returns the block's lines, caption included.
-scored.csv.block <- function(st, caption) {
-    width <- ncol(st) + 1
-    c(csv.row(c(caption, rep("", width - 1))),
-      csv.row(c(CORNER, colnames(st))),
-      vapply(seq_len(nrow(st)), function(i) csv.row(c(rownames(st)[i], st[i, ])),
-             character(1)))
-}
-
-# blocks: named list of scored.table() matrices; the names become the captions.
-write.scored.csv <- function(blocks, path) {
-    lines <- unlist(lapply(seq_along(blocks), function(i) {
-        c(scored.csv.block(blocks[[i]], names(blocks)[i]),
-          if (i < length(blocks)) "" else character(0))
-    }), use.names = FALSE)
-    ensure.dir(dirname(path))
-    writeLines(lines, path)
-    invisible(path)
-}
+# There is deliberately no per-arm CSV writer here. Every count these scripts produce goes
+# into tables/confusion_counts_long.csv, one row per cell, and the pooled matrices are
+# rendered for reading in tables/confusion_matrices.md. A stacked per-arm CSV is neither:
+# it is not one rectangle, so read.csv() cannot load it, and it duplicates numbers the long
+# file already holds. Reconstruct any matrix from the long file instead -- see
+# matrix.from.long() in make_all_tables.R, which is what the Markdown report itself uses.
 
 # Renders one scored table as a GitHub Markdown table. Hand-rolled because nothing else in
 # bioinfo_revision pulls in knitr or xtable, and one table formatter is not worth breaking

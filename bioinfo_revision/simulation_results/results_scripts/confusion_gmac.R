@@ -33,10 +33,10 @@
 # last column and recall along the bottom row. All five sample sizes are stacked in one
 # file.
 #
-# Writes, under simulation_results/tables/:
-#   gmac/confusion_gmac.csv                       five stacked tables
-#   by_effect_size/gmac/confusion_gmac_<eff>.csv  3, five stacked tables each
-# and leaves the long-format counts in gmac.confusion.long for make_all_tables.R.
+# Writes no files of its own. Every cell it computes -- all five sample sizes, pooled and
+# split by effect size -- is returned as long-format counts in gmac.confusion.long, which
+# make_all_tables.R stacks into tables/confusion_counts_long.csv and renders into
+# tables/confusion_matrices.md.
 
 source("bioinfo_revision/simulation_results/results_scripts/confusion_utils.R")
 
@@ -61,9 +61,6 @@ build.gmac.confusion <- function(results = load.method("gmac")) {
              "check that is right for these before tabulating.")
     }
 
-    pooled.blocks <- list()
-    eff.blocks <- setNames(vector("list", length(EFFECT.SIZES)), EFFECT.SIZES)
-
     for (size in SAMPLE.SIZES) {
         rows <- results[results$sample.size == size, , drop = FALSE]
 
@@ -72,9 +69,6 @@ build.gmac.confusion <- function(results = load.method("gmac")) {
         # explicitly keeps the two methods from looking interchangeable.
         m <- confusion(rows$truth.model, gmac.edge(rows$gmac.model), EDGE.LEVELS,
                        coarse.pred = FALSE)
-        st <- scored.table(m, EDGE.CORRECT)
-
-        pooled.blocks[[sprintf("n = %d", size)]] <- st
         long[[length(long) + 1]] <- confusion.long(m, "gmac", "gmac", size, "all", "edge")
 
         # the bottom-right cell of the scored table, re-derived rather than parsed back
@@ -87,25 +81,11 @@ build.gmac.confusion <- function(results = load.method("gmac")) {
             sub <- rows[rows$effect_size == eff, , drop = FALSE]
             me <- confusion(sub$truth.model, gmac.edge(sub$gmac.model), EDGE.LEVELS,
                             coarse.pred = FALSE)
-            eff.blocks[[eff]][[sprintf("n = %d", size)]] <- scored.table(me, EDGE.CORRECT)
             long[[length(long) + 1]] <- confusion.long(me, "gmac", "gmac", size, eff, "edge")
         }
-    }
-
-    path <- file.path(tables.dir, "gmac", "confusion_gmac.csv")
-    write.scored.csv(pooled.blocks, path)
-    cat(sprintf("        -> %s (%d tables)\n", basename(path), length(pooled.blocks)))
-
-    for (eff in EFFECT.SIZES) {
-        write.scored.csv(eff.blocks[[eff]],
-                         file.path(tables.dir, "by_effect_size", "gmac",
-                                   sprintf("confusion_gmac_%s.csv", eff)))
     }
 
     do.call(rbind, long)
 }
 
 gmac.confusion.long <- build.gmac.confusion()
-
-cat(sprintf("  wrote %d GMAC files (1 pooled, %d by effect size), %d tables each\n",
-            1 + length(EFFECT.SIZES), length(EFFECT.SIZES), length(SAMPLE.SIZES)))

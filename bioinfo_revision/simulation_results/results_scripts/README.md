@@ -1,7 +1,7 @@
 # `results_scripts/` — summarising the simulation inference
 
 Turns the wide per-trio tables written by the inference stage
-(`../inference_mrgn.RData`, `../inference_gmac.RData`) into confusion matrices, organised
+(`../data/inference_mrgn.RData`, `../data/inference_gmac.RData`) into confusion matrices, organised
 by sample size. Output goes to [`../tables/`](../tables); nothing here touches the
 inference results themselves.
 
@@ -15,13 +15,15 @@ present.
 
 | file | what it is |
 | --- | --- |
-| `confusion_utils.R` | label sets, the results loader, the `confusion()` builder, `scored.table()`, CSV and Markdown writers |
+| `confusion_utils.R` | label sets, the results loader, the `confusion()` builder, `scored.table()`, the Markdown writer |
 | `confusion_mrgn.R` | MRGN matrices for all three confounder arms |
 | `confusion_gmac.R` | GMAC T1–T2 edge matrices |
-| `make_all_tables.R` | **driver** — sources both, then writes the long-format CSV and the combined report |
+| `confusion_mrggi.R` | MR-GGI T1–T2 edge matrices |
+| `make_all_tables.R` | **driver** — sources all three, then writes the three output files |
 
-Each of the two method scripts writes its own per-matrix CSVs and runs standalone; only
-the driver produces the two combined files.
+Each method script runs standalone and leaves its counts in a
+`<method>.confusion.long` global, but **writes nothing**. Only the driver writes, and it
+writes exactly three files.
 
 **No package dependencies.** Pure base R — no MRGN, no ggplot2, no `knitr`/`xtable`. In
 particular `confusion_utils.R` deliberately does *not* source `../inference_utils.R`,
@@ -51,25 +53,24 @@ first (see [`../README.md`](../README.md)). Output files are overwritten in plac
 
 ```
 ../tables/
-├── confusion_matrices.md                                   the pooled matrices, for reading
-├── confusion_counts_long.csv                               every cell of every matrix, tidy
-├── edge_comparison.csv                                     MRGN vs GMAC on the T1–T2 edge
-├── mrgn/confusion_mrgn_<arm>.csv                            3   arm ∈ {truth, CSq, CSa}
-├── mrgn/confusion_mrgn_<arm>_edge.csv                       3
-├── gmac/confusion_gmac.csv                                  1
-└── by_effect_size/
-    ├── mrgn/confusion_mrgn_<arm>_<effect>.csv               9
-    ├── mrgn/confusion_mrgn_<arm>_<effect>_edge.csv          9
-    └── gmac/confusion_gmac_<effect>.csv                     3
+├── confusion_matrices.md      the pooled matrices, rendered for reading
+├── confusion_counts_long.csv  every cell of every matrix, tidy
+└── edge_comparison.csv        MRGN vs GMAC vs MR-GGI on the T1–T2 edge
 ```
 
-**One file per arm, not per sample size.** Each CSV holds all five sample-size tables
-stacked, each under an `n = <size>` caption row and separated by a blank line. These tables
-exist to be read down the sample sizes, so the sample sizes belong in one file rather than
-in five that have to be opened side by side. The file is therefore not a single rectangle —
-`read.csv` on it will not do anything sensible; parse from `confusion_counts_long.csv`
-instead, whose columns are `method`, `arm`, `level`, `sample_size`, `effect_size`, `truth`,
-`predicted`, `n`, with `effect_size = "all"` marking the pooled rows.
+**Three files, and `confusion_counts_long.csv` is the one to parse.** Its columns are
+`method`, `arm`, `level`, `sample_size`, `effect_size`, `truth`, `predicted`, `n`, with
+`effect_size = "all"` marking the pooled rows. It holds *every* cell the stage computes —
+both levels, all arms, all five sample sizes, pooled and split by effect size — so any
+matrix can be rebuilt from it. `matrix.from.long()` in `make_all_tables.R` does exactly
+that, and is what the Markdown report is rendered from.
+
+> An earlier layout also wrote 32 per-arm CSVs under `mrgn/`, `gmac/`, `mrggi/` and
+> `by_effect_size/`, each stacking the five sample-size tables under `n = <size>` caption
+> rows. They were dropped: a stacked file is not one rectangle, so `read.csv` could not
+> load them, and every number in them was already a row of `confusion_counts_long.csv`.
+> The archived set in [`../legacy/first_pass/tables/`](../legacy/first_pass/tables/) still
+> has them, from the superseded first run.
 
 **Two levels.** `level = "model"` is the six-way M0–M4/`Other` call; `level = "edge"` is
 the same trios re-scored on whether a T1–T2 edge was found. MRGN has both, GMAC only the
@@ -171,7 +172,7 @@ So `gmac.edge()` pools the three edge-present calls and the table asks what GMAC
 answer: is there a T1–T2 edge? That is the framing the manuscript already used —
 `Manuscript/other/tablescraps/MRGN.GMAC.class.inference.50conf` reports GMAC as
 `T1 - T2 Edge Absent` / `T1 - T2 Edge Present` against the same five truth models. The
-four-way call is untouched in `../inference_gmac.csv` if it is wanted.
+four-way call is untouched in `../data/inference_gmac.csv` if it is wanted.
 
 Precision and recall are well defined for the two-row table because each generating model
 has an edge status (`GMAC.CORRECT`):
@@ -210,8 +211,8 @@ This reproduces the original simulation rather than departing from it: the old
 
 The model-level tables cannot be compared across the two methods — GMAC never names a
 model. So MRGN's call is collapsed onto GMAC's two rows using the same `EDGE.CORRECT`
-mapping (`mrgn.edge()`), giving `confusion_mrgn_<arm>_edge.csv`: same columns, same right
-answers, same margins as `confusion_gmac.csv`, so the two are read off each other directly.
+mapping (`mrgn.edge()`), giving the `level = "edge"` rows: same columns, same right
+answers, same margins as GMAC's own table, so the two are read off each other directly.
 `edge_comparison.csv` and the **T1-T2 edge** section of `confusion_matrices.md` put the
 rates side by side.
 
@@ -256,11 +257,13 @@ misleading tables.
 
 ## Not covered yet
 
-- **MRPC.** No combined `inference_mrpc.csv` exists and only three of the five group
-  checkpoints (`../mrpc_group_n{50,150,300}.RData`) have been produced. Once that run
-  finishes and `combine.method("mrpc")` has been called, a `confusion_mrpc.R` is a copy of
-  `confusion_mrgn.R` against the `mrpc.CSq.*` columns — note `mrpc.arms` is currently
-  `c("CSq")` only (`../inference_config.R`), so it is one arm, not three.
+- **MRPC.** It runs to completion — the first pass produced all five group checkpoints and
+  a 1,500-row `inference_mrpc.*` — but nothing here tabulates it. A `confusion_mrpc.R` is a
+  copy of `confusion_mrgn.R` against the `mrpc.CSq.*` columns, with two things to handle.
+  Timed-out fits carry `model = NA`, which `confusion()` maps to `"Failed"` and then stops
+  on, so they need a level of their own rather than an error — in the first pass that was
+  224 of 1,500 trios, not a rounding error. And `mrpc.arms` is `c("CSq")` only
+  (`../inference_config.R`), so it is one arm, not three.
 - **Bootstrap calls.** `mrgn.*.boot.model` is a second full label set per arm and would
   double the table count. The loop in `confusion_mrgn.R` is parameterised by column name,
   so adding it is a small change.

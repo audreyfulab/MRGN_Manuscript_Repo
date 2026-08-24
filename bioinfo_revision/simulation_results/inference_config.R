@@ -6,11 +6,24 @@
 #
 # Paths are relative to the repository root; every script in this stage expects to be run
 # from there.
+#
+# Generated files are segregated from the code: everything this stage writes goes under
+# out.dir, which is `data/` rather than the script folder it used to be. logs/ and tables/
+# are SIBLINGS of data/, not children -- they hold the run's diagnostics and the
+# human-readable report, neither of which is the data. Re-running the simulation is then a
+# matter of moving data/ aside, as legacy/first_pass/ records for the previous pass.
+
+results.root  <- "bioinfo_revision/simulation_results"
 
 sim.data.file <- "bioinfo_revision/simulation/simulated_data/simulated_trios.RData"
 clinical.file <- "./GTEx/data/kclist_top5_tiss.RData"
-out.dir       <- "bioinfo_revision/simulation_results"
-log.dir       <- file.path(out.dir, "logs")
+out.dir       <- file.path(results.root, "data")     # every generated .RData / .csv
+log.dir       <- file.path(results.root, "logs")
+tables.dir    <- file.path(results.root, "tables")   # used by results_scripts/
+
+# out.dir was the script folder and so always existed. It is a generated directory now, and
+# the first thing to touch it is a save() that would fail on a fresh clone.
+dir.create(out.dir, recursive = TRUE, showWarnings = FALSE)
 
 # ---- per-method inference settings ----
 n.bootstrap     <- 1000    # bootstrap replicates per MRGN fit

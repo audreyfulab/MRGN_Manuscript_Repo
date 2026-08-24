@@ -5,14 +5,23 @@
 #
 #   Rscript bioinfo_revision/simulation_results/results_scripts/make_all_tables.R
 #
-# Sources confusion_mrgn.R, confusion_gmac.R and confusion_mrggi.R -- each of which writes
-# its own per-matrix CSVs and can be run on its own -- then stitches their long-format
-# counts into the two files that are meant to be read rather than parsed:
+# Sources confusion_mrgn.R, confusion_gmac.R and confusion_mrggi.R -- each of which
+# computes its method's matrices and can be run on its own, but writes nothing -- then
+# stitches their long-format counts into the only three files this stage produces:
 #
-#   tables/confusion_counts_long.csv   every cell of every matrix, tidy. Re-aggregate or
-#                                      re-plot from this one file rather than from the 20
-#                                      per-arm CSVs.
+#   tables/confusion_counts_long.csv   every cell of every matrix, tidy. One row per cell,
+#                                      across both levels, all arms, all sample sizes, and
+#                                      pooled plus each effect size. This is the machine
+#                                      -readable form; re-aggregate or re-plot from it.
 #   tables/confusion_matrices.md       the pooled matrices rendered for reading.
+#   tables/edge_comparison.csv         the T1-T2 edge rates, method by method.
+#
+# There is deliberately no per-arm CSV. The earlier layout wrote 32 of them, one per arm
+# per level per effect size, each holding the five sample-size tables stacked under
+# `n = <size>` captions. They were unreadable by read.csv() -- a stacked file is not one
+# rectangle -- and every number in them is already a row of confusion_counts_long.csv.
+# Reconstruct any matrix from the long file with matrix.from.long() below, which is what
+# the Markdown report itself does.
 #
 # This mirrors the layout of the inference stage one level up, where run_all_inference.R
 # drives apply_mrgn.R / apply_gmac.R / apply_mrpc.R / apply_mrggi.R and then combines their

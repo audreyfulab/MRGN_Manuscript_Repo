@@ -526,36 +526,67 @@ run.mrgn.group <- function(datasets, sel, cov.names, cl = NULL, bootstrap = TRUE
 }
 
 
-# ---- MRPC: CS-q and CS-alpha ----
+# ---- MRPC: true confounders, CS-q and CS-alpha ----
+#
+# The truth arm is the same oracle MRGN gets: trio + K + that trio's own U block, via
+# ground.truth.input(). It is what makes the MRPC and MRGN columns readable against each
+# other -- the gap between the oracle and CS-q is the cost of selection rather than of the
+# method, which is the comparison METHODS.md section 5 is built on.
+#
+# It is also the arm most likely to time out. At n = 670 it carries a median of 25-29
+# confounders against CS-q's 16, and CS-q already times out on 61% of trios there. See the
+# mrpc.arms note in inference_config.R for how to smoke-test it before a full run.
 run.mrpc.group <- function(datasets, sel, cov.names, timeout = mrpc.timeout,
-                           arms = mrpc.arms, verbose = TRUE) {
+                           arms = mrpc.arms, truth.max.n = mrpc.truth.max.n,
+                           verbose = TRUE) {
     n.datasets <- length(datasets)
     rows <- vector("list", n.datasets)
+    sample.size <- nrow(datasets[[1]]$data)
 
     # An arm that is switched off still produces its columns, so every mrpc_group_*.RData
     # has the same schema and groups run under different settings still rbind. The reason
     # goes in the error field, so "not attempted" is distinguishable from "timed out".
-    skipped <- function(arm) {
-        list(value = NULL,
-             error = paste0(arm, " arm disabled in mrpc.arms: the CS-alpha confounder ",
-                            "set is too large for MRPC to fit (see inference_config.R)"))
+    skipped <- function(arm, why) {
+        list(value = NULL, error = paste0(arm, " arm not attempted: ", why))
+    }
+
+    # Budget control: the truth arm carries more confounders than CS-q, which already times
+    # out on most trios at the large sizes, so a large group would spend
+    # n.trios x mrpc.timeout to write a mostly-NA column. See mrpc.truth.max.n in
+    # inference_config.R, and set it to Inf to run the arm everywhere.
+    do.truth <- "truth" %in% arms && sample.size <= truth.max.n
+    if ("truth" %in% arms && !do.truth && verbose) {
+        cat("    truth arm skipped at n =", sample.size, "( > mrpc.truth.max.n =",
+            truth.max.n, ")\n")
     }
 
     for (i in seq_len(n.datasets)) {
         dat <- datasets[[i]]$data; params <- datasets[[i]]$params
-        index <- params$dataset
+        index <- params$dataset; K_n <- params$K_n
         truth.label <- unname(TRUTH.LABEL[params$model])
 
+        mrpc.truth <- if (do.truth) {
+            safely(apply.mrpc(ground.truth.input(dat, K_n, index), timeout = timeout))
+        } else if ("truth" %in% arms) {
+            skipped("truth", paste0("n = ", sample.size, " exceeds mrpc.truth.max.n = ",
+                                    truth.max.n, "; the oracle confounder set is too large ",
+                                    "for MRPC to fit at this sample size within the time ",
+                                    "budget (see inference_config.R)"))
+        } else {
+            skipped("truth", "not listed in mrpc.arms")
+        }
         mrpc.csq <- if ("CSq" %in% arms) {
             safely(apply.mrpc(sel$CS.q$trios.with.confs[[i]], timeout = timeout))
-        } else skipped("CS-q")
+        } else skipped("CS-q", "not listed in mrpc.arms")
         mrpc.csa <- if ("CSa" %in% arms) {
             safely(apply.mrpc(sel$CS.alpha$trios.with.confs[[i]], timeout = timeout))
-        } else skipped("CS-alpha")
+        } else skipped("CS-alpha", paste0("not listed in mrpc.arms: the CS-alpha set is ",
+                                          "too large for MRPC to fit (see inference_config.R)"))
 
         rows[[i]] <- as.data.frame(c(
             id.columns(dat, params, index),
             cs.score.columns(sel, i, index, dat, cov.names),
+            prefixed(mrpc.fields(mrpc.truth$value, mrpc.truth$error, truth.label), "mrpc.truth"),
             prefixed(mrpc.fields(mrpc.csq$value, mrpc.csq$error, truth.label), "mrpc.CSq"),
             prefixed(mrpc.fields(mrpc.csa$value, mrpc.csa$error, truth.label), "mrpc.CSa")),
             stringsAsFactors = FALSE)
@@ -569,6 +600,13 @@ run.mrpc.group <- function(datasets, sel, cov.names, timeout = mrpc.timeout,
 # ---- GMAC: selects its own confounders across the group, then one call per trio ----
 # The batch run does the selection and the mediation test together, so unlike CS-q/CS-alpha
 # it cannot be split out into the selection stage.
+#
+# TWO ARMS per trio, as for MRGN and MRPC:
+#   gmac.*        GMAC's own selected confounders, scored from the batch table
+#   gmac.truth.*  that trio's true U block, scored from its own apply.gmac() call
+# The oracle arm costs one extra permutation test per trio (gmac.nperm each), which roughly
+# doubles the per-trio part of the group. The batch gmac() call is unaffected -- it is
+# GMAC's selection, and the oracle arm bypasses selection entirely.
 run.gmac.group <- function(datasets, cov.pool, known.conf, cl = NULL,
                            nperm = gmac.nperm, verbose = TRUE) {
     n.datasets <- length(datasets)
@@ -602,11 +640,24 @@ run.gmac.group <- function(datasets, cov.pool, known.conf, cl = NULL,
                                       known.conf = known.conf, nperm = nperm,
                                       alpha = selection.alpha))
 
+        # Oracle arm: the same mediation test against that trio's TRUE confounders instead
+        # of the ones GMAC selected, so the gap between the two is the cost of GMAC's own
+        # selection rather than of the test. This one is scored from its OWN model call --
+        # apply.gmac() returns a results row of the same shape as the batch table -- rather
+        # than from gmac.out, which only ever describes the selected-confounder run.
+        truth.confs <- if (length(true.confs) > 0)
+            as.matrix(dat[, true.confs, drop = FALSE]) else NULL
+        gmac.truth <- safely(apply.gmac(just.trios[[i]], confounders = truth.confs,
+                                        known.conf = known.conf, nperm = nperm,
+                                        alpha = selection.alpha))
+
         rows[[i]] <- as.data.frame(c(
             id.columns(dat, params, index),
             prefixed(score.selection(gmac.names, index, true.confs), "gmac"),
             prefixed(gmac.fields(if (is.null(gmac.out)) NULL else gmac.out$results[i, ],
                                  gmac.one$value, gmac.one$error), "gmac"),
+            prefixed(gmac.fields(if (is.null(gmac.truth$value)) NULL else gmac.truth$value$results,
+                                 gmac.truth$value, gmac.truth$error), "gmac.truth"),
             list(gmac.batch.error = batch.error)),
             stringsAsFactors = FALSE)
 
@@ -1196,90 +1247,282 @@ combine.all <- function(sample.sizes = NULL, save.csv = TRUE, verbose = TRUE,
 # causal effect of one gene on another, via the Wald ratio beta(V->outcome)/beta(V->exposure).
 # See MRGGI_METHODS.md for the full derivation and the measurements behind the choices here.
 #
-# TWO ADAPTATIONS ARE REQUIRED for trios, both forced by there being ONE variant.
+# ONE CALL PER TRIO PER ARM. MRggi() takes a whole gene matrix and tests every pair, so a
+# trio goes in as y = (T1, T2, covariates) rather than being called once per edge. The arms
+# in mrggi.arms differ only in which covariates ride along in y.
 #
-# 1. The outcome gene must be given NO instrument. MRggi's .TSLS residualises the outcome
-#    on its own instruments before regressing on the exposure's:
+# WHAT THE COVARIATES DO, since it is not what it looks like. MRggi's estimator is strictly
+# pairwise -- .TSLS() reads only y[,i], y[,j], X[[i]] and X[[j]] -- so the T1-T2 Wald ratio
+# is IDENTICAL in every arm. Measured on one trio: Bg1g2 = 0.808, p = 0.000 both with and
+# without covariates in y. What changes is FDR_Bg1g2: MRggi adjusts each g1's p-values
+# across that gene's pairs, so the T1-T2 p-value is now corrected for T1's pairs against
+# every covariate too. That correction is the entire difference between the arms.
+#
+# The arms are therefore NOT a confounder adjustment. MRggi has no covariate argument and
+# cannot adjust; the instrument is what is supposed to handle confounding, which is the
+# method's premise. See MRGGI_METHODS.md section 4.
+#
+# THREE ADAPTATIONS ARE REQUIRED, all forced by there being ONE variant.
+#
+# 1. Only T1 gets the instrument; T2 and every covariate get a COLUMN OF ZEROS. MRggi's
+#    .TSLS residualises the outcome on its own instruments before regressing on the
+#    exposure's:
 #         y2.resid = resid(lm(y2 ~ X2)); Bzy = coef(lm(y2.resid ~ X1))
 #    OLS residuals are orthogonal to their own regressors, so if X1 == X2 -- which is what
 #    FineMapping() produces for a trio, since V1 is the only variant and it is associated
 #    with both genes -- Bzy is forced to exactly zero and every estimate collapses.
-#    Measured: true effect 0.700 returns 0.0000 (p = 1.0) when both genes hold V1, and
-#    0.674 when the outcome holds none. FineMapping is therefore bypassed.
+#    Measured against a true effect of 0.700:
 #
-#    The "no instrument" entry must be a COLUMN OF ZEROS. NULL fails ("'data' must be of a
-#    vector type") and a zero-column matrix fails ("subscript out of bounds"), because
-#    MRggi runs lapply(X, scale) over every element before the loop.
+#      T1 = V1, T2 = zeros, covariates = zeros   ->  0.651  (p = 0.000)
+#      T1 = V1, T2 = V1,    covariates = zeros   ->  0.000  (p = 1.000)
+#      T1 = V1, T2 = V1,    covariates = V1      ->  0.000  (p = 1.000)
+#      T1 = V1, T2 = zeros, covariates = V1      ->  0.651  (p = 0.000)
 #
-# 2. Only the cis -> trans direction is reported. V1 is the cis gene's eQTL by
-#    construction, so T1 is the only gene with a legitimate instrument. The reverse is
-#    computed and stored, but not used for edge calls: with a single instrument MRggi's
-#    test statistic reduces to Bzy/se_Bzy, i.e. the instrument->OUTCOME t-statistic, and
-#    the exposure's first stage cancels out. On a known-null trio it reported B = -38.42
-#    at p = 0 with a first-stage F of 0.1. Hence the mrggi.min.F gate.
+#    Rows 1 and 4 are identical: what the COVARIATE columns hold cannot reach the T1-T2 row,
+#    because that row reads only X[["T1"]] and X[["T2"]]. Zeros are used throughout so the
+#    covariate rows stay estimable rather than collapsing the same way.
+#
+# 2. X must be POSITIONALLY ALIGNED with y and every element must be a real matrix.
+#    X[[i]] is the instrument set for y[, i]. A list shorter than ncol(y) fails with
+#    "subscript out of bounds"; a NULL element fails with "'data' must be of a vector type"
+#    inside lapply(X, scale). A zero-COLUMN matrix (ncol 0) also fails, in .TSLS. A column
+#    of zeros is the only encoding of "no instrument" that works -- not because it survives
+#    scale() (scale() turns it into all-NaN) but because MRggi assigns scale.X and then
+#    never reads it, so .TSLS gets the raw zeros.
+#
+# 3. colnames(y) MUST BE SET. MRggi builds its output with g1 = append(g1, colnames(y)[i]),
+#    so NULL colnames leave g1 empty and it dies at its final data.frame() with
+#    "arguments imply differing number of rows: 0, 1" -- an error that points nowhere near
+#    the cause. cbind(T1 = a, T2 = b) on unnamed n x 1 MATRICES yields NULL colnames,
+#    because cbind ignores the tag for matrix arguments. Hence the assertion below.
+#
+# Only the cis -> trans direction is reported. V1 is the cis gene's eQTL by construction, so
+# T1 is the only gene with a legitimate instrument, and under this design T2 has none at all
+# -- Bg2g1 is NaN by construction rather than merely unused. With a single instrument
+# MRggi's test statistic reduces to Bzy/se_Bzy, the instrument->OUTCOME t-statistic, and the
+# exposure's first stage cancels out: on a known-null trio it reported B = -38.42 at p = 0
+# with a first-stage F of 0.1. Hence the mrggi.min.F gate.
 
-# One trio: y = (T1, T2), instrument V1 given to whichever gene is the exposure.
-mrggi.one.trio <- function(trio, cor.thr = mrggi.cor.thr) {
-    V1 <- as.matrix(trio[, 1])
-    y  <- as.matrix(trio[, 2:3]); colnames(y) <- c("T1", "T2")
-    zeros <- matrix(0, nrow = nrow(y), ncol = 1)
+# One trio, one arm. `covars` is a data.frame of covariate columns, or NULL for the bare
+# trio. Returns the T1 -> T2 row of the MRggi output plus the diagnostics around it.
+mrggi.one.trio <- function(trio, covars = NULL, cor.thr = mrggi.cor.thr,
+                           p.adjust.method = mrggi.p.adjust) {
 
-    # first-stage strength of V1 for each gene as exposure
-    fstat <- function(g) {
-        s <- summary(stats::lm(y[, g] ~ V1))
-        if (is.null(s$fstatistic)) NA_real_ else unname(s$fstatistic[1])
+    V1 <- as.matrix(trio[, 1, drop = FALSE])
+    genes <- as.data.frame(trio[, 2:3, drop = FALSE])
+
+    # cbind.data.frame(df, NULL) is not a no-op -- NULL counts as a zero-row argument and it
+    # fails with "arguments imply differing number of rows: n, 0". The `none` arm passes
+    # NULL, so the empty case is branched on rather than relying on cbind to ignore it.
+    covars <- if (is.null(covars)) NULL else as.data.frame(covars)
+    if (!is.null(covars) && ncol(covars) == 0) covars <- NULL
+
+    T_mat <- as.matrix(if (is.null(covars)) genes else cbind.data.frame(genes, covars))
+    colnames(T_mat) <- c("T1", "T2", if (!is.null(covars)) colnames(covars) else NULL)
+
+    # adaptation 3. Cheap, and the alternative is an error 5 frames deep that names none of
+    # these variables.
+    if (is.null(colnames(T_mat)) || anyNA(colnames(T_mat)) ||
+        any(colnames(T_mat) == "") || anyDuplicated(colnames(T_mat))) {
+        stop("mrggi.one.trio(): y needs unique, non-missing column names -- MRggi indexes ",
+             "colnames(y) to build its output and fails opaquely without them")
     }
-    # whichever gene holds V1 is the exposure; the other direction returns NaN
-    fwd <- MRggi::MRggi(y = y, X = list(T1 = V1,    T2 = zeros), cor.thr = cor.thr)
-    rev <- MRggi::MRggi(y = y, X = list(T1 = zeros, T2 = V1),    cor.thr = cor.thr)
 
-    list(B.T1T2 = fwd$Bg1g2[1], p.T1T2 = fwd$pval_Bg1g2[1],
-         B.T2T1 = rev$Bg2g1[1], p.T2T1 = rev$pval_Bg2g1[1],
-         GGcor = fwd$GGcor[1], F.T1 = fstat("T1"), F.T2 = fstat("T2"))
+    # A constant covariate makes cor() return NA for its row, and MRggi's
+    # corMat[which(abs(cor.y) > cor.thr)] <- 1 then subscripts with NA. Drop them; a column
+    # with no variance carries no information for a correlation screen anyway.
+    if (ncol(T_mat) > 2) {
+        sds <- apply(T_mat[, -(1:2), drop = FALSE], 2, stats::sd)
+        T_mat <- T_mat[, c(TRUE, TRUE, !is.na(sds) & sds > 0), drop = FALSE]
+    }
+
+    zeros <- matrix(0, nrow = nrow(T_mat), ncol = 1)
+    X <- c(list(V1), rep(list(zeros), ncol(T_mat) - 1))   # adaptations 1 and 2
+    names(X) <- colnames(T_mat)
+
+    res <- MRggi::MRggi(y = T_mat, X = X, cor.thr = cor.thr,
+                        p.adjust.method = p.adjust.method)
+
+    # first-stage strength of V1 for T1, the exposure
+    s <- summary(stats::lm(T_mat[, "T1"] ~ V1))
+    F.T1 <- if (is.null(s$fstatistic)) NA_real_ else unname(s$fstatistic[1])
+
+    # The T1-T2 row is absent when abs(cor(T1, T2)) <= cor.thr, because the pair never
+    # enters calc.idx. At cor.thr = 0 that needs an exactly zero correlation, but the arms
+    # are meant to survive a raised threshold too, so this is handled rather than indexed
+    # past.
+    hit <- which(res$g1 == "T1" & res$g2 == "T2")
+    if (length(hit) != 1) {
+        stop("MRggi returned ", length(hit), " T1-T2 rows (cor.thr = ", cor.thr,
+             " screened the pair out?)")
+    }
+
+    list(B.T1T2 = res$Bg1g2[hit], p.T1T2 = res$pval_Bg1g2[hit],
+         FDR.T1T2 = res$FDR_Bg1g2[hit], GGcor = res$GGcor[hit],
+         F.T1 = F.T1, n.covars = ncol(T_mat) - 2, n.pairs = nrow(res))
 }
 
 
 mrggi.fields <- function(res, error) {
     if (is.null(res)) {
-        return(list(B.T1T2 = NA_real_, p.T1T2 = NA_real_, F.T1 = NA_real_,
-                    B.T2T1 = NA_real_, p.T2T1 = NA_real_, F.T2 = NA_real_,
-                    GGcor = NA_real_, edge = NA_character_, weak.instrument = NA,
+        return(list(B.T1T2 = NA_real_, p.T1T2 = NA_real_, FDR.T1T2 = NA_real_,
+                    GGcor = NA_real_, F.T1 = NA_real_, n.covars = NA_integer_,
+                    n.pairs = NA_integer_, edge = NA_character_,
+                    edge.fdr = NA_character_, weak.instrument = NA,
                     time.seconds = NA_real_, error = error))
     }
     # Edge called on the cis -> trans direction only, and only when V1 is a usable
     # instrument for T1. No `correct` flag: MR-GGI resolves the T1-T2 edge, not a model
     # label, so model0/model3 and model1/model4 are indistinguishable to it. Same
     # convention as gmac.fields() -- the cross-tab belongs in the analysis stage.
+    #
+    # TWO EDGE CALLS, because the arms differ in exactly one thing.
+    #
+    #   edge      from the RAW p-value. Comparable with mrpc.alpha and selection.alpha,
+    #             which are also applied per trio, and with GMAC's and MRGN's edge columns.
+    #             IDENTICAL IN EVERY ARM by construction -- MRggi's estimator is pairwise,
+    #             so the covariates in y cannot move B or p. This is the column to read
+    #             against the other methods.
+    #
+    #   edge.fdr  from FDR.T1T2, MRggi's own multiplicity-adjusted p-value. This is the ONLY
+    #             column that varies across the arms: the adjustment runs over T1's pairs
+    #             with each covariate, so a wider covariate set is a harsher correction.
+    #             This is the column to read across arms.
+    #
+    # Reporting only `edge` would make the four arms four identical tables. Reporting only
+    # `edge.fdr` would make MR-GGI incomparable with GMAC and MRGN, which get no such
+    # correction. Both are kept, and confusion_mrggi.R asserts that `edge` really is
+    # arm-invariant -- if it ever is not, X was misaligned with y.
     weak <- !is.na(res$F.T1) && res$F.T1 < mrggi.min.F
     called <- !weak && !is.na(res$p.T1T2) && res$p.T1T2 < mrggi.alpha
-    list(B.T1T2 = res$B.T1T2, p.T1T2 = res$p.T1T2, F.T1 = res$F.T1,
-         B.T2T1 = res$B.T2T1, p.T2T1 = res$p.T2T1, F.T2 = res$F.T2,
-         GGcor = res$GGcor,
+    called.fdr <- !weak && !is.na(res$FDR.T1T2) && res$FDR.T1T2 < mrggi.alpha
+    list(B.T1T2 = res$B.T1T2, p.T1T2 = res$p.T1T2, FDR.T1T2 = res$FDR.T1T2,
+         GGcor = res$GGcor, F.T1 = res$F.T1,
+         n.covars = res$n.covars, n.pairs = res$n.pairs,
          edge = if (called) "T1->T2" else "none",
+         edge.fdr = if (called.fdr) "T1->T2" else "none",
          weak.instrument = weak,
          time.seconds = res$time.seconds, error = error)
 }
 
 
-run.mrggi.group <- function(datasets, verbose = TRUE) {
-    n.datasets <- length(datasets)
-    rows <- vector("list", n.datasets)
-    for (i in seq_len(n.datasets)) {
-        dat <- datasets[[i]]$data; params <- datasets[[i]]$params
-        index <- params$dataset
+# The covariate frame for one arm, or NULL for the bare trio. Mirrors how
+# run.mrgn.group() picks its three inputs, but MR-GGI wants the covariates ALONE rather
+# than a trio-plus-covariates frame, so the trio columns are dropped back off.
+mrggi.arm.covars <- function(arm, dat, sel, i, K_n, index) {
+    drop.trio <- function(x) if (ncol(x) > 3) x[, -(1:3), drop = FALSE] else NULL
+    switch(arm,
+           none  = NULL,
+           truth = drop.trio(ground.truth.input(dat, K_n, index)),
+           CSq   = drop.trio(sel$CS.q$trios.with.confs[[i]]),
+           CSa   = drop.trio(sel$CS.alpha$trios.with.confs[[i]]),
+           stop("unknown MR-GGI arm: ", arm))
+}
 
+
+# One trio, every arm, from a SLIM payload: the bare trio and one covariate frame per arm.
+# This is the only function that crosses to a cluster worker, and the payload shape is the
+# reason -- see the note in run.mrggi.group().
+mrggi.run.arms <- function(task, arms = mrggi.arms) {
+    fields <- list()
+    for (arm in arms) {
         t0 <- Sys.time()
-        r <- safely(suppressMessages(mrggi.one.trio(dat[, 1:3])))
+        r <- safely(suppressMessages(
+            mrggi.one.trio(task$trio, covars = task$covars[[arm]])))
         if (!is.null(r$value)) {
             r$value$time.seconds <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
         }
-
-        rows[[i]] <- as.data.frame(c(
-            id.columns(dat, params, index),
-            prefixed(mrggi.fields(r$value, r$error), "mrggi")),
-            stringsAsFactors = FALSE)
-
-        if (verbose && (i %% 25 == 0 || i == n.datasets)) cat("    mrggi", i, "/", n.datasets, "\n")
+        fields <- c(fields, prefixed(mrggi.fields(r$value, r$error), paste0("mrggi.", arm)))
     }
+    fields
+}
+
+
+# `sel` is required whenever an arm needs it -- only the "none" arm can run without a
+# confounder selection, so apply_mrggi.R sets needs.selection = TRUE.
+run.mrggi.group <- function(datasets, sel, cov.names, cl = NULL, arms = mrggi.arms,
+                            verbose = TRUE) {
+    n.datasets <- length(datasets)
+
+    if (any(c("CSq", "CSa") %in% arms) && is.null(sel)) {
+        stop("run.mrggi.group(): arms ", paste(arms, collapse = ", "),
+             " need a confounder selection, but sel is NULL")
+    }
+
+    # ---- why the work is packaged per trio rather than dispatched by index ----
+    #
+    # The obvious parallel form is parLapply(cl, seq_len(n), function(i) f(datasets[[i]],
+    # sel, ...)). It is a memory trap. R serialises the closure's environment to EVERY
+    # worker, so each one receives the whole `sel` and the whole `datasets` list. Measured
+    # on the n = 1000 group: sel is 728 MB (of which $selection is 119 MB and CS-alpha's
+    # $conf.list 247 MB, neither of which MR-GGI reads at all), so an 7-worker cluster would
+    # copy ~5 GB before doing any work.
+    #
+    # Packaging one self-contained task per trio and passing the LIST to parLapply makes it
+    # split the payload instead of replicating it: each worker gets only its own chunk, and
+    # nothing that MR-GGI does not read is ever sent. ~1.3 MB per trio at n = 1000, so
+    # ~55 MB per worker rather than 728 MB.
+    #
+    # The id and selection-score columns are built on the master. They are cheap, and
+    # computing them here keeps `sel` off the workers entirely.
+    tasks <- lapply(seq_len(n.datasets), function(i) {
+        dat <- datasets[[i]]$data; params <- datasets[[i]]$params
+        list(trio = dat[, 1:3],
+             covars = setNames(lapply(arms, mrggi.arm.covars, dat = dat, sel = sel,
+                                      i = i, K_n = params$K_n, index = params$dataset),
+                               arms))
+    })
+
+    # The CS-alpha arm is ~5,800 gene pairs per trio and dominates the runtime (measured:
+    # 9.4 h of the 10.4 h total across all groups and arms). Load-balanced rather than
+    # block-split, because the per-trio cost scales with that trio's covariate count and so
+    # varies a lot within a group.
+    #
+    # Dispatched in BATCHES rather than as one parLapplyLB over the whole group, purely so
+    # there is something to watch. A single call returns only when the last trio finishes,
+    # which at n = 1000 is roughly an hour of a log that says nothing -- indistinguishable
+    # from a hang. Ten batches give a progress line and an ETA at ~10% granularity.
+    # Load balancing still applies within each batch, which is where the variation is.
+    fields <- if (!is.null(cl)) {
+        n.batches <- max(1L, min(10L, n.datasets))
+        bounds <- unique(as.integer(round(seq(0, n.datasets, length.out = n.batches + 1))))
+        out <- list()
+        t0 <- Sys.time()
+        for (b in seq_len(length(bounds) - 1L)) {
+            idx <- (bounds[b] + 1L):bounds[b + 1L]
+            out <- c(out, parallel::parLapplyLB(cl, tasks[idx], mrggi.run.arms, arms = arms))
+            if (verbose) {
+                done <- bounds[b + 1L]
+                el <- as.numeric(difftime(Sys.time(), t0, units = "mins"))
+                cat(sprintf("    mrggi %d/%d | %.1f min elapsed, ~%.1f min left\n",
+                            done, n.datasets, el, el / done * (n.datasets - done)))
+                utils::flush.console()
+            }
+        }
+        out
+    } else {
+        out <- vector("list", n.datasets)
+        for (i in seq_len(n.datasets)) {
+            out[[i]] <- mrggi.run.arms(tasks[[i]], arms = arms)
+            if (verbose && (i %% 25 == 0 || i == n.datasets)) {
+                cat("    mrggi", i, "/", n.datasets, "\n")
+                utils::flush.console()
+            }
+        }
+        out
+    }
+    rm(tasks); invisible(gc())
+
+    rows <- lapply(seq_len(n.datasets), function(i) {
+        dat <- datasets[[i]]$data; params <- datasets[[i]]$params
+        index <- params$dataset
+        # The CS scores describe the selected sets, so they only exist when there was a
+        # selection. arms = c("none", "truth") is a legitimate configuration that needs
+        # none, and asking for the scores anyway would fail on a NULL sel.
+        as.data.frame(c(id.columns(dat, params, index),
+                        if (!is.null(sel)) cs.score.columns(sel, i, index, dat, cov.names),
+                        fields[[i]]),
+                      stringsAsFactors = FALSE)
+    })
     do.call(rbind, rows)
 }

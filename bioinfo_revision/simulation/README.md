@@ -11,7 +11,8 @@ The methodology and every measured calibration number live in
 | file | what it is |
 | --- | --- |
 | `updated_data_simulation.R` | **driver** — builds the scenario grid and generates every dataset |
-| `simulation_utils.R` | helper functions sourced by the driver; no top-level side effects, safe to source anywhere |
+| `confounder_structure_simulation.R` | **driver** — three extra n = 670 simulations that vary the covariate structure (see below) |
+| `simulation_utils.R` | helper functions sourced by both drivers; no top-level side effects, safe to source anywhere |
 | `verify_simulation.R` | calibration check — simulated vs real confounding, plus a diagnosis of why the confounder filter struggles at small `n` |
 | [`simulated_data/`](simulated_data/) | the generated trios (untracked, ~368 MB per file) |
 
@@ -33,6 +34,39 @@ Rscript bioinfo_revision/simulation/verify_simulation.R path/to/some_other_trios
 
 `verify_simulation.R` takes one optional argument: the simulated-data file to check.
 It defaults to `bioinfo_revision/simulation/simulated_data/simulated_trios.RData`.
+
+## The confounder-structure simulations
+
+`updated_data_simulation.R` only ever generates one covariate structure: confounders (`U`)
+plus one intermediate (`W`) plus one common child (`Z`).
+`confounder_structure_simulation.R` generates the other three, at **n = 670 only**, 300
+trios each:
+
+| case | structure | `W_n` | `Z_n` | file |
+| --- | --- | --- | --- | --- |
+| `u_only` | confounders only | 0 | 0 | `simulated_trios_u_only.RData` |
+| `u_w` | + 1 intermediate | 1 | 0 | `simulated_trios_u_w.RData` |
+| `u_z` | + 1 common child | 0 | 1 | `simulated_trios_u_z.RData` |
+| `u_w_z` | + both | 1 | 1 | already in `simulated_trios.RData`; not regenerated |
+
+Everything else is held identical to the main simulation — same effect-size strata, same
+minor allele frequency draw, same `U_n` range, same residual SD, same coefficient ranges.
+Only `W_n` and `Z_n` vary, so a difference in the results has one possible cause. Each case
+gets its own seed (2341/2342/2343, distinct from the main run's 234), so the three are
+independent draws rather than one set of trios with columns deleted.
+
+`W` is an intermediate on the causal path and `Z` a common child of the trio; both are
+covariates that must *not* be adjusted for, and `get.conf.trios()`'s `filter_int_child`
+step exists to keep them out of the selected set. These cases isolate one hazard at a time.
+
+```sh
+Rscript bioinfo_revision/simulation/confounder_structure_simulation.R
+Rscript bioinfo_revision/simulation/verify_simulation.R \
+    bioinfo_revision/simulation/simulated_data/simulated_trios_u_only.RData
+```
+
+Inference is MRGN only — see
+[`../simulation_results/run_structure_sims.R`](../simulation_results/run_structure_sims.R).
 (The usage lines in the script's own header comment still show the pre-reorganization
 path `bioinfo_revision/verify_simulation.R`; the file now lives in this folder.)
 

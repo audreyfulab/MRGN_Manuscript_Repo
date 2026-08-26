@@ -39,6 +39,7 @@ simulation_results/
 | `run_all_inference.R` | **driver** — selection, then four method processes in parallel, then the combine |
 | `run_confounder_selection.R` | the selection stage on its own, when only the selection scoring is wanted |
 | `apply_<method>.R` | one method over every group; writes its own checkpoints and combined result |
+| `run_structure_sims.R` | **driver** — MRGN over the three confounder-structure simulations at n = 670 |
 | `simulated_vs_real_conf_effects.png` | figure — written by `../simulation/verify_simulation.R`, not by anything here |
 
 Running the drivers writes, into `data/`:
@@ -96,6 +97,22 @@ long run.
 | `--cores N` | cluster size for this process |
 | `--sizes 50,150` | restrict to these sample sizes |
 | `--max-per-group N` | trios per group, for smoke tests; must match what built the selection cache or the cache misses and recomputes |
+| `--sim-file PATH` | which `simulated_trios*.RData` to read |
+| `--out-dir PATH` | where checkpoints and the selection cache go |
+| `--filter-int-child 0\|1` | override `filter_int_child` for this run |
+| `--rerun-inference 0\|1` | redo groups that already have a checkpoint — **required after a schema change**, since a checkpoint is otherwise trusted on sight |
+
+The last three exist for the confounder-structure runs (below) and are read at the *top* of
+`inference_config.R`, before `out.dir` is created. `--out-dir` is not cosmetic: the
+selection cache is named `selection_group_n<size>.RData` with no other key, so two runs
+over different simulated data sharing an `out.dir` would fight over one cache file.
+
+They are also the clean way to smoke-test without touching real checkpoints:
+
+```
+Rscript bioinfo_revision/simulation_results/apply_mrggi.R \
+    --sizes 300 --max-per-group 8 --cores 4 --out-dir /tmp/smoke
+```
 
 ### Configuration block
 
@@ -108,10 +125,13 @@ long run.
 | `log.dir` | `<results.root>/logs` | one log per method process |
 | `tables.dir` | `<results.root>/tables` | where `results_scripts/` writes; a **sibling** of `data/`, not a child |
 | `n.bootstrap` | 1000 | bootstrap replicates per MRGN fit |
-| `mrpc.timeout` | 120 s | MRPC has taken hours on trios with many confounders |
-| `mrpc.arms` | `"CSq"` | CS-α is off; it does not finish |
+| `mrpc.timeout` | 180 s | MRPC has taken hours on trios with many confounders; raised from 120 s, at which 61% of n=670 and 75% of n=1000 trios timed out |
+| `mrpc.arms` | `c("truth","CSq")` | CS-α is off; it does not finish |
+| `mrpc.truth.max.n` | 300 | largest `n` at which the truth arm is attempted; above it it is recorded as *not attempted*, which the tables keep distinct from *timed out*. A budget control: the truth arm carries 25–29 confounders against CS-q's 16, and CS-q already timed out on 61% / 75% of trios at n = 670 / 1000 |
 | `gmac.nperm` | 1000 | GMAC permutations |
 | `selection.alpha` | 0.05 | cutoff for the GMAC mediation calls |
+| `mrggi.arms` | `c("none","truth","CSq","CSa")` | covariate sets carried through `y`; the CS-α arm is ~90% of MR-GGI's runtime |
+| `mrggi.p.adjust` | `"bonferroni"` | **ignored by the package** — `MRggi()` always applies holm; see `../MRGGI_METHODS.md` §4 |
 | `mrggi.min.F` | 10 | weak-instrument gate on `V1 -> T1` |
 | `rerun.selection` | `FALSE` | `TRUE` recomputes the selection cache; a cache built against different data is detected either way |
 | `rerun.inference` | `FALSE` | `FALSE` skips a group whose checkpoint exists, so an interrupted run resumes |
@@ -123,6 +143,34 @@ Requires `MRGN`, `MRPC`, `R.utils`, `parallel`, and sources
 the GMAC files themselves — `gmac()` dispatches `child.p`/`conf.fdr`/`getp.func`
 through `parLapply`, and those helpers live in sourced files rather than a package. The
 stream is seeded with `clusterSetRNGStream(cl, 234)`.
+
+## The confounder-structure runs
+
+The main simulation only ever generates one covariate structure: confounders (`U`) plus one
+intermediate (`W`) plus one common child (`Z`). Three more were added for the revision,
+**MRGN only, n = 670 only**:
+
+| case | structure | `W_n` | `Z_n` | `filter_int_child` | `out.dir` |
+| --- | --- | --- | --- | --- | --- |
+| `u_only` | confounders only | 0 | 0 | `FALSE` | `data_structures/u_only/` |
+| `u_w` | + 1 intermediate | 1 | 0 | `TRUE` | `data_structures/u_w/` |
+| `u_z` | + 1 common child | 0 | 1 | `TRUE` | `data_structures/u_z/` |
+| `u_w_z` | + both — **the main run** | 1 | 1 | `TRUE` | `data/` |
+
+`filter_int_child` is off for `u_only` because there is nothing to filter: no trio in that
+group contributes a `W` or `Z`, and `get.conf.trios()` does not no-op in that case — it
+stops with *"No common child or intermediate variables detected"*. `select.confounders()`
+already catches that and falls back, but setting it explicitly makes the intent visible
+rather than leaving the right answer to an error handler.
+
+```
+Rscript bioinfo_revision/simulation/confounder_structure_simulation.R   # generate
+Rscript bioinfo_revision/simulation_results/run_structure_sims.R        # MRGN over all three
+Rscript bioinfo_revision/simulation_results/results_scripts/confusion_structures.R
+```
+
+Cases run sequentially, each with the full core budget — MRGN's bootstrap already
+parallelises across the machine, so three concurrent processes would oversubscribe it.
 
 ## Why it processes one sample size at a time
 
@@ -140,20 +188,39 @@ the q-value filter tests ~15.8M correlations at once, so a covariate must clear
 local `safely()`, which converts an error into a row of `NA`s plus an error message
 instead of taking down the run.
 
-## The six inferences per trio
+## The inferences per trio
+
+Every method now has a **truth arm**, so the gap between perfect confounders and selected
+ones can be read for each of them rather than only for MRGN — which is the comparison
+[`../METHODS.md`](../METHODS.md) §5 is built on.
 
 | column prefix | method | confounders |
 | --- | --- | --- |
 | `mrgn.truth.` | MRGN | the true ones: trio + `K` + that trio's own `U` block |
 | `mrgn.CSq.` | MRGN | CS-q selected |
 | `mrgn.CSa.` | MRGN | CS-α selected |
+| `mrpc.truth.` | MRPC | the true ones |
 | `mrpc.CSq.` | MRPC | CS-q selected |
-| `mrpc.CSa.` | MRPC | CS-α selected |
+| `mrpc.CSa.` | MRPC | CS-α selected — off by default, does not finish |
 | `gmac.` | GMAC | whatever GMAC selects for itself |
+| `gmac.truth.` | GMAC | the true ones |
+| `mrggi.none.` | MR-GGI | none — the bare trio |
+| `mrggi.truth.` | MR-GGI | the true ones |
+| `mrggi.CSq.` | MR-GGI | CS-q selected |
+| `mrggi.CSa.` | MR-GGI | CS-α selected |
 
 `ground.truth.input()` deliberately excludes `W` and `Z` — the `U` variables are the
 true confounders; `W` is an intermediate and `Z` a common child, and conditioning on
 either is a mistake, not a baseline.
+
+**MR-GGI's arms are not a confounder adjustment.** Each trio goes to `MRggi()` in one call
+as `y = (T1, T2, covariates)`, but the estimator is pairwise — `.TSLS()` sees only the two
+genes and their instruments — so `B.T1T2` and `p.T1T2` are **identical in all four arms**.
+What the covariates change is `MRggi()`'s own multiplicity correction, which adjusts each
+gene's p-values across that gene's pairs. That is why MR-GGI writes two edge calls: `edge`
+from the raw p (arm-invariant, comparable with GMAC and MRGN) and `edge.fdr` from
+`FDR.T1T2` (the only column that varies by arm). `confusion_mrggi.R` asserts the
+arm-invariance of `edge`. See [`../MRGGI_METHODS.md`](../MRGGI_METHODS.md) §4.
 
 Truth labels come from an explicit `TRUTH.LABEL` lookup rather than
 `MRGN::convert.truth()`, which maps by sorted position and silently mislabels when the
@@ -172,7 +239,8 @@ One row per trio. Beyond `dataset` and every column of `$params` (see
 | filter fallback | `CSq.filter_int_child`, `CSa.filter_int_child` — `FALSE` marks a group where `get.conf.trios()` found no intermediate or common child and the selection fell back to `filter_int_child = FALSE` |
 | MRGN, per setting | `<p>.model`, `<p>.correct`, `<p>.correct.coarse`, `<p>.time.seconds`, `<p>.boot.model`, `<p>.boot.min.edge.prob`, `<p>.boot.p.V1T1`, `<p>.boot.p.T1T2`, `<p>.boot.p.V1T2`, `<p>.boot.p.T2T1`, `<p>.bootstrap.time.seconds`, `<p>.error` |
 | MRPC, per setting | `<p>.model`, `<p>.correct`, `<p>.correct.coarse`, `<p>.time.seconds`, `<p>.timed.out`, `<p>.error` |
-| GMAC | `gmac.model`, `gmac.cispval`, `gmac.transpval`, `gmac.ciseffect`, `gmac.transeffect`, `gmac.time.seconds`, `gmac.error` |
+| GMAC, per arm (`gmac.`, `gmac.truth.`) | `<p>.model`, `<p>.cispval`, `<p>.transpval`, `<p>.ciseffect`, `<p>.transeffect`, `<p>.time.seconds`, `<p>.error`; plus `gmac.batch.error` once |
+| MR-GGI, per arm (`mrggi.none.`, `mrggi.truth.`, `mrggi.CSq.`, `mrggi.CSa.`) | `<p>.B.T1T2`, `<p>.p.T1T2`, `<p>.FDR.T1T2`, `<p>.GGcor`, `<p>.F.T1`, `<p>.n.covars`, `<p>.n.pairs`, `<p>.edge`, `<p>.edge.fdr`, `<p>.weak.instrument`, `<p>.time.seconds`, `<p>.error` |
 
 `n.fp.other.trio` counts false positives borrowed from a *different* trio's confounder
 block, as opposed to this trio's own `W`/`Z` — the suffix in the column name is what

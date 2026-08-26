@@ -6,13 +6,17 @@
 #   Rscript bioinfo_revision/simulation_results/apply_mrpc.R
 #
 # Which confounder sets are attempted is set by `mrpc.arms` in inference_config.R, and is
-# currently CS-q only: the CS-alpha set is too large for MRPC to fit, timing out on 79% of
-# trios at n = 150 and heading to ~100% at larger n. See the note on mrpc.arms for the
-# measurements. A disabled arm still gets its columns, with the reason in
-# mrpc.CSa.error, so every group's checkpoint keeps the same schema.
+# currently the true confounders and CS-q: the CS-alpha set is too large for MRPC to fit,
+# timing out on 79% of trios at n = 150 and heading to ~100% at larger n. See the note on
+# mrpc.arms for the measurements. A disabled arm still gets its columns, with the reason in
+# mrpc.<arm>.error, so every group's checkpoint keeps the same schema.
 #
-# MRPC gets no ground-truth arm: the comparison of interest is against MRGN under the same
-# selected confounders.
+# THE TRUTH ARM is the same oracle MRGN gets -- trio + K + that trio's own U block. It is
+# what lets the MRPC and MRGN columns be read against each other: the gap between the oracle
+# and CS-q is the cost of confounder selection rather than of the method. It is also the arm
+# most likely to time out, carrying a median of 25-29 confounders at n = 670 against CS-q's
+# 16, where CS-q already times out 61% of the time. Smoke-test it with
+# --sizes 670 --max-per-group 20 before committing to a full run.
 #
 # Writes mrpc_group_n<size>.RData per sample-size group, then inference_mrpc.RData/.csv.
 #

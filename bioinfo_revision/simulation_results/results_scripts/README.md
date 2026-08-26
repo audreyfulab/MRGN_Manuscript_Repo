@@ -17,13 +17,28 @@ present.
 | --- | --- |
 | `confusion_utils.R` | label sets, the results loader, the `confusion()` builder, `scored.table()`, the Markdown writer |
 | `confusion_mrgn.R` | MRGN matrices for all three confounder arms |
-| `confusion_gmac.R` | GMAC T1–T2 edge matrices |
-| `confusion_mrggi.R` | MR-GGI T1–T2 edge matrices |
-| `make_all_tables.R` | **driver** — sources all three, then writes the three output files |
+| `confusion_mrpc.R` | MRPC matrices, `truth`/`CSq`/`CSa` arms, with the timeout column scored |
+| `confusion_gmac.R` | GMAC T1–T2 edge matrices, selected and truth arms |
+| `confusion_mrggi.R` | MR-GGI T1–T2 edge matrices, four arms |
+| `make_all_tables.R` | **driver** — sources all four, then writes the three output files |
+| `confusion_structures.R` | **standalone** — MRGN across the four confounder structures at n = 670; writes its own two files |
 
 Each method script runs standalone and leaves its counts in a
-`<method>.confusion.long` global, but **writes nothing**. Only the driver writes, and it
-writes exactly three files.
+`<method>.confusion.long` global, but **writes nothing**. Only the drivers write.
+`make_all_tables.R` writes three files; `confusion_structures.R` is separate — it reads
+from `../data_structures/`, is not part of the main report, and writes
+`../tables/confusion_structures.md` and `../tables/structure_comparison.csv`.
+
+Two things worth knowing before reading the output:
+
+- **MRPC's `Failed` column is a result, not missing data.** Each fit is capped at
+  `mrpc.timeout`; a trio that expires has no model. At the previous 120 s cap that was 182
+  of 300 trios at n = 670. Timed-out trios count against accuracy, the same way MRGN's
+  `Other` and MR-GGI's `Weak instrument` do.
+- **MR-GGI's four arms give one edge table, not four.** Its raw-p call is arm-invariant by
+  construction, and `confusion_mrggi.R` asserts it rather than assuming it — if the
+  assertion ever fires, `X` has stopped lining up with the columns of `y` in
+  `mrggi.one.trio()`. The arms differ only at the `edge.fdr` level.
 
 **No package dependencies.** Pure base R — no MRGN, no ggplot2, no `knitr`/`xtable`. In
 particular `confusion_utils.R` deliberately does *not* source `../inference_utils.R`,

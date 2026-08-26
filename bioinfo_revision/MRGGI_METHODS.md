@@ -1,8 +1,9 @@
 # MR-GGI on trios — methodology
 
-How MR-GGI (https://github.com/hiows/MRggi) is applied to the simulated trios, why two
-adaptations are needed, and what it can and cannot answer. Companion to
-[`METHODS.md`](METHODS.md), which covers the simulation and the other three methods.
+How MR-GGI (https://github.com/hiows/MRggi) is applied to the simulated trios, why three
+adaptations are needed, what the four covariate arms do and do not change, and what the
+method can and cannot answer. Companion to [`METHODS.md`](METHODS.md), which covers the
+simulation and the other three methods.
 
 Every number here is measured. The reproducible checks live in
 `simulation_results/mrggi_feasibility.R`; the pipeline code is
@@ -107,43 +108,105 @@ has nothing to remove, and `MRggi()` computes the standard one-sample Wald ratio
 0.674 against a true 0.700 in Table 2. This is still MR-GGI's own estimator, fed
 instruments appropriate to a trio, and it is the textbook single-instrument MR setup.
 
-The "no instrument" entry has to be a **column of zeros**. `MRggi()` runs
-`lapply(X, scale)` over every element before its main loop, so:
+### 3.1 What "no instrument" has to look like
+
+The "no instrument" entry has to be a **column of zeros**:
 
 | outcome-gene entry | result |
 | --- | --- |
 | `NULL` | error: `'data' must be of a vector type, was 'NULL'` |
-| zero-column matrix | error: `subscript out of bounds` |
-| **column of zeros** | **works** — `Bg1g2 = 0.674`, reverse direction `NaN` |
+| zero-**column** matrix (`ncol == 0`) | error: `subscript out of bounds` |
+| **column of zeros** (`ncol == 1`, all 0) | **works** — `Bg1g2 = 0.674`, reverse direction `NaN` |
+| `V1` (same instrument as the exposure) | `Bg1g2 = 0.0000, p = 1.0000` — the collapse of §2 |
 
 **Table 4. What can stand in for "this gene has no instrument".** The `NaN` in the
 reverse direction is correct behaviour, not a failure: with no instrument for `T2`, the
 `T2 -> T1` effect is not estimable.
 
-Because each call yields only the direction whose exposure holds the instrument, each trio
-needs two calls with the roles swapped. Both are stored; only the forward one is used for
-edge calls, for the reason in §6.
+**Why a column of zeros survives is not the obvious reason.** `MRggi()` opens with
+`scale.X = lapply(X, scale)`, and `scale()` on a constant column returns all `NaN` —
+centring leaves zeros, then it divides by `sd = 0`. That would be fatal if the value were
+used. It is not: **`scale.X` is assigned and never read again**, and the main loop takes
+the raw `X[[i]]`. Only `NULL` fails at that line, because `lapply` still has to evaluate
+it. The zero-column matrix gets past `scale()` too and dies later, inside `.TSLS`.
+
+### 3.2 Two further requirements, both easy to trip over
+
+**`X` must be positionally aligned with `y`.** `X[[i]]` is the instrument set for column
+`i` of `y`, so `length(X)` must equal `ncol(y)`; a shorter list gives
+`subscript out of bounds`.
+
+**`colnames(y)` must be set.** `MRggi()` builds its output with
+`g1 = append(g1, colnames(y)[i])`. With `NULL` colnames `g1` stays empty and the function
+dies at its closing `data.frame()` with `arguments imply differing number of rows: 0, 1`
+— an error naming nothing involved. The trap is that `cbind(T1 = a, T2 = b)` on unnamed
+`n × 1` **matrices** yields `NULL` colnames, because `cbind` ignores the tag for matrix
+arguments. `mrggi.one.trio()` sets the names explicitly and asserts them.
 
 ---
 
-## 4. Confounding — why nothing is adjusted for
+## 4. Covariates in `y` — what they do and do not change
 
-`MRggi()` takes no covariate argument, and the estimation is strictly pairwise: the only
-data entering the regressions are `y[,g1]`, `y[,g2]` and their instruments. **Adding
-confounders to `y` therefore changes the T1–T2 estimate not at all** — it only adds more
-gene pairs to the output, which would be discarded.
+Each trio is passed to `MRggi()` in **one call**, as `y = (T1, T2, covariates)`. Four
+covariate sets are run per trio: `none` (the bare trio), `truth`, `CSq` and `CSa`.
+
+**This is not a confounder adjustment, and must not be read as one.** `MRggi()` takes no
+covariate argument, and the estimation is strictly pairwise: the only data entering the
+regressions for the T1–T2 row are `y[,T1]`, `y[,T2]`, `X[["T1"]]` and `X[["T2"]]`. Adding
+covariates to `y` therefore **changes the T1–T2 estimate not at all**:
+
+| `y` | `Bg1g2` | `pval_Bg1g2` | `FDR_Bg1g2` | rows |
+| --- | --- | --- | --- | --- |
+| `(T1, T2)` | 0.808 | 0.000 | 0.435 | 1 |
+| `(T1, T2, U1…U18)` | **0.808** | **0.000** | 1.000 | 190 |
+
+**Table 4b. The estimate is invariant; the multiplicity correction is not.** Same trio,
+measured. What the extra columns change is `FDR_Bg1g2`: `MRggi()` adjusts each `g1`'s
+p-values across that gene's pairs, so the T1–T2 p-value is now corrected for T1's pairs
+against every covariate too. A wider covariate set is a harsher correction, and that is
+the **entire** difference between the four arms.
+
+The results therefore carry two edge calls. `edge` comes from the raw p-value and is
+identical in every arm — it is the column comparable with GMAC and MRGN, neither of which
+is corrected. `edge.fdr` comes from `FDR_Bg1g2` and is the only column on which the arms
+differ. `confusion_mrggi.R` **asserts** the arm-invariance of `edge`; if it ever fails,
+`X` has stopped lining up with the columns of `y`.
+
+> **Package bug worth knowing.** `MRggi()`'s `p.adjust.method` argument is ignored. The
+> body calls `p.adjust(pval.idx, method = p.adjust.methods)` — note the trailing `s`, base
+> R's vector of *all* method names — so `match.arg` silently takes the first and the
+> correction is **always holm**. Verified: `p.adjust(c(.01,.02,.03,.04), method =
+> p.adjust.methods)` returns `0.04 0.06 0.06 0.06`, which is holm, not bonferroni. Read
+> `mrggi.<arm>.FDR.T1T2` as holm-adjusted regardless of `mrggi.p.adjust`.
 
 This differs from MRPC, where confounders as graph nodes genuinely do adjust, because the
 PC algorithm's conditional independence tests condition on subsets of the other nodes.
 The same phrase — "confounders in the model" — means different things for the two methods.
 
-So the only real option would be residualising `T1` and `T2` on a confounder set before
-inference. **It is not done**, on the reasoning that the instrument is what is supposed to
-handle confounding, and our `U` block is precisely the mediator–outcome confounding MR
-exists to defeat. Table 1 supports this: unadjusted, the Wald ratio's bias is −0.008
-against the naive regression's +0.142. Residualising buys an 18% reduction in standard
-error — a precision gain, not a bias correction — and would hand MR-GGI an advantage the
-other methods do not get for free.
+So the only way to make MR-GGI's *estimate* respond to a confounder set would be
+residualising `T1` and `T2` on it before inference. **That is not done**, on the reasoning
+that the instrument is what is supposed to handle confounding, and our `U` block is
+precisely the mediator–outcome confounding MR exists to defeat. Table 1 supports this:
+unadjusted, the Wald ratio's bias is −0.008 against the naive regression's +0.142.
+Residualising buys an 18% reduction in standard error — a precision gain, not a bias
+correction — and would hand MR-GGI an advantage the other methods do not get for free.
+
+### 4.1 Cost
+
+`cor.thr = 0` means every gene pair is computed, so an arm with `k` covariates costs
+O((k+2)²) TSLS fits. Measured, minutes per 300-trio group:
+
+| arm | n=50 | n=150 | n=300 | n=670 | n=1000 |
+| --- | --- | --- | --- | --- | --- |
+| `none` | ~0 | ~0 | ~0 | ~0 | ~0 |
+| `truth` | 6.2 | 7.2 | 9.8 | 10.7 | 9.6 |
+| `CSq` | ~0 | ~0 | 0.4 | 3.6 | 8.4 |
+| `CSa` | 67.2 | 94.0 | 111.0 | 134.3 | 159.1 |
+
+**Table 4c.** CS-alpha is 9.4 h of the 10.4 h total, because it selects a median of 82–106
+covariates — roughly 5,800 pairs per trio, nearly all returning `NaN` since a covariate has
+no instrument and cannot be an exposure. This is why `apply_mrggi.R` now builds a cluster
+rather than running single threaded.
 
 ---
 
@@ -206,8 +269,14 @@ Stock). Trios failing it are recorded with `mrggi.weak.instrument = TRUE` and no
 ### 6.2 Only the cis → trans direction is usable
 
 `V1` is the cis gene's eQTL by construction, so `T1` is the only gene in a trio with a
-legitimate instrument. The `T2 -> T1` direction is computed and stored but never used for
-edge calls.
+legitimate instrument.
+
+Under the one-call design of §4 the reverse direction is **no longer computed**: `T2` is
+given a column of zeros, so `Bg2g1` comes back `NaN` by construction rather than being
+calculated and then discarded. The table below is from the earlier two-call
+implementation and is kept because it is the evidence for the decision — it shows what
+was being thrown away, and why obtaining it was not worth a second `MRggi()` call per
+trio per arm. `mrggi_feasibility.R` still reproduces it.
 
 | model | `T1 -> T2`: B, p, F(T1) | `T2 -> T1`: B, p, F(T2) |
 | --- | --- | --- |
@@ -315,16 +384,26 @@ happens — so it is left at 0 and the correlation is stored as `mrggi.GGcor` in
 **A package bug worth knowing.** `MRggi()` calls
 `p.adjust(pval.idx, method = p.adjust.methods)` — `p.adjust.methods` is R's built-in
 constant vector of method names, not the function's own `p.adjust.method` argument. The
-user's choice is silently ignored and `match.arg` takes the first element, `"holm"`. With
-one gene pair per trio this adjusts nothing, so the `FDR_*` columns equal the raw
-p-values; the pipeline stores and thresholds `pval_*` directly and does not rely on
-`FDR_*`.
+user's choice is silently ignored and `match.arg` takes the first element, `"holm"`.
 
-### Columns written per trio
+**This used to be harmless and no longer is.** With one gene pair per trio the correction
+had nothing to adjust and `FDR_*` equalled the raw p-values. Under the one-call design of
+§4 an arm carries `k` covariates, so `FDR_Bg1g2` is now a genuine holm correction over
+T1's `k+1` pairs — and it is the only quantity that distinguishes the arms. It is stored
+as `mrggi.<arm>.FDR.T1T2` and read as **holm-adjusted regardless of `mrggi.p.adjust`**.
+Any other correction has to be recomputed from `mrggi.<arm>.p.T1T2` in the analysis stage.
 
-`mrggi.B.T1T2`, `mrggi.p.T1T2`, `mrggi.F.T1`, `mrggi.B.T2T1`, `mrggi.p.T2T1`,
-`mrggi.F.T2`, `mrggi.GGcor`, `mrggi.edge` (`T1->T2` or `none`),
-`mrggi.weak.instrument`, `mrggi.time.seconds`, `mrggi.error`.
+### Columns written per trio, per arm
+
+Arms are `none`, `truth`, `CSq`, `CSa`; every column is prefixed `mrggi.<arm>.`
+
+`B.T1T2`, `p.T1T2`, `FDR.T1T2`, `GGcor`, `F.T1`, `n.covars`, `n.pairs`,
+`edge` (`T1->T2` or `none`, from the raw p — identical in every arm),
+`edge.fdr` (same, from `FDR.T1T2` — the only column that varies by arm),
+`weak.instrument`, `time.seconds`, `error`.
+
+`B.T2T1`, `p.T2T1` and `F.T2` are **gone**: the reverse direction is not estimable under
+the one-call design (§6.2) and was never used for edge calls.
 
 ### Reproducing
 

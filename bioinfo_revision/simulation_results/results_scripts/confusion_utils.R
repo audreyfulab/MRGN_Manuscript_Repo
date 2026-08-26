@@ -50,6 +50,18 @@ TRUTH.LEVELS <- c("M0", "M1", "M2", "M3", "M4")
 # intent -- a missing model is a bug to investigate, not a category to report.
 MRGN.LEVELS  <- c("M0", "M1", "M2", "M3", "M4", "Other")
 
+# MRPC returns the same eight M-labels plus "Other" -- classify.mrpc.adj()
+# (inference_utils.R) matches the fitted 3x3 adjacency against the same topologies -- so it
+# shares MRGN's levels with ONE addition.
+#
+# "Failed" IS A REAL LEVEL FOR MRPC, and this is the difference from MRGN. apply.mrpc()
+# caps each fit at mrpc.timeout seconds and returns model = NA when it expires, and that is
+# not rare: at 120 s it was 182 of 300 trios at n = 670 and 224 of 300 at n = 1000, in the
+# CS-q arm alone. For MRGN an NA model means a bug to chase; for MRPC it means the fit did
+# not finish in the time allowed, which is a property of the method on this design and one
+# of the things the table is for. So it gets a column instead of stopping the run.
+MRPC.LEVELS  <- c(MRGN.LEVELS, "Failed")
+
 # GMAC reports a mediation call, not a model label -- see gmac.model.call() at
 # inference_utils.R:885. The four levels are the four sign combinations of the cis and
 # trans mediation p-values against selection.alpha; "Undirected" is the both-significant
@@ -92,6 +104,11 @@ gmac.edge <- function(call) {
 # CS-alpha arm at n = 50, and 209 of 300 even in the oracle arm. The row makes that
 # visible, and it is exactly the structural difference from GMAC, which always answers.
 MRGN.EDGE.LEVELS <- c(EDGE.LEVELS, "Other")
+
+# MRPC is re-scored on the same rows, with the timeout column carried through. mrgn.edge()
+# does the mapping for both -- the M-labels mean the same thing whichever method produced
+# them -- and only the level set differs, because MRPC can fail to produce a label at all.
+MRPC.EDGE.LEVELS <- c(EDGE.LEVELS, "Other", "Failed")
 
 mrgn.edge <- function(model) {
     model <- coarse.model(as.character(model))
@@ -351,15 +368,23 @@ confusion.long <- function(m, method, arm, sample.size, effect.size, level = "mo
 # the no-call column counts against accuracy, because a trio with no edge call is a trio
 # whose edge was not identified.
 #
-# `no.call.level` names that column, since the two methods that have one name it
-# differently and for different reasons -- MRGN's "Other" is a fitted trio matching no
-# topology, MR-GGI's "Weak instrument" is a trio whose instrument failed the F gate. GMAC
-# has no such column and passes the default, which simply never matches.
+# `no.call.level` names that column, since the methods that have one name it differently and
+# for different reasons -- MRGN's "Other" is a fitted trio matching no topology, MR-GGI's
+# "Weak instrument" is a trio whose instrument failed the F gate. GMAC has no such column
+# and passes the default, which simply never matches.
+#
+# It takes a VECTOR because MRPC has two: "Other" (fitted, matched no topology) and "Failed"
+# (the fit hit mrpc.timeout and never returned a graph). Both are no-calls and both count
+# against accuracy, but they are different events and are kept as separate columns rather
+# than pooled -- a timeout is a statement about cost, "Other" a statement about the fit.
 edge.scores <- function(m, no.call.level = "Other") {
     absent <- EDGE.LEVELS[1]; present <- EDGE.LEVELS[2]
     truth.absent  <- names(EDGE.CORRECT)[EDGE.CORRECT == absent]
     truth.present <- names(EDGE.CORRECT)[EDGE.CORRECT == present]
-    called <- function(lvl) if (lvl %in% colnames(m)) sum(m[, lvl]) else 0
+    called <- function(lvl) {
+        lvl <- intersect(lvl, colnames(m))
+        if (length(lvl) == 0) 0 else sum(m[, lvl])
+    }
     hit <- function(rows, lvl) if (lvl %in% colnames(m)) sum(m[rows, lvl]) else 0
 
     safe <- function(num, den) if (den == 0) NA_real_ else num / den

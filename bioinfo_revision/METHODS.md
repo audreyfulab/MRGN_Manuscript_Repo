@@ -489,21 +489,68 @@ these inferences per trio:
 | MRGN | the true ones (trio + `K` + that trio's own `U`) |
 | MRGN | CS-q selected |
 | MRGN | CS-α selected |
+| MRPC | the true ones |
 | MRPC | CS-q selected |
-| MRPC | CS-α selected |
+| MRPC | CS-α selected — off by default, does not finish |
 | GMAC | whatever GMAC selects for itself |
+| GMAC | the true ones |
+| MR-GGI | none — the bare trio |
+| MR-GGI | the true ones |
+| MR-GGI | CS-q selected |
+| MR-GGI | CS-α selected |
 
-**Table 10. The six inferences run on every trio.** The rows differ *only* in
-which covariates the method is handed, which is what makes the comparison isolate
-the cost of confounder **selection** from the cost of the inference method
-itself. The first row is the ceiling: MRGN given exactly the trio's own `U`
+**Table 10. The inferences run on every trio.** The rows differ *only* in which
+covariates the method is handed, which is what makes the comparison isolate the
+cost of confounder **selection** from the cost of the inference method itself.
+The truth rows are the ceiling: the method given exactly the trio's own `U`
 block, with `W` and `Z` withheld — an intermediate and a collider are covariates
 a method should reject (Table 3), so including them would not be a baseline but a
-mistake. GMAC has no truth row because it selects internally and cannot be handed
-a fixed set, and for the same reason it reports a mediation call rather than a
-model label, so it is cross-tabbed rather than scored `correct`. Each row becomes
-one prefixed block of columns in the master results table (`mrgn.truth.*`,
-`mrgn.CSq.*`, `mrpc.CSa.*`, …).
+mistake. Each row becomes one prefixed block of columns in the master results
+table (`mrgn.truth.*`, `mrgn.CSq.*`, `mrpc.CSa.*`, …).
+
+**Every method now has a truth arm.** GMAC previously had none, on the reasoning
+that it selects internally and cannot be handed a fixed set; that is true of its
+*batch* path, where selection and testing happen together, but not of
+`apply.gmac()`, which takes a confounder matrix directly. The oracle arm uses
+that path and bypasses selection entirely, so `gmac.*` and `gmac.truth.*` come
+from different code paths by necessity. GMAC still reports a mediation call
+rather than a model label, so it is cross-tabbed rather than scored `correct`.
+
+**MR-GGI's four arms are not confounder adjustments and must not be read as
+such.** `MRggi()` has no covariate argument; the arms differ in which covariates
+ride along as extra columns of `y`, and the estimator is strictly pairwise, so
+`B.T1T2` and `p.T1T2` are *identical* in all four. What the covariates change is
+`MRggi()`'s own multiplicity correction across each gene's pairs. MR-GGI
+therefore writes two edge calls — `edge` from the raw p (arm-invariant, and the
+column comparable with GMAC and MRGN) and `edge.fdr` from the adjusted one (the
+only column that varies by arm). See
+[`MRGGI_METHODS.md`](MRGGI_METHODS.md) §4.
+
+**MRPC's truth arm is attempted only at n ≤ 300 by default**
+(`mrpc.truth.max.n`), as a budget control. Measured on 10 trios at n = 670 with
+the 180 s cap:
+
+| confounders | wall | outcome |
+| --- | --- | --- |
+| 4 | 0.8 s | finished |
+| 18 | 4.0 s | finished |
+| 20, 21, 33, 34, 37, 38, 47, 53 | 180.0–180.7 s | **all timed out** |
+
+**Table 12b. The truth arm's cost is bimodal in the confounder count.** 8/10
+timeouts, 24.1 min for 10 trios, extrapolating to ~12.1 h per 300-trio group for
+a column that is 80% `NA`. Everything at or above ~20 confounders hit the wall;
+everything below finished in seconds. The truth arm's median is 25–29
+confounders, so at n = 670 it sits on the wrong side of that split — whereas at
+n ≤ 300 the CS-q arm saw no timeouts at all.
+
+Worth recording separately: **the cap is enforced.** The worst overrun was 180.7 s
+against 180 s (1.00×), so `withTimeout()` does bound the fit and the arm cannot
+run away — the cost is real work up to the cap, not a failure to interrupt.
+
+Above the threshold the arm is recorded as *not attempted*, which the tables keep
+distinct from *attempted and did not finish* — the second is a measurement, the
+first is not. Raise the threshold if the cost is acceptable; the recipe is in
+`inference_config.R`.
 
 `select.confounders()` produces two confounder sets per trio:
 
@@ -1109,6 +1156,43 @@ Not implemented. Recorded so the decision is informed:
 covariates. These condition on the collider `Z` and the mediator `W` and omit
 `V1`, so they are not comparable to `compute_pc_dist_bounds.R`, which regresses
 on PCs only.
+
+---
+
+## 7b. Varying the confounder structure
+
+Every trio in the main simulation carries the same covariate structure: `U`
+confounders plus exactly one intermediate `W` and one common child `Z`. Since `W`
+and `Z` are the two covariates a method must *reject* (Table 3), that design
+tests both hazards at once and cannot say which one drives a failure. Three
+further simulations isolate them, at **n = 670 only** and **MRGN only**:
+
+| case | structure | `W_n` | `Z_n` | `filter_int_child` |
+| --- | --- | --- | --- | --- |
+| `u_only` | confounders only | 0 | 0 | `FALSE` |
+| `u_w` | + 1 intermediate | 1 | 0 | `TRUE` |
+| `u_z` | + 1 common child | 0 | 1 | `TRUE` |
+| `u_w_z` | + both — **the main simulation** | 1 | 1 | `TRUE` |
+
+**Table 13. The four covariate structures.** 300 trios each (5 models × 3 effect
+sizes × 20 replicates), generated with identical effect-size strata, minor allele
+frequencies, `U_n` range, residual SD and coefficient ranges. Only `W_n` and
+`Z_n` vary, so a difference between the tables has one possible cause. Each case
+draws under its own seed, so the three are independent rather than one set of
+trios with columns deleted.
+
+`filter_int_child` is off for `u_only` because there is nothing to filter — no
+trio in that group contributes a `W` or `Z`, and `get.conf.trios()` does not
+no-op in that case but stops with *"No common child or intermediate variables
+detected"*. `select.confounders()` already catches that and falls back, so
+setting it explicitly changes no result; it makes the intent visible rather than
+leaving the right answer to an error handler.
+
+All three run MRGN under all three confounder arms, so the oracle/CS-q/CS-α
+comparison of §5 can be read within each structure. Generated by
+`simulation/confounder_structure_simulation.R`, run by
+`simulation_results/run_structure_sims.R`, tabulated by
+`results_scripts/confusion_structures.R`.
 
 ---
 

@@ -9,6 +9,14 @@ trios.
 | --- | --- | --- |
 | `simulated_trios.RData` | 146 MB | **current** — the 1,500 trios the inference stage consumes. Regenerated 2026-08-22 under raised `b.snp`/`b.med` floors and narrowed `U`/`W`/`Z` coefficient ranges; the run it superseded is described in [`../../simulation_results/legacy/first_pass/README.md`](../../simulation_results/legacy/first_pass/README.md) |
 | `simulated_trios_precalibration.RData` | 367 MB | superseded — 3,750 trios at a single sample size, from before the effect-size and confounder recalibration; kept for comparison |
+| `simulated_trios_u_only.RData` | 43 MB | 300 trios, n = 670, confounders only (`W_n = 0, Z_n = 0`). From `../confounder_structure_simulation.R`, seed 2341 |
+| `simulated_trios_u_w.RData` | 42 MB | 300 trios, n = 670, confounders + 1 intermediate (`W_n = 1, Z_n = 0`). Seed 2342 |
+| `simulated_trios_u_z.RData` | 43 MB | 300 trios, n = 670, confounders + 1 common child (`W_n = 0, Z_n = 1`). Seed 2343 |
+
+The three `_u_*` files are the confounder-structure cases, MRGN only; the fourth structure
+(confounders + intermediate + common child) is the n = 670 group of `simulated_trios.RData`
+and is not duplicated. They share `simulated_trios.RData`'s structure exactly — the only
+difference is which of the `W`/`Z` columns exist.
 
 ## Structure
 

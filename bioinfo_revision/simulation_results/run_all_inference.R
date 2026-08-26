@@ -56,20 +56,25 @@ launch.background <- function(script, args, logfile) {
     }
 }
 
-# Core split. MRPC never builds a cluster -- MRPC() is single threaded -- so it gets one
-# core and the rest goes to the two methods that can use it. MRGN takes the larger share:
-# its bootstrap is n.bootstrap replicates x 3 confounder settings x every trio.
+# Core split. MRPC never builds a cluster -- MRPC() is single threaded and apply.mrpc()
+# wraps one call in withTimeout() -- so it gets one core and the rest is divided among the
+# methods that can use it.
+#
+# MR-GGI USED TO GET ONE CORE and no longer does. That was right when it ran on the bare
+# trio; it is not right now that it also runs the truth, CS-q and CS-alpha arms. The
+# CS-alpha arm carries a median of 82-106 covariates, so MRggi computes ~5,800 gene pairs
+# per trio, and that arm alone measures 9.4 h of MR-GGI's 10.4 h total across every group.
+# It parallelises perfectly -- trios are independent -- so it now takes a share.
+#
+# MRGN keeps the largest share: its bootstrap is n.bootstrap replicates x 3 confounder
+# settings x every trio.
 core.budget <- function(methods) {
     total <- max(1L, parallel::detectCores() - 2L)
     share <- setNames(rep(1L, length(methods)), methods)
     rest <- setdiff(methods, "mrpc")
     if (length(rest) == 0) return(share)
-    avail <- max(1L, total - sum(c("mrpc","mrggi") %in% methods))
-    # MR-GGI is single threaded like MRPC, so it also takes one core
-    share[intersect(methods, "mrggi")] <- 1L
-    rest <- setdiff(rest, "mrggi")
-    if (length(rest) == 0) return(share)
-    w <- ifelse(rest == "mrgn", 0.6, 0.4)
+    avail <- max(1L, total - sum("mrpc" %in% methods))
+    w <- c(mrgn = 0.45, mrggi = 0.35, gmac = 0.20)[rest]
     share[rest] <- pmax(1L, as.integer(round(avail * w / sum(w))))
     share
 }

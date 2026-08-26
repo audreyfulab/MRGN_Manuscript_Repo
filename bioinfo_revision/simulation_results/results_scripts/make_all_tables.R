@@ -5,9 +5,10 @@
 #
 #   Rscript bioinfo_revision/simulation_results/results_scripts/make_all_tables.R
 #
-# Sources confusion_mrgn.R, confusion_gmac.R and confusion_mrggi.R -- each of which
-# computes its method's matrices and can be run on its own, but writes nothing -- then
-# stitches their long-format counts into the only three files this stage produces:
+# Sources confusion_mrgn.R, confusion_mrpc.R, confusion_gmac.R and confusion_mrggi.R --
+# each of which computes its method's matrices and can be run on its own, but writes
+# nothing -- then stitches their long-format counts into the only three files this stage
+# produces:
 #
 #   tables/confusion_counts_long.csv   every cell of every matrix, tidy. One row per cell,
 #                                      across both levels, all arms, all sample sizes, and
@@ -27,11 +28,8 @@
 # drives apply_mrgn.R / apply_gmac.R / apply_mrpc.R / apply_mrggi.R and then combines their
 # output.
 #
-# MRPC is not here yet: it has no combined inference_mrpc.csv and only three of its five
-# group checkpoints exist. Adding it is a copy of confusion_mrgn.R against the mrpc.CSq.*
-# columns once that run finishes -- see ../README.md.
-
 source("bioinfo_revision/simulation_results/results_scripts/confusion_mrgn.R")
+source("bioinfo_revision/simulation_results/results_scripts/confusion_mrpc.R")
 source("bioinfo_revision/simulation_results/results_scripts/confusion_gmac.R")
 source("bioinfo_revision/simulation_results/results_scripts/confusion_mrggi.R")
 
@@ -40,7 +38,8 @@ source("bioinfo_revision/simulation_results/results_scripts/confusion_mrggi.R")
 # 1. long-format counts
 # ---------------------------------------------------------------------------------------
 
-confusion.counts <- rbind(mrgn.confusion.long, gmac.confusion.long, mrggi.confusion.long)
+confusion.counts <- rbind(mrgn.confusion.long, mrpc.confusion.long,
+                          gmac.confusion.long, mrggi.confusion.long)
 
 invisible(ensure.dir(tables.dir))
 long.path <- file.path(tables.dir, "confusion_counts_long.csv")
@@ -65,10 +64,15 @@ matrix.from.long <- function(counts, pred.levels) {
 pooled <- confusion.counts[confusion.counts$effect_size == "all", , drop = FALSE]
 
 ARM.BLURB <- c(
-    truth = paste("True confounders -- the oracle arm. This is the ceiling MRGN could",
+    truth = paste("True confounders -- the oracle arm. This is the ceiling the method could",
                   "reach if confounder selection were perfect, not an attainable result."),
     CSq   = "CS-q confounder selection.",
-    CSa   = "CS-alpha confounder selection.")
+    CSa   = "CS-alpha confounder selection.",
+    # MR-GGI's arms are covariate sets carried through y, not confounder adjustments
+    none  = paste("The bare trio, no covariates in `y`. For MR-GGI this is not a different",
+                  "estimate -- see the note in the MR-GGI section."),
+    gmac  = "The confounders GMAC selected for itself.",
+    mrggi = "The T1-T2 edge call from the raw p-value, which is the same in every arm.")
 
 lines <- c(
     "# Confusion matrices -- simulated trios",
@@ -113,6 +117,45 @@ for (arm in MRGN.ARMS) {
                    md.scored.table(scored.table(m, MRGN.CORRECT), sprintf("n = %d", size),
                                    sprintf("Accuracy: **%.1f%%** (%d of %d).",
                                            100 * correct / sum(m), correct, sum(m))))
+    }
+}
+
+# ---- MRPC, scored the same way MRGN is ----
+# Only the arms that actually produced results appear; an arm switched off in mrpc.arms is
+# absent from the long counts, and printing an empty table for it would read as a result.
+mrpc.arms.present <- intersect(MRPC.ARMS, unique(pooled$arm[pooled$method == "mrpc"]))
+
+lines <- c(lines,
+    "## MRPC",
+    "",
+    paste("MRPC names a trio topology, so it is scored on the same six-way call as MRGN",
+          "and against the same eight adjacency matrices. Read the arms against MRGN's:",
+          "same trios, same confounder sets, same right answers."),
+    "",
+    paste("**`Failed` is a real column here and it is a result, not a gap in the data.**",
+          "Each MRPC fit is capped at `mrpc.timeout` seconds and returns no model when it",
+          "expires. At the previous 120 s cap that was 182 of 300 trios at n = 670 and 224",
+          "of 300 at n = 1000 in the CS-q arm alone; the cap is now 180 s. Timed-out trios",
+          "count against accuracy, exactly as MRGN's `Other` and MR-GGI's",
+          "`Weak instrument` do -- a fit that never returned is a model that was not",
+          "identified. MRPC's accuracy *on the trios it finishes* is not its accuracy on",
+          "this design, and the two should never be quoted interchangeably."),
+    "")
+
+for (arm in mrpc.arms.present) {
+    lines <- c(lines, sprintf("### MRPC -- %s arm", arm), "",
+               if (arm %in% names(ARM.BLURB)) ARM.BLURB[[arm]] else "", "")
+    for (size in SAMPLE.SIZES) {
+        m <- cell("mrpc", arm, size, "model", MRPC.LEVELS)
+        if (sum(m) == 0) next
+        correct <- sum(diag(m[, TRUTH.LEVELS, drop = FALSE]))
+        failed <- if ("Failed" %in% colnames(m)) sum(m[, "Failed"]) else 0
+        lines <- c(lines,
+                   md.scored.table(scored.table(m, MRGN.CORRECT), sprintf("n = %d", size),
+                                   sprintf(paste("Accuracy: **%.1f%%** (%d of %d).",
+                                                 "Timed out: %d (%.1f%%)."),
+                                           100 * correct / sum(m), correct, sum(m),
+                                           failed, 100 * failed / sum(m))))
     }
 }
 
@@ -269,19 +312,35 @@ for (arm in MRGN.ARMS) {
 
 # ---- the summary, and the same numbers as a CSV ----
 
+# MR-GGI contributes ONE row, not four. Its raw-p edge call is arm-invariant by
+# construction -- MRggi's estimator is pairwise, so covariates in y cannot move B or p --
+# and confusion_mrggi.R asserts that before emitting it under the single arm label "mrggi".
+# The arms differ only in MRggi's own multiplicity correction, which is reported at the
+# separate "edge.fdr" level and deliberately kept out of this table: GMAC and MRGN get no
+# such correction, so putting an adjusted call beside their raw ones would not be a
+# like-for-like comparison.
 COMPARE <- rbind(
     data.frame(method = "mrgn", arm = MRGN.ARMS, stringsAsFactors = FALSE),
-    data.frame(method = "gmac", arm = "gmac", stringsAsFactors = FALSE),
+    data.frame(method = "mrpc", arm = mrpc.arms.present, stringsAsFactors = FALSE),
+    data.frame(method = "gmac", arm = c("gmac", "truth"), stringsAsFactors = FALSE),
     data.frame(method = "mrggi", arm = "mrggi", stringsAsFactors = FALSE))
+# drop any (method, arm) that produced no counts, so a disabled arm is absent rather than
+# a row of NAs
+COMPARE <- COMPARE[mapply(function(m, a) any(pooled$method == m & pooled$arm == a &
+                                                 pooled$level == "edge"),
+                          COMPARE$method, COMPARE$arm), , drop = FALSE]
 
 # Each method's own row set and its own name for the no-call row. GMAC has neither a third
 # row nor a no-call concept, so it takes the two-row levels and a no.call.level that never
-# matches -- which is what makes its `no_edge_call` a true 0 rather than an NA.
+# matches -- which is what makes its `no_edge_call` a true 0 rather than an NA. MRPC has
+# TWO no-call columns: "Other" (fitted, matched no topology) and "Failed" (timed out).
 edge.levels.of <- function(method) {
-    switch(method, mrgn = MRGN.EDGE.LEVELS, mrggi = MRGGI.EDGE.LEVELS, EDGE.LEVELS)
+    switch(method, mrgn = MRGN.EDGE.LEVELS, mrpc = MRPC.EDGE.LEVELS,
+           mrggi = MRGGI.EDGE.LEVELS, EDGE.LEVELS)
 }
 no.call.of <- function(method) {
-    switch(method, mrgn = "Other", mrggi = MRGGI.EDGE.LEVELS[3], "Other")
+    switch(method, mrgn = "Other", mrpc = c("Other", "Failed"),
+           mrggi = MRGGI.EDGE.LEVELS[3], "Other")
 }
 
 edge.summary <- do.call(rbind, lapply(seq_len(nrow(COMPARE)), function(i) {
@@ -311,7 +370,11 @@ cat(sprintf("  wrote %s | %d rows\n", basename(summary.path), nrow(edge.summary)
 # one row per method-arm, one column per sample size, for each of the four rates worth
 # comparing. Four small tables beat one 10-column table nobody can read across.
 label.of <- function(method, arm) {
-    switch(method, gmac = "GMAC", mrggi = "MR-GGI", sprintf("MRGN %s", arm))
+    switch(method,
+           gmac  = if (arm == "truth") "GMAC truth" else "GMAC",
+           mrggi = "MR-GGI",
+           mrpc  = sprintf("MRPC %s", arm),
+           sprintf("MRGN %s", arm))
 }
 rate.table <- function(column, title, blurb) {
     header <- c("method", sprintf("n = %d", SAMPLE.SIZES))
@@ -330,12 +393,19 @@ rate.table <- function(column, title, blurb) {
 lines <- c(lines,
     "### Summary",
     "",
-    paste("Also written as `tables/edge_comparison.csv`. `MRGN truth` is the oracle arm",
-          "and not an attainable result; the arms to read against GMAC are `MRGN CSq` and",
-          "`MRGN CSa`, which select their confounders as GMAC does. MR-GGI selects no",
-          "confounders at all -- the instrument is what is supposed to handle confounding,",
-          "which is the method's premise -- so it has a single row rather than an arm per",
-          "selection rule."),
+    paste("Also written as `tables/edge_comparison.csv`. `MRGN truth`, `MRPC truth` and",
+          "`GMAC truth` are oracle arms and not attainable results; they are the ceiling",
+          "each method would reach with perfect confounder selection. The arms to compare",
+          "against each other are the selected ones -- `MRGN CSq`, `MRPC CSq` and `GMAC` --",
+          "which choose their confounders from the same pool."),
+    "",
+    paste("MR-GGI has a single row rather than an arm per covariate set. Its estimator is",
+          "pairwise, so the covariates carried through `y` cannot move the T1-T2 estimate",
+          "or its raw p-value -- the edge call here is identical in all four arms, and",
+          "`confusion_mrggi.R` asserts it. What the arms do change is MRggi's own",
+          "multiplicity correction, reported separately at the `edge.fdr` level in",
+          "`confusion_counts_long.csv`; it is left out of this table because neither GMAC",
+          "nor MRGN is corrected and the comparison would not be like for like."),
     "",
     rate.table("edge_accuracy", "Edge accuracy",
                paste("Trios whose T1-T2 edge status was called correctly. MRGN's `Other`",

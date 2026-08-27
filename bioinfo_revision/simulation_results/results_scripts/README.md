@@ -27,6 +27,8 @@ present.
 | `make_selection_report.R` | **driver** — writes `../../reports/CONFOUNDER_SELECTION.md`. Run `make_figures.R` first |
 | `make_inference_report.R` | **driver** — writes `../../reports/INFERENCE_PERFORMANCE.md`, every matrix in both views. Run `make_all_tables.R` first |
 | `make_structure_report.R` | **driver** — writes `../../reports/CONFOUNDER_STRUCTURE.md`: which of `W`/`Z` damages MRGN, and which generating models it hits. Needs the three `data_structures/` runs |
+| `make_table2.R` | **driver** — writes `../../reports/table2_inference_summary.md`, the four methods side by side in the layout of Table 2 of `MRGN_v8.pdf` |
+| `make_matrix_workbooks.R` | **driver** — writes one `.xlsx` per method-arm-group under `../tables/<method>/`, each matrix in three formats. Run `make_all_tables.R` first |
 | `compute_time.R` | **standalone** — median and IQR of per-trio compute time for all four methods. Writes `../tables/compute_time{,_long}.csv`, three PNGs, and `../../reports/COMPUTE_TIME.md`. Needs ggplot2 |
 | `make_edge_pr_figure.R` | **standalone** — edge precision/recall for all four methods in a sample-size × effect-treatment grid, bootstrapped. Writes `../../reports/figures/fig_edge_pr_grid.png` (embedded in `INFERENCE_PERFORMANCE.md` §2) and `../tables/edge_pr_grid.csv`. Run `make_all_tables.R` first; needs ggplot2 |
 
@@ -77,7 +79,10 @@ first (see [`../README.md`](../README.md)). Output files are overwritten in plac
 ../tables/
 ├── confusion_matrices.md      the pooled matrices, rendered for reading
 ├── confusion_counts_long.csv  every cell of every matrix, tidy
-└── edge_comparison.csv        MRGN vs GMAC vs MR-GGI on the T1–T2 edge
+├── edge_comparison.csv        MRGN vs GMAC vs MR-GGI on the T1–T2 edge
+└── <method>/                  one workbook per arm per group (make_matrix_workbooks.R)
+    ├── by_sample_size/        <method>_<arm>_n<size>.xlsx
+    └── by_effect_size/        <method>_<arm>_<effect>.xlsx
 ```
 
 **Three files, and `confusion_counts_long.csv` is the one to parse.** Its columns are
@@ -93,6 +98,35 @@ that, and is what the Markdown report is rendered from.
 > load them, and every number in them was already a row of `confusion_counts_long.csv`.
 > The archived set in [`../legacy/first_pass/tables/`](../legacy/first_pass/tables/) still
 > has them, from the superseded first run.
+
+### The per-matrix workbooks
+
+`make_matrix_workbooks.R` writes **92** `.xlsx` files — one per method × arm × group — under
+`../tables/<method>/by_sample_size/` and `../tables/<method>/by_effect_size/`. This is the
+per-arm-file idea above, done in a format that does not break: three matrices cannot be one
+rectangle, so each goes on its own **sheet** rather than being stacked into one CSV.
+
+| sheet | contents |
+| --- | --- |
+| `model_pred_x_model_true` | inferred model × generating model |
+| `edge_pred_x_model_true` | T1–T2 edge call × generating model |
+| `edge_pred_x_edge_true` | T1–T2 edge call × true T1–T2 edge state |
+| `info` | method, arm, group, trio count, provenance |
+
+Every sheet carries the `Total` / `Precision` / `Recall` margins and holds **numbers, not
+text**, so a cell can be summed in place — which is why `scored.table()` was split, with
+`scored.table.values()` supplying the unrounded numeric grid and `scored.table()` reduced to
+its formatter.
+
+`edge_pred_x_edge_true` is the only one not already in `confusion_counts_long.csv`. It is
+derived by collapsing the truth axis of the second format through `EDGE.CORRECT` — `M0` and
+`M3` are edge-absent, `M1`/`M2`/`M4` edge-present — leaving the predicted axis untouched, so
+the no-call columns (`Other`, `Failed`, `Weak instrument`) survive rather than being folded
+into an edge state they do not belong to.
+
+**GMAC and MR-GGI workbooks have three sheets, not four.** Neither returns a model call, so
+the model cross-tab does not exist for them; the `info` sheet says so rather than leaving an
+empty sheet to be read as a result.
 
 **Two levels.** `level = "model"` is the six-way M0–M4/`Other` call; `level = "edge"` is
 the same trios re-scored on whether a T1–T2 edge was found. MRGN has both, GMAC only the

@@ -39,6 +39,9 @@ simulation_results/
 | `run_all_inference.R` | **driver** — selection, then four method processes in parallel, then the combine |
 | `run_confounder_selection.R` | the selection stage on its own, when only the selection scoring is wanted |
 | `apply_<method>.R` | one method over every group; writes its own checkpoints and combined result |
+| `backfill_csi.R` | **one-off** — adds the CS-i block to the cached selections, derived from the `reg.pvalues` already in them (~20 s/group, against ~40 min to recompute). Needed only for a run that predates the CS-i arm |
+| `apply_<method>_csi.R` | the CS-i arm on its own, into `<method>_csi_group_n*.RData` / `inference_<method>_csi.*`. Run separately so the arms already on disk are not recomputed |
+| `merge_csi.R` | joins the `CSi.*` and `<method>.CSi.*` columns into `inference_<method>.RData`/`.csv` on `dataset`, asserting that everything both passes computed agrees |
 | `run_structure_sims.R` | **driver** — MRGN over the three confounder-structure simulations at n = 670 |
 | `simulated_vs_real_conf_effects.png` | figure — written by `../simulation/verify_simulation.R`, not by anything here |
 
@@ -49,6 +52,7 @@ Running the drivers writes, into `data/`:
 | `selection_group_n50.RData` … `selection_group_n1000.RData` | the confounder-selection cache, one per sample-size group; validated against the simulated data it was built from and silently recomputed if that data changed |
 | `selection_results.RData` + `.csv` | the selection scored against the truth, all groups |
 | `<method>_group_n<size>.RData` | one checkpoint per method per group, saved as that group finishes; `<method>` is one of `mrgn`, `mrpc`, `gmac`, `mrggi` |
+| `<method>_csi_group_n<size>.RData`, `inference_<method>_csi.*` | the CS-i pass, kept as provenance after `merge_csi.R` folds its columns into the masters |
 | `inference_<method>.RData` + `.csv` | one method's groups combined, object name `<method>.results` |
 | `inference_results.RData` + `.csv` | the four methods joined on `dataset`, object name `inference.results` |
 

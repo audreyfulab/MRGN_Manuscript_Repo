@@ -78,8 +78,14 @@ STALL.SECONDS <- 1000
 # ---------------------------------------------------------------------------------------
 #
 # One row per (trio, method, arm). Arms are named exactly as they are in the confusion
-# tables so the two reports join: `truth` is the oracle confounder set, `CSq`/`CSa` the two
-# selections, `none` MR-GGI's unadjusted fit, `selected` GMAC's own selection.
+# tables so the two reports join: `truth` is the oracle confounder set, `CSq`/`CSa`/`CSi`
+# the three selections, `none` MR-GGI's unadjusted fit, `selected` GMAC's own selection.
+#
+# CS-i is the fourth arm and the one every method now shares: it is
+# get.conf.trios(adjust_by = "individual"), which reproduces GMAC's own selection exactly
+# (METHODS_FINAL.md section 4.2). GMAC's `CSi` and `selected` arms therefore run the same
+# test on the same covariates, and any timing difference between them is the per-trio
+# permutation test's own variance, not a difference in work.
 #
 # GMAC has ONE arm here. run.gmac.group() does build an oracle arm (inference_utils.R:650),
 # but the current inference_gmac.RData predates it and carries no gmac.truth.* columns, so
@@ -88,16 +94,20 @@ STALL.SECONDS <- 1000
 ARM.COLUMNS <- list(
     mrgn  = c(truth = "mrgn.truth.time.seconds",
               CSq   = "mrgn.CSq.time.seconds",
-              CSa   = "mrgn.CSa.time.seconds"),
+              CSa   = "mrgn.CSa.time.seconds",
+              CSi   = "mrgn.CSi.time.seconds"),
     mrpc  = c(truth = "mrpc.truth.time.seconds",
               CSq   = "mrpc.CSq.time.seconds",
-              CSa   = "mrpc.CSa.time.seconds"),
+              CSa   = "mrpc.CSa.time.seconds",
+              CSi   = "mrpc.CSi.time.seconds"),
     gmac  = c(selected = "gmac.time.seconds",
-              truth    = "gmac.truth.time.seconds"),
+              truth    = "gmac.truth.time.seconds",
+              CSi      = "gmac.CSi.time.seconds"),
     mrggi = c(none  = "mrggi.none.time.seconds",
               truth = "mrggi.truth.time.seconds",
               CSq   = "mrggi.CSq.time.seconds",
-              CSa   = "mrggi.CSa.time.seconds"))
+              CSa   = "mrggi.CSa.time.seconds",
+              CSi   = "mrggi.CSi.time.seconds"))
 
 METHOD.LABELS <- c(mrgn = "MRGN", mrpc = "MRPC", gmac = "GMAC", mrggi = "MR-GGI")
 
@@ -239,7 +249,7 @@ rownames(summary.tbl) <- NULL
 # Arms in increasing covariate count -- none, CS-q, truth, CS-alpha -- not alphabetically.
 # That IS the story of section 3: sorting them "CS-alpha, CS-q, truth" puts the most
 # expensive arm first and hides the monotone relationship the table exists to show.
-ARM.ORDER <- c("none", "CSq", "truth", "CSa", "selected")
+ARM.ORDER <- c("none", "CSq", "CSi", "truth", "CSa", "selected")
 stopifnot(all(summary.tbl$arm %in% ARM.ORDER))
 summary.tbl <- summary.tbl[order(match(summary.tbl$method, METHOD.ORDER),
                                  match(summary.tbl$arm, ARM.ORDER),
@@ -430,7 +440,7 @@ save.fig(box.base(dep) +
 # ---- (iii) what the confounder set costs ----
 # The deployed arm is one column of a wider story: every method here is dominated by how
 # many covariates it was handed, not by the method. This panel is the evidence for that.
-ARM.PRETTY <- c("no covariates", "CS-q", "truth (oracle)", "CS-α", "own (GMAC)")
+ARM.PRETTY <- c("no covariates", "CS-q", "CS-i", "truth (oracle)", "CS-α", "own (GMAC)")
 arm.d     <- long
 arm.d$arm <- factor(arm.d$arm, levels = ARM.ORDER, labels = ARM.PRETTY)
 lab.a     <- median.labels(arm.d, by = "arm")
@@ -466,7 +476,7 @@ cell <- function(method, arm, scope) {
     if (nrow(r) == 0) NULL else r[1, ]
 }
 
-arm.name <- function(arm) switch(arm, CSq = "CS-q", CSa = "CS-α",
+arm.name <- function(arm) switch(arm, CSq = "CS-q", CSa = "CS-α", CSi = "CS-i",
                                  truth = "truth (oracle)", none = "no covariates",
                                  selected = "own selection", arm)
 
@@ -616,6 +626,15 @@ sprintf(paste0("**Twenty MR-GGI trios carry machine stalls.** All at n = 670, al
                "mean something. Left in, MR-GGI's CS-q arm would report 10.9 total hours ",
                "of which 9.3 are a sleeping laptop. Affected trios: %s."),
         paste(sort(unique(long$dataset[long$stalled])), collapse = ", ")),
+"",
+"**MRGN's CS-i arm ran on a quiet machine, and it shows.** It reports a 4 ms median",
+"against CS-q's 7 ms while carrying *more* covariates (2.6-24.0 per trio against",
+"0.5-21.7), which inverts the relationship every other row in section 3 follows. The arm",
+"is not cheaper. It was run on its own, after the fact, as a single pass",
+"(`apply_mrgn_csi.R`), whereas the truth/CS-q/CS-α arms were timed inside the original run",
+"with three other method processes competing for the same cores. That is a clean",
+"demonstration of the caveat below rather than an exception to section 3: **do not read a",
+"factor-of-two gap between arms timed in different runs as a property of the arms.**",
 "",
 "**This is not a controlled benchmark.** These are wall-clock times harvested from the",
 "production inference run, not from a timing harness. MRGN, GMAC and MR-GGI ran their",

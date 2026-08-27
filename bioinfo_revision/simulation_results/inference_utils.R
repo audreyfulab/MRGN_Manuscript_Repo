@@ -97,12 +97,15 @@ group.known.conf <- function(datasets) {
 # confounder selection (MRGN and MRPC)
 # ---------------------------------------------------------------------------------------
 
-# Confounder selection for one group of trios via MRGN::get.conf.trios(), returning both
-# selection settings side by side:
+# Confounder selection for one group of trios via MRGN::get.conf.trios(), returning all
+# three selection settings side by side:
 #
 #   CS-q     - q-value method controlling FDR at 5% (adjust_by = "all", selection_fdr = 0.05)
 #   CS-alpha - no multiple-testing correction, each test at a fixed type I error rate
 #              alpha < 0.01 (equivalent to adjust_by = "none", alpha = 0.01)
+#   CS-i     - q-value FDR at 5% within each COVARIATE across trios
+#              (adjust_by = "individual"). This is the setting the GTEx analysis ran and
+#              the multiplicity family GMAC's conf.fdr() uses; see csi.sig.asso.covs().
 #
 # Same pairing as the original scripts: MRGN_sim2_filter_int_child.R uses the CS-q call and
 # its _liberal.R counterpart the CS-alpha one, identical in every other argument.
@@ -133,6 +136,123 @@ group.known.conf <- function(datasets) {
 # number of observations as the pool: the driver therefore groups the datasets by sample
 # size and calls this once per group. It also drops dimensions and fails on a list of one
 # trio, hence the guard below.
+# trio + known confounders + selected confounders, one data.frame per trio, plus the
+# per-trio covariate frame the original scripts kept. Shared by all three settings.
+#
+# Top level rather than a closure inside select.confounders() so that backfill_csi.R can
+# build a CS-i block against an ALREADY CACHED selection without re-running the ~40 min
+# get.conf.trios() call. Both callers must produce byte-identical structures or the two
+# routes into a settings block would drift.
+assemble.selection <- function(sig.asso.covs, trios, cov.pool, known.conf, setting,
+                               filter.applied, elapsed) {
+    conf.list <- lapply(sig.asso.covs, function(x, y) { y[, x] }, y = cov.pool)
+
+    # drop = FALSE keeps a single selected covariate a data.frame rather than a vector,
+    # which would otherwise lose its column name in the cbind.
+    trios.with.confs <- vector("list", length(trios))
+    for (i in seq_along(trios)) {
+        assembled <- as.data.frame(trios[[i]])
+        if (!is.null(known.conf)) {
+            assembled <- cbind.data.frame(assembled, as.data.frame(known.conf))
+        }
+        selected <- sig.asso.covs[[i]]
+        if (length(selected) > 0) {
+            assembled <- cbind.data.frame(assembled, cov.pool[, selected, drop = FALSE])
+        }
+        trios.with.confs[[i]] <- assembled
+    }
+    names(trios.with.confs) <- names(trios)
+
+    list(trios.with.confs = trios.with.confs,
+         conf.list = conf.list,
+         sig.asso.covs = sig.asso.covs,
+         setting = setting,
+         # FALSE when the group fell back to the unfiltered selection below. All settings
+         # share the one call, so they always agree; each is still reported so the
+         # CSq./CSa./CSi. results columns stay symmetric.
+         filter_int_child = filter.applied,
+         time.seconds = elapsed)
+}
+
+
+# ---------------------------------------------------------------------------------------
+# CS-i: the multiplicity family GMAC actually uses
+# ---------------------------------------------------------------------------------------
+#
+# CS-q and CS-alpha bracket the deployed method without containing it. All three settings
+# threshold the SAME reg.pvalues matrix -- a 2-df F test of lm(covariate ~ T1 + T2), one
+# cell per (trio, covariate) -- and differ only in the family the q-values are computed
+# over:
+#
+#   CS-q      adjust_by = "all"          one family, every cell    ~2.4M tests
+#   CS-i      adjust_by = "individual"   one family per COVARIATE   ~300 tests (the trios)
+#   CS-alpha  adjust_by = "none"         no family at all           1
+#
+# CS-i is the one that matters for two independent reasons.
+#
+# 1. IT IS WHAT THE PAPER RAN ON GTEx. GTEx/data/PC_LRNA_PC_Selection_manu.R:127 calls
+#    get.conf.trios(..., adjust_by = 'individual'). Scoring the simulation on CS-q and
+#    CS-alpha alone evaluates two settings the real analysis never used.
+#
+# 2. IT IS GMAC'S OWN RULE. GMAC's conf.fdr() (adapted_GMAC_func/gmac_get_conf.R:73-101)
+#    loops over COVARIATES -- lapply(1:num_pool, conf.fdr, ...) -- and calls qvalue() on
+#    that covariate's vector of per-trio p-values. Same test as p.from.reg() (both are
+#    summary(lm(cov ~ gene1 + gene2))$fstatistic through pf()), same FDR 0.05, same 0.1
+#    pre-filter; the family is the only difference, and "individual" matches it.
+#
+# Measured on the n = 50 group, all three thresholding the one cached matrix:
+#
+#   CS-q  0.49 selected/trio   CS-i  2.6   CS-alpha  82.3        GMAC itself: 2.6
+#
+# Why the families diverge so far on identical inputs: the SIGNAL DENSITY is the same
+# either way (25/7981 = 0.0031 pooled, 1/300 = 0.0033 per covariate column, since the
+# private-pool design gives each covariate exactly one trio it truly confounds), but
+# density is not what decides selection. A BH/Storey cutoff is q*k/m, and m differs by a
+# factor of 8,000, so the realised threshold does: 3.0e-06 under "all" against 4.8e-04
+# under "individual", 159x apart, for 146 against 720 rejections. Equal density does NOT
+# imply equal threshold, and METHODS.md section 6 previously drew that inference.
+#
+# MEASURED IDENTICAL TO GMAC'S OWN SELECTION, not merely similar. Comparing CS-i against
+# the gmac.selected column trio by trio over all 1,500 trios gives a Jaccard index of
+# 1.000 at every sample size -- the same covariates, not just the same count:
+#
+#   n            50     150     300     670    1000
+#   CS-i       2.60    4.57    9.55   19.23   24.01
+#   GMAC       2.60    4.57    9.55   19.23   24.01
+#   Jaccard   1.000   1.000   1.000   1.000   1.000
+#
+# Two implementation differences were expected to leave a residual and do not: GMAC
+# restricts a covariate's family to the trios that passed its child filter and estimates
+# pi0 on that subset, whereas get.conf.trios() drops filtered covariates from the trio's
+# design instead; and GMAC's vendored qvalue() uses a fixed lambda = seq(0.05, 0.95, 0.05)
+# where MRGN's adjust.q() uses seq(0.05, max(p), 0.05). On this data neither changes a
+# single selection. Re-check it if the pool structure changes -- the agreement is a
+# measurement on this design, not a proof.
+#
+# reg.pvalues is trios x covariates, so get.q.sig()'s adjustment = "individual" --
+# apply(pvalues, 2, adjust.q, ...) -- corrects down each COLUMN, i.e. per covariate across
+# trios. Both get.q.sig() and adjust.q() are exported by MRGN, so this is the package's own
+# code path and not a reimplementation of it.
+csi.sig.asso.covs <- function(reg.pvalues, selection_fdr = 0.05, lambda = NULL,
+                              pi0.method = "smoother", trio.names = NULL) {
+    reg.p <- as.data.frame(reg.pvalues)
+    out <- MRGN::get.q.sig(reg.p, fdr.level = selection_fdr, lambda.seq = lambda,
+                           pi0.method = pi0.method, adjustment = "individual",
+                           contains.na = any(is.na(reg.p)))
+    sig <- as.matrix(out$sigmat)
+    # A column whose q-values could not be estimated comes back NA. That is "not selected",
+    # not "selected": treating NA as TRUE would hand the fit a covariate no test supported.
+    sig[is.na(sig)] <- FALSE
+    covs <- lapply(seq_len(nrow(sig)), function(i) unname(which(sig[i, ])))
+    # Assigned unconditionally, exactly as the CS-alpha branch does. The trios list is
+    # unnamed in practice, so trio.names is NULL and this strips the names get.q.sig()
+    # carried over from reg.pvalues' rownames -- leaving CS-i shaped like CS-q and
+    # CS-alpha rather than the odd one out.
+    names(covs) <- trio.names
+    covs
+}
+
+
 select.confounders <- function(trios, cov.pool, known.conf = NULL, blocksize = 500,
                                filter_int_child = TRUE, selection_fdr = 0.05,
                                filter_fdr = 0.1, alpha = 0.01) {
@@ -169,36 +289,9 @@ select.confounders <- function(trios, cov.pool, known.conf = NULL, blocksize = 5
         return(x)
     }
 
-    # trio + known confounders + selected confounders, one data.frame per trio, plus the
-    # per-trio covariate frame the original scripts kept. Shared by both settings.
     assemble <- function(sig.asso.covs, setting, elapsed) {
-        conf.list <- lapply(sig.asso.covs, function(x, y) { y[, x] }, y = cov.pool)
-
-        # drop = FALSE keeps a single selected covariate a data.frame rather than a vector,
-        # which would otherwise lose its column name in the cbind.
-        trios.with.confs <- vector("list", length(trios))
-        for (i in seq_along(trios)) {
-            assembled <- as.data.frame(trios[[i]])
-            if (!is.null(known.conf)) {
-                assembled <- cbind.data.frame(assembled, as.data.frame(known.conf))
-            }
-            selected <- sig.asso.covs[[i]]
-            if (length(selected) > 0) {
-                assembled <- cbind.data.frame(assembled, cov.pool[, selected, drop = FALSE])
-            }
-            trios.with.confs[[i]] <- assembled
-        }
-        names(trios.with.confs) <- names(trios)
-
-        list(trios.with.confs = trios.with.confs,
-             conf.list = conf.list,
-             sig.asso.covs = sig.asso.covs,
-             setting = setting,
-             # FALSE when the group fell back to the unfiltered selection below. Both
-             # settings share the one call, so they now always agree; both are still
-             # reported so the CSq./CSa. results columns stay symmetric.
-             filter_int_child = filter.applied,
-             time.seconds = elapsed)
+        assemble.selection(sig.asso.covs, trios, cov.pool, known.conf, setting,
+                           filter.applied, elapsed)
     }
 
     filter.applied <- filter_int_child
@@ -249,10 +342,19 @@ select.confounders <- function(trios, cov.pool, known.conf = NULL, blocksize = 5
     csa.covs <- lapply(seq_len(nrow(reg.p)), function(i) unname(which(reg.p[i, ] < alpha)))
     names(csa.covs) <- trio.names
 
+    # CS-i: the same reg.pvalues under a per-covariate family. See csi.sig.asso.covs()
+    # above for why this is the setting the GTEx analysis actually used and the family
+    # GMAC's conf.fdr() applies. ~18 s on a 300 x 8,000 matrix, against the ~40 min the
+    # regression itself costs, so it is free relative to the call that produced the input.
+    csi.covs <- csi.sig.asso.covs(reg.p, selection_fdr = selection_fdr,
+                                  trio.names = trio.names)
+
     CS.q <- assemble(csq.covs, setting = "CS-q", elapsed = elapsed)
     CS.alpha <- assemble(csa.covs, setting = "CS-alpha", elapsed = elapsed)
+    CS.i <- assemble(csi.covs, setting = "CS-i", elapsed = elapsed)
     CS.q$adjust_by <- "all"
     CS.alpha$adjust_by <- "none"
+    CS.i$adjust_by <- "individual"
 
     # `selection` is stored ONCE at the top level rather than copied into both settings.
     # The two copies were identical apart from sig.asso.covs, which now lives on each
@@ -264,6 +366,7 @@ select.confounders <- function(trios, cov.pool, known.conf = NULL, blocksize = 5
     return(list(selection = selection,
                 CS.q = CS.q,
                 CS.alpha = CS.alpha,
+                CS.i = CS.i,
                 time.seconds = elapsed))
 }
 
@@ -482,42 +585,67 @@ id.columns <- function(dat, params, index) {
 }
 
 # CS-q / CS-alpha scores for one trio, shared by the MRGN and MRPC files
+# CS.i is guarded rather than assumed: a selection cache written before the arm existed has
+# no CS.i block, and a run against one of those should say so plainly instead of failing on
+# a NULL subscript halfway through a group. backfill_csi.R is what fills them in.
 cs.score.columns <- function(sel, i, index, dat, cov.names) {
     true.confs <- own.block.names(colnames(dat), "U", index)
+    csi <- if (is.null(sel$CS.i)) {
+        c(prefixed(score.selection(character(0), index, true.confs), "CSi"),
+          list(CSi.filter_int_child = NA))
+    } else {
+        c(prefixed(score.selection(cov.names[sel$CS.i$sig.asso.covs[[i]]], index, true.confs), "CSi"),
+          list(CSi.filter_int_child = sel$CS.i$filter_int_child))
+    }
     c(prefixed(score.selection(cov.names[sel$CS.q$sig.asso.covs[[i]]], index, true.confs), "CSq"),
       prefixed(score.selection(cov.names[sel$CS.alpha$sig.asso.covs[[i]]], index, true.confs), "CSa"),
+      csi,
       list(CSq.filter_int_child = sel$CS.q$filter_int_child,
            CSa.filter_int_child = sel$CS.alpha$filter_int_child))
 }
 
 
 # ---- MRGN: true confounders, CS-q and CS-alpha ----
+# `arms` restricts which confounder sets are fitted, the way mrpc.arms already does for
+# MRPC. An arm that is switched off still writes its columns, all NA, with the reason in
+# the error field -- so every mrgn_group_*.RData keeps one schema and checkpoints written
+# under different arm settings still rbind. That is what lets the CS-i pass run on its own
+# (apply_mrgn_csi.R) without recomputing the three arms that are already on disk.
 run.mrgn.group <- function(datasets, sel, cov.names, cl = NULL, bootstrap = TRUE,
-                           number_of_samples = n.bootstrap, verbose = TRUE) {
+                           number_of_samples = n.bootstrap, arms = mrgn.arms,
+                           verbose = TRUE) {
     n.datasets <- length(datasets)
     rows <- vector("list", n.datasets)
+
+    fit <- function(arm, input) {
+        if (!arm %in% arms) {
+            return(list(value = NULL,
+                        error = paste0(arm, " arm not attempted: not listed in mrgn.arms")))
+        }
+        safely(apply.mrgn(input, bootstrap = bootstrap,
+                          number_of_samples = number_of_samples, cl = cl, verbose = FALSE))
+    }
+
     for (i in seq_len(n.datasets)) {
         dat <- datasets[[i]]$data; params <- datasets[[i]]$params
         index <- params$dataset; K_n <- params$K_n
         truth.label <- unname(TRUTH.LABEL[params$model])
 
-        mrgn.truth <- safely(apply.mrgn(ground.truth.input(dat, K_n, index),
-                                        bootstrap = bootstrap,
-                                        number_of_samples = number_of_samples,
-                                        cl = cl, verbose = FALSE))
-        mrgn.csq <- safely(apply.mrgn(sel$CS.q$trios.with.confs[[i]], bootstrap = bootstrap,
-                                      number_of_samples = number_of_samples,
-                                      cl = cl, verbose = FALSE))
-        mrgn.csa <- safely(apply.mrgn(sel$CS.alpha$trios.with.confs[[i]], bootstrap = bootstrap,
-                                      number_of_samples = number_of_samples,
-                                      cl = cl, verbose = FALSE))
+        mrgn.truth <- fit("truth", ground.truth.input(dat, K_n, index))
+        mrgn.csq   <- fit("CSq",   sel$CS.q$trios.with.confs[[i]])
+        mrgn.csa   <- fit("CSa",   sel$CS.alpha$trios.with.confs[[i]])
+        mrgn.csi   <- if ("CSi" %in% arms && is.null(sel$CS.i)) {
+            list(value = NULL, error = paste0("CSi arm not attempted: this selection cache ",
+                                              "has no CS.i block -- run backfill_csi.R"))
+        } else fit("CSi", sel$CS.i$trios.with.confs[[i]])
 
         rows[[i]] <- as.data.frame(c(
             id.columns(dat, params, index),
             cs.score.columns(sel, i, index, dat, cov.names),
             prefixed(mrgn.fields(mrgn.truth$value, mrgn.truth$error, truth.label), "mrgn.truth"),
             prefixed(mrgn.fields(mrgn.csq$value, mrgn.csq$error, truth.label), "mrgn.CSq"),
-            prefixed(mrgn.fields(mrgn.csa$value, mrgn.csa$error, truth.label), "mrgn.CSa")),
+            prefixed(mrgn.fields(mrgn.csa$value, mrgn.csa$error, truth.label), "mrgn.CSa"),
+            prefixed(mrgn.fields(mrgn.csi$value, mrgn.csi$error, truth.label), "mrgn.CSi")),
             stringsAsFactors = FALSE)
 
         if (verbose && (i %% 25 == 0 || i == n.datasets)) cat("    mrgn", i, "/", n.datasets, "\n")
@@ -582,13 +710,21 @@ run.mrpc.group <- function(datasets, sel, cov.names, timeout = mrpc.timeout,
             safely(apply.mrpc(sel$CS.alpha$trios.with.confs[[i]], timeout = timeout))
         } else skipped("CS-alpha", paste0("not listed in mrpc.arms: the CS-alpha set is ",
                                           "too large for MRPC to fit (see inference_config.R)"))
+        mrpc.csi <- if (!"CSi" %in% arms) {
+            skipped("CS-i", "not listed in mrpc.arms")
+        } else if (is.null(sel$CS.i)) {
+            skipped("CS-i", "this selection cache has no CS.i block -- run backfill_csi.R")
+        } else {
+            safely(apply.mrpc(sel$CS.i$trios.with.confs[[i]], timeout = timeout))
+        }
 
         rows[[i]] <- as.data.frame(c(
             id.columns(dat, params, index),
             cs.score.columns(sel, i, index, dat, cov.names),
             prefixed(mrpc.fields(mrpc.truth$value, mrpc.truth$error, truth.label), "mrpc.truth"),
             prefixed(mrpc.fields(mrpc.csq$value, mrpc.csq$error, truth.label), "mrpc.CSq"),
-            prefixed(mrpc.fields(mrpc.csa$value, mrpc.csa$error, truth.label), "mrpc.CSa")),
+            prefixed(mrpc.fields(mrpc.csa$value, mrpc.csa$error, truth.label), "mrpc.CSa"),
+            prefixed(mrpc.fields(mrpc.csi$value, mrpc.csi$error, truth.label), "mrpc.CSi")),
             stringsAsFactors = FALSE)
 
         if (verbose && (i %% 25 == 0 || i == n.datasets)) cat("    mrpc", i, "/", n.datasets, "\n")
@@ -667,6 +803,65 @@ run.gmac.group <- function(datasets, cov.pool, known.conf, cl = NULL,
     attr(results, "gmac.time.seconds") <-
         if (is.null(gmac.out)) NA_real_ else gmac.out$time.seconds
     results
+}
+
+
+# ---- GMAC on the CS-i confounder set ----
+#
+# GMAC picks its own confounders, so a CS-i arm is not a new selection for it -- it is the
+# check on whether CS-i really is GMAC's rule. CS-i is get.conf.trios(adjust_by =
+# "individual"), which applies the same per-covariate multiplicity family as GMAC's
+# conf.fdr(); if that identification holds, GMAC's mediation test run against the CS-i set
+# should land close to GMAC run against its own, and the two differ only by the residuals
+# noted at csi.sig.asso.covs() (the candidate restriction and the lambda grid).
+#
+# Deliberately NOT part of run.gmac.group(). The expensive thing there is the batch gmac()
+# call that does GMAC's selection across the whole group, and a fixed confounder set makes
+# it irrelevant -- this path is one apply.gmac() per trio and nothing else. Keeping it
+# separate is also what lets the CS-i pass run without recomputing the gmac.* columns
+# already on disk.
+run.gmac.csi.group <- function(datasets, sel, cov.names, cl = NULL, nperm = gmac.nperm,
+                               known.conf = NULL, verbose = TRUE) {
+    if (is.null(sel$CS.i)) {
+        stop("run.gmac.csi.group(): the selection cache has no CS.i block -- run ",
+             "backfill_csi.R first")
+    }
+    n.datasets <- length(datasets)
+
+    # The CS-i covariates only, without the trio's own three columns: apply.gmac() takes
+    # the trio and the confounders separately and cbinds them itself.
+    one <- function(i) {
+        trio <- datasets[[i]]$data[, 1:3]
+        confs <- sel$CS.i$conf.list[[i]]
+        confs <- if (is.null(confs) || length(confs) == 0 || NCOL(confs) == 0) NULL else
+            as.matrix(confs)
+        safely(apply.gmac(trio, confounders = confs, known.conf = known.conf,
+                          nperm = nperm, alpha = selection.alpha))
+    }
+
+    fits <- if (!is.null(cl)) {
+        parallel::parLapplyLB(cl, seq_len(n.datasets), one)
+    } else {
+        lapply(seq_len(n.datasets), function(i) {
+            if (verbose && (i %% 25 == 0 || i == n.datasets)) {
+                cat("    gmac.CSi", i, "/", n.datasets, "\n"); utils::flush.console()
+            }
+            one(i)
+        })
+    }
+
+    rows <- lapply(seq_len(n.datasets), function(i) {
+        dat <- datasets[[i]]$data; params <- datasets[[i]]$params
+        index <- params$dataset
+        f <- fits[[i]]
+        as.data.frame(c(
+            id.columns(dat, params, index),
+            cs.score.columns(sel, i, index, dat, cov.names),
+            prefixed(gmac.fields(if (is.null(f$value)) NULL else f$value$results,
+                                 f$value, f$error), "gmac.CSi")),
+            stringsAsFactors = FALSE)
+    })
+    do.call(rbind, rows)
 }
 
 
@@ -1416,6 +1611,10 @@ mrggi.arm.covars <- function(arm, dat, sel, i, K_n, index) {
            truth = drop.trio(ground.truth.input(dat, K_n, index)),
            CSq   = drop.trio(sel$CS.q$trios.with.confs[[i]]),
            CSa   = drop.trio(sel$CS.alpha$trios.with.confs[[i]]),
+           CSi   = if (is.null(sel$CS.i)) {
+               stop("the CSi arm needs a CS.i block in the selection cache -- ",
+                    "run backfill_csi.R")
+           } else drop.trio(sel$CS.i$trios.with.confs[[i]]),
            stop("unknown MR-GGI arm: ", arm))
 }
 

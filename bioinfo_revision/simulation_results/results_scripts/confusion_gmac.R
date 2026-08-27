@@ -54,7 +54,7 @@ source("bioinfo_revision/simulation_results/results_scripts/confusion_utils.R")
 
 # column prefix -> arm label in the tables. The selected arm keeps the bare "gmac" prefix it
 # has always had, so its rows stay comparable with the earlier run.
-GMAC.ARMS <- c(gmac = "gmac", gmac.truth = "truth")
+GMAC.ARMS <- c(gmac = "gmac", gmac.truth = "truth", gmac.CSi = "CSi")
 
 
 # ---------------------------------------------------------------------------------------

@@ -54,7 +54,7 @@
 
 source("bioinfo_revision/simulation_results/results_scripts/confusion_utils.R")
 
-MRPC.ARMS <- c("truth", "CSq")
+MRPC.ARMS <- c("truth", "CSq", "CSi")
 
 
 # ---------------------------------------------------------------------------------------

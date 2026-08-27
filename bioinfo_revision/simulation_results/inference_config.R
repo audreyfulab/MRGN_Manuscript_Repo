@@ -112,7 +112,7 @@ selection.alpha <- 0.05    # significance cutoff for the GMAC mediation calls
 # the large groups rather than spending hours writing a column of NAs -- the same call
 # already made for CS-alpha above. A disabled arm still gets its columns, with the reason
 # in mrpc.<arm>.error, so the schema is unchanged either way.
-mrpc.arms <- c("truth", "CSq")   # the only two arms; CSa is excluded, not a toggle
+mrpc.arms <- c("truth", "CSq", "CSi")   # CSa is excluded, not a toggle
 
 # Largest sample size at which the truth arm is ATTEMPTED. Above this it is recorded as not
 # attempted, exactly as a disabled arm is, and the group still gets its columns. Inf runs it
@@ -173,6 +173,19 @@ rerun.inference <- FALSE
 # ---- scope ----
 sample.sizes  <- NULL    # NULL = every group
 max.per.group <- NULL    # trios per group; NULL = all. Smoke tests only.
+
+# ---- MRGN arms ----
+# MRGN fits every confounder set that is listed here. A disabled arm still writes its
+# columns, with the reason in mrgn.<arm>.error, so the schema does not depend on the
+# setting and checkpoints written under different settings still rbind.
+#
+# CSi is the CS-i selection: get.conf.trios(adjust_by = "individual"), the setting
+# GTEx/data/PC_LRNA_PC_Selection_manu.R:127 actually ran and the multiplicity family GMAC
+# applies. It needs a CS.i block in the selection cache -- run backfill_csi.R once, which
+# derives it from the already-cached reg.pvalues in ~20 s per group rather than re-running
+# the ~40 min selection.
+mrgn.arms <- c("truth", "CSq", "CSa", "CSi")
+
 
 # ---- parallelism ----
 # Cores for THIS process. run_all_inference.R overrides it per method with --cores, since
@@ -273,7 +286,7 @@ mrggi.cor.thr <- 0
 # CS-alpha is 90% of the total (9.4 h of 10.4 h across all groups) because it selects a
 # median of 82-106 covariates, i.e. ~5,800 pairs per trio. That is why apply_mrggi.R now
 # builds a cluster instead of running single threaded.
-mrggi.arms    <- c("none", "truth", "CSq", "CSa")
+mrggi.arms    <- c("none", "truth", "CSq", "CSa", "CSi")
 
 # Passed to MRggi(p.adjust.method = ), and IGNORED BY THE PACKAGE. Its body reads
 #

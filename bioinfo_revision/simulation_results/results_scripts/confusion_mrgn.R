@@ -42,7 +42,12 @@
 
 source("bioinfo_revision/simulation_results/results_scripts/confusion_utils.R")
 
-MRGN.ARMS <- c("truth", "CSq", "CSa")
+# CSi is the CS-i selection -- get.conf.trios(adjust_by = "individual"), the setting the
+# GTEx analysis ran and, measured, the identical selection GMAC makes for itself. See
+# METHODS_FINAL.md section 4.2. It was added after the other three, so an older
+# inference_mrgn.RData will not carry it; arms are filtered on column presence below rather
+# than assumed, so this file works against results from either side of that change.
+MRGN.ARMS <- c("truth", "CSq", "CSa", "CSi")
 
 
 # ---------------------------------------------------------------------------------------
@@ -54,12 +59,19 @@ build.mrgn.confusion <- function(results = load.method("mrgn")) {
 
     cat("=== MRGN confusion matrices ===\n")
 
-    for (arm in MRGN.ARMS) {
+    arms <- Filter(function(a) paste0("mrgn.", a, ".model") %in% names(results), MRGN.ARMS)
+    if (length(arms) == 0) {
+        stop("results have none of the expected mrgn.<arm>.model columns (",
+             paste0("mrgn.", MRGN.ARMS, ".model", collapse = ", "), ")")
+    }
+    if (length(arms) < length(MRGN.ARMS)) {
+        cat("  arms present:", paste(arms, collapse = ", "), "| absent:",
+            paste(setdiff(MRGN.ARMS, arms), collapse = ", "), "\n")
+    }
+
+    for (arm in arms) {
         model.col   <- paste0("mrgn.", arm, ".model")
         correct.col <- paste0("mrgn.", arm, ".correct.coarse")
-        if (!model.col %in% names(results)) {
-            stop("results have no column '", model.col, "'")
-        }
 
         for (size in SAMPLE.SIZES) {
             rows <- results[results$sample.size == size, , drop = FALSE]

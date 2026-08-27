@@ -56,7 +56,9 @@ question all four methods can be asked in common.
 | 3b | simulate the structure variants | `simulation/confounder_structure_simulation.R` | `simulated_trios_u_{only,w,z}.RData` |
 | 4 | calibration check | `simulation/verify_simulation.R` | console report + 2 PNGs |
 | 5 | confounder selection | `simulation_results/run_confounder_selection.R` | `data/selection_group_n*.RData`, `selection_results.*` |
+| 5b | add CS-i to the cached selections | `simulation_results/backfill_csi.R` | rewrites `data/selection_group_n*.RData` |
 | 6 | inference | `simulation_results/run_all_inference.R` | `data/inference_{method}.*`, `inference_results.*` |
+| 6b | the CS-i arm | `simulation_results/apply_{method}_csi.R`, then `merge_csi.R` | `data/inference_{method}_csi.*`, merged into `inference_{method}.*` |
 | 7 | scoring | `results_scripts/make_all_tables.R` | `tables/` (3 files) |
 
 **Table 1. The pipeline in dependency order.** Stages 1–2 measure the real GTEx data that
@@ -288,32 +290,70 @@ checkpointed. The consequences of this design are in
 | `blocksize` | `min(500, n trios)` |
 
 **Table 7. Confounder-selection settings** (`inference_config.R:122-126`,
-`inference_utils.R:213-237`). These produce two confounder sets per trio:
+`inference_utils.R:213-237`). These produce **three** confounder sets per trio:
 
 - **CS-q** — the q-value FDR screen at 5% under `adjust_by = "all"`, taken directly from
   `MRGN::get.conf.trios()`.
 - **CS-α** — no multiplicity correction, per-test α = 0.01, derived by thresholding the
   `reg.pvalues` matrix the same call already returns.
+- **CS-i** — the q-value FDR screen at 5% under `adjust_by = "individual"`, likewise
+  derived from `reg.pvalues`. This is the setting the published GTEx analysis actually ran
+  (`GTEx/data/PC_LRNA_PC_Selection_manu.R:127`) and, as §4.2 shows, it reproduces GMAC's
+  internal selection exactly.
 
-`get.conf.trios()` is called **once per group** and serves both settings. Everything
+`get.conf.trios()` is called **once per group** and serves all three settings. Everything
 expensive inside it — the correlation matrix over the covariate pool, and the per-trio
-per-covariate regressions — is common to both and does not depend on `adjust_by`, so
-calling it twice would double the cost for nothing. Deriving CS-α from `reg.pvalues` is
-exactly what `adjust_by = "none"` does internally, so the two routes are identical.
+per-covariate regressions that produce `reg.pvalues` — is common to all three and does not
+depend on `adjust_by`, so calling it once per setting would triple the cost for nothing.
 
-Neither rule selects a fixed number of covariates; both are data-driven, and they miss in
-opposite directions. CS-q's correction across the full trio × pool matrix is severe enough
-that it returns far fewer covariates than a trio actually has, while CS-α's uncorrected
-threshold returns roughly `α × pool width` false positives by arithmetic alone. At the
-smaller sample sizes CS-α therefore hands a method more covariates than there are
-observations, making every such fit rank-deficient — which is why each fit is wrapped in
-`safely()`. **The n = 50 CS-α arm should be read as uninformative rather than as a
-measurement of how a method behaves.**
+### The three settings differ in one thing: the multiplicity family
+
+All three threshold the **same** `reg.pvalues` matrix — a 2-df F test of
+`lm(covariate ~ T1 + T2)`, one cell per (trio, covariate). They differ only in the family
+the correction is computed over:
+
+| setting | `adjust_by` | family | size at n = 50 |
+| --- | --- | --- | ---: |
+| CS-q | `"all"` | every cell of the trio × pool matrix | ~2,394,300 |
+| CS-i | `"individual"` | one family per **covariate**, across trios | 300 |
+| CS-α | `"none"` | no family | 1 |
+
+**Table 7b. The multiplicity family is the whole difference between the settings.**
+`reg.pvalues` is trios × covariates, so `get.q.sig()`'s `"individual"` branch —
+`apply(pvalues, 2, adjust.q, ...)` — corrects down each **column**, i.e. per covariate
+across trios.
+
+The three miss in different directions, and CS-i is not between the other two by
+interpolation — it is a different question. Measured on the n = 50 group, all three
+thresholding the one cached matrix:
+
+| | CS-q | CS-i | CS-α | true confounders |
+| --- | ---: | ---: | ---: | ---: |
+| selected/trio (mean) | 0.49 | 2.60 | 82.27 | ~25 |
+| realised p threshold | 3.0 × 10⁻⁶ | 4.8 × 10⁻⁴ | 10⁻² | — |
+| rejections in the group | 146 | 720 | 24,673 | — |
+
+**Table 7c. What each family costs, n = 50.** CS-q's correction across 2.4M tests is severe
+enough that it returns far fewer covariates than a trio actually has. CS-α's uncorrected
+threshold returns roughly `α × pool width` false positives by arithmetic alone
+(`7,981 × 0.01 ≈ 80`, against 82.3 observed). At the smaller sample sizes CS-α therefore
+hands a method more covariates than there are observations, making every such fit
+rank-deficient — which is why each fit is wrapped in `safely()`. **The n = 50 CS-α arm
+should be read as uninformative rather than as a measurement of how a method behaves.**
+
+Note that **equal signal density does not imply equal threshold**, and an earlier version
+of these methods drew that inference. The density genuinely is the same either way — 25 of
+7,981 pooled (0.0031), and 1 of 300 per covariate column (0.0033), since the private-pool
+design (§7) gives each covariate exactly one trio it truly confounds. But a BH/Storey
+cutoff is `q·k/m`, and `m` differs by a factor of ~8,000, so the realised threshold differs
+by 159× as tabulated above. Density says how many signals exist; the family size says which
+of them clear.
 
 If `get.conf.trios()` raises "No common child or intermediate variables detected",
 `select.confounders()` retries with `filter_int_child = FALSE` and records that it did so
-in the `CSq.filter_int_child` / `CSa.filter_int_child` columns, so the fallback is visible
-in the results rather than silent.
+in the `CSq.filter_int_child` / `CSa.filter_int_child` / `CSi.filter_int_child` columns, so
+the fallback is visible in the results rather than silent. All three settings come from the
+one call, so the three columns always agree.
 
 Selection results are cached as `selection_group_n<size>.RData` and validated on sample
 size, dataset indices, covariate names and the settings list, so a cache built against
@@ -333,6 +373,47 @@ selects inside `gmac()` in two stages:
 
 The reported test uses the `Known_sel_pool` p-values — the known confounders plus the
 selected pool covariates.
+
+#### GMAC's selection is CS-i
+
+Step 2 is `conf.fdr()` (`adapted_GMAC_func/gmac_get_conf.R:73-101`), and it is dispatched
+as `lapply(1:num_pool, conf.fdr, ...)` — a loop over **covariates**, calling `qvalue()` on
+that covariate's vector of per-trio p-values. That is a per-covariate family across trios,
+which is exactly what `adjust_by = "individual"` applies (Table 7b). The test is identical
+too: GMAC's `summary(lm(cov ~ T1 + T2))$fstatistic` through `pf()` is the same statistic
+`MRGN:::p.from.reg()` computes. Same test, same FDR 0.05, same 0.1 pre-filter, same family.
+
+This is not an analogy. Comparing the CS-i sets against GMAC's own `gmac.selected` column,
+**trio by trio across all 1,500 trios**:
+
+| n | 50 | 150 | 300 | 670 | 1000 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| CS-i selected/trio | 2.60 | 4.57 | 9.55 | 19.23 | 24.01 |
+| GMAC selected/trio | 2.60 | 4.57 | 9.55 | 19.23 | 24.01 |
+| Jaccard(CS-i, GMAC) | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 |
+
+**Table 8b. CS-i and GMAC select identical confounder sets.** Not merely the same count —
+the same covariates, in every trio, at every sample size. Two implementation differences
+were expected to leave a residual and do not: GMAC restricts a covariate's family to the
+trios that passed its child filter and estimates π₀ on that subset, where
+`get.conf.trios()` drops filtered covariates from the trio's design instead; and GMAC's
+vendored `qvalue()` uses a fixed `lambda = seq(0.05, 0.95, 0.05)` where MRGN's `adjust.q()`
+uses `seq(0.05, max(p), 0.05)`. On this design neither changes a single selection. The
+agreement is a measurement, not a proof, and should be re-checked if the pool structure
+changes.
+
+Two consequences follow. First, **the CS-i arm puts GMAC's exact covariates in front of
+another method** — currently MRGN (§5), with the machinery in place for MRPC and MR-GGI.
+That is what lets the tables begin to separate GMAC's *test* from GMAC's *selection*, which
+no previous arm could do, since none of them handed another method GMAC's covariates.
+Second, the earlier framing of GMAC as "selecting its own confounders by a different
+procedure" was wrong: it uses the same procedure MRGN ships, under a setting the simulation
+had not been running.
+
+What this does **not** do is close the gap in MRGN's accuracy — see §7, Table 15. CS-i
+recovers more true confounders than CS-q at every sample size and still moves MRGN's coarse
+accuracy by at most 1.4 points, and moves it *down* by 5 points at n = 50. The selection
+difference is real and large; its downstream effect on this design is small.
 
 ### 4.3 The oracle arm
 
@@ -381,9 +462,9 @@ Three settings need their rationale recorded, because each looks like a choice a
 
 ### The arms
 
-| method | arms | covariates each arm receives |
+| method | arms with results | covariates each arm receives |
 | --- | --- | --- |
-| MRGN | `truth`, `CSq`, `CSa` | oracle set / CS-q selection / CS-α selection |
+| MRGN | `truth`, `CSq`, `CSa`, **`CSi`** | oracle set / CS-q / CS-α / CS-i |
 | MRPC | `truth`, `CSq` | as above; `truth` attempted only at n ≤ 300, `CSa` disabled |
 | GMAC | `gmac`, `gmac.truth` | GMAC's own selection / the oracle set |
 | MR-GGI | `none`, `truth`, `CSq`, `CSa` | bare trio / oracle set / CS-q / CS-α |
@@ -399,10 +480,31 @@ configuration.
 Two arm-level caveats:
 
 - **MRPC's `truth` arm is capped at n ≤ 300** (`mrpc.truth.max.n`) and its CS-α arm is off
-  (`mrpc.arms <- c("truth", "CSq")`). Both are budget controls, not claims that the arms
-  are uninformative: MRPC's cost is bimodal in the confounder count, and above roughly 20
-  confounders essentially every fit reaches the cap. The recipe for re-measuring and
+  (`mrpc.arms <- c("truth", "CSq", "CSi")`). Both are budget controls, not claims that the
+  arms are uninformative: MRPC's cost is bimodal in the confounder count, and above roughly
+  20 confounders essentially every fit reaches the cap. The recipe for re-measuring and
   raising either threshold is documented in `inference_config.R:46-120`.
+- **CS-i is scored for MRGN only.** The selection itself exists for every method — it is in
+  all five `selection_group_n*.RData` caches — and `mrpc.arms` / `mrggi.arms` list `CSi`,
+  so a future run picks it up. But only `apply_mrgn_csi.R` has been run, so
+  `mrpc.CSi.*`, `mrggi.CSi.*` and `gmac.CSi.*` do not exist in the results. Every scoring
+  script filters arms on column presence, so they report what is there rather than failing
+  or inventing an empty arm. `apply_mrpc_csi.R`, `apply_mrggi_csi.R` and `apply_gmac_csi.R`
+  are written and partially checkpointed (n ≤ 300 for MRPC and MR-GGI, n ≤ 150 for GMAC)
+  if the other three are wanted later; each resumes from its own checkpoints.
+- **The CS-i arm was run as a separate pass** (`apply_mrgn_csi.R`), not by re-running
+  `apply_mrgn.R` with `CSi` added to the arm list. The three arms already on disk are
+  unchanged by it, and re-running them would have repeated the bootstrap for all three.
+  `merge_csi.R` joins the `CSi.*` and `mrgn.CSi.*` columns into the master on `dataset`,
+  and asserts that every column both passes actually computed — the id columns and the
+  CS-q/CS-α selection scores — agrees before it writes. The CS-i selection itself did not
+  need the ~40 min per group `get.conf.trios()` call at all: `backfill_csi.R` derives it
+  from the `reg.pvalues` already in the cache in ~20 s per group.
+- **The MRGN CS-i arm carries no bootstrap.** It was run with `--bootstrap 0`, so
+  `mrgn.CSi.boot.*` is NA where the other three arms have values. This changes no model
+  call and no column the tables or figures read — the bootstrap is a second, separate label
+  set that nothing in the scoring stage currently consumes — and it is the difference
+  between about a minute and about six hours for the arm.
 - **MR-GGI's four arms are not confounder adjustments and must not be read as such.**
   `MRggi()` has no covariate argument; the arms differ in which covariates ride along as
   extra columns of `y`, and the estimator is strictly pairwise, so `B.T1T2` and `p.T1T2`
@@ -533,12 +635,41 @@ which is the regime the CS-q arm operates in. The published >90% selection recal
 contingent on a confounding level roughly twice the real one, and should not be quoted
 alongside GTEx-calibrated numbers without that qualification.
 
-Two caveats attach to the benchmark itself. It is **mildly circular** — the real PC effect
+One caveat attaches to the benchmark itself: it is **mildly circular** — the real PC effect
 pool is conditional on selection, so generating from that distribution and then asking a
-selection rule to recover it should in principle be easy. And the simulation does not run
-the exact procedure the published GTEx analysis applied: that used
-`adjust_by = 'individual'` where `select.confounders()` uses `'all'`. The mismatch should
-be reconciled before the manuscript claims to evaluate the deployed method.
+selection rule to recover it should in principle be easy.
+
+A second caveat, that the simulation did not run the procedure the published GTEx analysis
+applied (`adjust_by = 'individual'` against `select.confounders()`'s `'all'`), **has now
+been measured rather than merely recorded**: that setting is the CS-i arm (§4.1), it is
+scored for MRGN alongside CS-q and CS-α, and it turned out to be GMAC's selection rule as
+well (§4.2).
+
+**As a selection the gap is large; as a change in MRGN's inference it is about one point.**
+Both halves of that need stating, because either alone misleads:
+
+| MRGN, coarse model accuracy | n = 50 | n = 150 | n = 300 | n = 670 | n = 1000 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `truth` (oracle) | 14.3% | 46.3% | 63.3% | 75.3% | 79.3% |
+| `CSq` | 14.7% | 22.7% | 34.3% | 51.3% | 55.3% |
+| **`CSi`** | **9.7%** | **23.0%** | **35.7%** | **52.7%** | **56.0%** |
+| `CSa` | 0.0% | 6.7% | 36.3% | 54.0% | 55.7% |
+| true confounders found, CS-q | 0.0 | 0.3 | 3.5 | 13.9 | 19.0 |
+| true confounders found, CS-i | 0.1 | 1.3 | 5.8 | 14.9 | 19.4 |
+
+**Table 15. CS-i against CS-q, MRGN, all 1,500 trios.** CS-i selects roughly five times as
+many covariates at n = 50 (2.60 against 0.49) and recovers more true confounders at every
+sample size, but converts that into only **+0.3 to +1.4 accuracy points** at n ≥ 150 — and
+it is **5 points worse at n = 50**, where the extra covariates push more fits into
+rank-deficiency and the `Other` rate rises from 65.7% to 73.3%.
+
+So the earlier estimate that the setting was "worth about 2 points at n = 670" was
+approximately right about *inference*, and the mismatch is not a large correction to the
+reported accuracies. What was wrong was the reasoning offered for it — that the two schemes
+are equivalent because they see the same signal density (§4.1) — and the conclusion drawn
+from it, that the setting could be left unreconciled. It could not: CS-i is a materially
+different *selection*, it is the one the deployed analysis used, and it is the rule GMAC
+applies internally, which is what makes the GMAC comparison in §4.2 possible at all.
 
 ### The covariate pool is private, not shared
 
@@ -615,9 +746,29 @@ source("bioinfo_revision/simulation/verify_simulation.R")                    # s
 
 ```
 Rscript bioinfo_revision/simulation_results/run_confounder_selection.R         # stage 5
+Rscript bioinfo_revision/simulation_results/backfill_csi.R                     # stage 5b
 Rscript bioinfo_revision/simulation_results/run_all_inference.R                # stage 6
 Rscript bioinfo_revision/simulation_results/results_scripts/make_all_tables.R  # stage 7
 ```
+
+**Stage 5b and 6b exist because the CS-i arm was added after the rest had run.** From a
+clean start they are unnecessary: `select.confounders()` now emits CS-i alongside CS-q and
+CS-α, and `mrgn.arms` / `mrpc.arms` / `mrggi.arms` all list `CSi`, so a fresh stage 5 + 6
+produces the CS-i columns directly. On an existing run, 5b adds CS-i to the cached
+selections from the `reg.pvalues` already in them (~20 s per group, against ~40 min to
+recompute), and 6b fits the one new arm without disturbing the arms already on disk:
+
+```
+Rscript bioinfo_revision/simulation_results/apply_mrgn_csi.R  --cores 2      # stage 6b
+Rscript bioinfo_revision/simulation_results/apply_mrpc_csi.R  --cores 2
+Rscript bioinfo_revision/simulation_results/apply_mrggi_csi.R --cores 2
+Rscript bioinfo_revision/simulation_results/apply_gmac_csi.R  --cores 2
+Rscript bioinfo_revision/simulation_results/merge_csi.R
+```
+
+The four `apply_*_csi.R` runs are independent and can run concurrently; `merge_csi.R` needs
+all four finished. It joins on `dataset` and stops rather than writing if any column both
+passes computed disagrees.
 
 The structure variants of Table 5 are `simulation/confounder_structure_simulation.R`
 followed by `simulation_results/run_structure_sims.R`, then

@@ -297,7 +297,14 @@ confusion <- function(truth, pred, pred.levels, coarse.pred = TRUE) {
 #
 # Returns a character matrix, formatted and ready to write; counts stay integers and the
 # rates are rounded to `digits`.
-scored.table <- function(m, correct.pred, digits = 4) {
+# The same grid as NUMBERS, unrounded, NA in the two cells that have no meaning. Split out
+# from scored.table() because the Excel workbooks need real numeric cells: a sheet built
+# from the character version puts text in every cell, so nothing in it can be summed, and
+# the rates arrive already rounded to `digits`.
+#
+# scored.table() below is now only the formatter for this, so precision, recall and accuracy
+# have one definition rather than two that can drift apart.
+scored.table.values <- function(m, correct.pred) {
     d <- t(m)                       # rows = inferred label, columns = generating model
     truth.levels <- colnames(d)
     pred.levels  <- rownames(d)
@@ -330,15 +337,32 @@ scored.table <- function(m, correct.pred, digits = 4) {
     }, numeric(1)))
     accuracy <- if (sum(d) == 0) NA_real_ else correct / sum(d)
 
-    rate <- function(x) ifelse(is.na(x), "", formatC(round(x, digits), format = "f",
-                                                     digits = digits))
+    # [Total, Precision] and [Recall, Total] are NA: a precision of the column totals and a
+    # recall of the row totals are not quantities.
     out <- rbind(
-        cbind(apply(d, 2, as.character), Total = as.character(row.total),
-              Precision = rate(precision)),
-        Total  = c(as.character(col.total), as.character(sum(d)), ""),
-        Recall = c(rate(recall), "", rate(accuracy)))
+        cbind(d, Total = row.total, Precision = precision),
+        Total  = c(col.total, sum(d), NA_real_),
+        Recall = c(recall, NA_real_, accuracy))
     dimnames(out) <- list(inferred = c(pred.levels, "Total", "Recall"),
                           truth = c(truth.levels, "Total", "Precision"))
+    out
+}
+
+scored.table <- function(m, correct.pred, digits = 4) {
+    v <- scored.table.values(m, correct.pred)
+    nr <- nrow(v); nc <- ncol(v)
+
+    # A cell is a RATE if it sits in the Precision column or the Recall row, and a COUNT
+    # otherwise. The two NA cells fall in the rate region and format to "" either way.
+    is.rate <- matrix(FALSE, nr, nc)
+    is.rate[, nc] <- TRUE
+    is.rate[nr, ] <- TRUE
+
+    rate <- function(x) ifelse(is.na(x), "", formatC(round(x, digits), format = "f",
+                                                     digits = digits))
+    out <- ifelse(is.rate, rate(v), as.character(v))
+    dim(out) <- dim(v)
+    dimnames(out) <- dimnames(v)
     out
 }
 

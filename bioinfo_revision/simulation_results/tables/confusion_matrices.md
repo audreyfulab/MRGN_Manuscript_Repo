@@ -249,6 +249,85 @@ Accuracy: **54.0%** (162 of 300).
 
 Accuracy: **55.7%** (167 of 300).
 
+### MRGN -- CSi arm
+
+CS-i confounder selection -- `adjust_by = "individual"`, the setting the published GTEx analysis ran. Measured identical to the confounders GMAC selects for itself (Jaccard 1.000 over all 1,500 trios), so this is the one arm on which another method sees exactly GMAC's covariates.
+
+#### n = 50
+
+| inferred \ true | M0 | M1 | M2 | M3 | M4 | Total | Precision |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| M0 | 12 | 11 | 4 | 8 | 4 | 39 | 0.3077 |
+| M1 | 0 | 7 | 13 | 1 | 7 | 28 | 0.2500 |
+| M2 | 1 | 0 | 3 | 1 | 0 | 5 | 0.6000 |
+| M3 | 0 | 0 | 0 | 7 | 0 | 7 | 1.0000 |
+| M4 | 0 | 0 | 0 | 1 | 0 | 1 | 0.0000 |
+| Other | 47 | 42 | 40 | 42 | 49 | 220 |  |
+| **Total** | **60** | **60** | **60** | **60** | **60** | **300** |  |
+| **Recall** | **0.2000** | **0.1167** | **0.0500** | **0.1167** | **0.0000** |  | **0.0967** |
+
+Accuracy: **9.7%** (29 of 300).
+
+#### n = 150
+
+| inferred \ true | M0 | M1 | M2 | M3 | M4 | Total | Precision |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| M0 | 22 | 4 | 7 | 3 | 4 | 40 | 0.5500 |
+| M1 | 15 | 20 | 15 | 6 | 29 | 85 | 0.2353 |
+| M2 | 0 | 0 | 10 | 1 | 0 | 11 | 0.9091 |
+| M3 | 0 | 0 | 0 | 15 | 0 | 15 | 1.0000 |
+| M4 | 0 | 0 | 0 | 15 | 2 | 17 | 0.1176 |
+| Other | 23 | 36 | 28 | 20 | 25 | 132 |  |
+| **Total** | **60** | **60** | **60** | **60** | **60** | **300** |  |
+| **Recall** | **0.3667** | **0.3333** | **0.1667** | **0.2500** | **0.0333** |  | **0.2300** |
+
+Accuracy: **23.0%** (69 of 300).
+
+#### n = 300
+
+| inferred \ true | M0 | M1 | M2 | M3 | M4 | Total | Precision |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| M0 | 19 | 6 | 9 | 1 | 4 | 39 | 0.4872 |
+| M1 | 26 | 37 | 14 | 5 | 28 | 110 | 0.3364 |
+| M2 | 1 | 0 | 20 | 1 | 0 | 22 | 0.9091 |
+| M3 | 0 | 0 | 2 | 19 | 3 | 24 | 0.7917 |
+| M4 | 0 | 1 | 0 | 18 | 12 | 31 | 0.3871 |
+| Other | 14 | 16 | 15 | 16 | 13 | 74 |  |
+| **Total** | **60** | **60** | **60** | **60** | **60** | **300** |  |
+| **Recall** | **0.3167** | **0.6167** | **0.3333** | **0.3167** | **0.2000** |  | **0.3567** |
+
+Accuracy: **35.7%** (107 of 300).
+
+#### n = 670
+
+| inferred \ true | M0 | M1 | M2 | M3 | M4 | Total | Precision |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| M0 | 23 | 5 | 7 | 1 | 1 | 37 | 0.6216 |
+| M1 | 24 | 46 | 11 | 1 | 17 | 99 | 0.4646 |
+| M2 | 0 | 0 | 36 | 0 | 0 | 36 | 1.0000 |
+| M3 | 0 | 0 | 0 | 19 | 3 | 22 | 0.8636 |
+| M4 | 0 | 1 | 0 | 33 | 34 | 68 | 0.5000 |
+| Other | 13 | 8 | 6 | 6 | 5 | 38 |  |
+| **Total** | **60** | **60** | **60** | **60** | **60** | **300** |  |
+| **Recall** | **0.3833** | **0.7667** | **0.6000** | **0.3167** | **0.5667** |  | **0.5267** |
+
+Accuracy: **52.7%** (158 of 300).
+
+#### n = 1000
+
+| inferred \ true | M0 | M1 | M2 | M3 | M4 | Total | Precision |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| M0 | 26 | 8 | 1 | 0 | 2 | 37 | 0.7027 |
+| M1 | 29 | 46 | 18 | 1 | 13 | 107 | 0.4299 |
+| M2 | 0 | 0 | 35 | 3 | 1 | 39 | 0.8974 |
+| M3 | 1 | 0 | 1 | 22 | 1 | 25 | 0.8800 |
+| M4 | 0 | 0 | 0 | 28 | 39 | 67 | 0.5821 |
+| Other | 4 | 6 | 5 | 6 | 4 | 25 |  |
+| **Total** | **60** | **60** | **60** | **60** | **60** | **300** |  |
+| **Recall** | **0.4333** | **0.7667** | **0.5833** | **0.3667** | **0.6500** |  | **0.5600** |
+
+Accuracy: **56.0%** (168 of 300).
+
 ## MRPC
 
 MRPC names a trio topology, so it is scored on the same six-way call as MRGN and against the same eight adjacency matrices. Read the arms against MRGN's: same trios, same confounder sets, same right answers.
@@ -697,6 +776,70 @@ Edge accuracy: **67.7%** (203 of 300). No edge call: 12.3%.
 
 Edge accuracy: **67.7%** (203 of 300). No edge call: 11.0%.
 
+### MRGN edge -- CSi arm
+
+CS-i confounder selection -- `adjust_by = "individual"`, the setting the published GTEx analysis ran. Measured identical to the confounders GMAC selects for itself (Jaccard 1.000 over all 1,500 trios), so this is the one arm on which another method sees exactly GMAC's covariates.
+
+#### n = 50
+
+| inferred \ true | M0 | M1 | M2 | M3 | M4 | Total | Precision |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| T1 - T2 Edge Absent | 12 | 11 | 4 | 15 | 4 | 46 | 0.5870 |
+| T1 - T2 Edge Present | 1 | 7 | 16 | 3 | 7 | 34 | 0.8824 |
+| Other | 47 | 42 | 40 | 42 | 49 | 220 |  |
+| **Total** | **60** | **60** | **60** | **60** | **60** | **300** |  |
+| **Recall** | **0.2000** | **0.1167** | **0.2667** | **0.2500** | **0.1167** |  | **0.1900** |
+
+Edge accuracy: **19.0%** (57 of 300). No edge call: 73.3%.
+
+#### n = 150
+
+| inferred \ true | M0 | M1 | M2 | M3 | M4 | Total | Precision |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| T1 - T2 Edge Absent | 22 | 4 | 7 | 18 | 4 | 55 | 0.7273 |
+| T1 - T2 Edge Present | 15 | 20 | 25 | 22 | 31 | 113 | 0.6726 |
+| Other | 23 | 36 | 28 | 20 | 25 | 132 |  |
+| **Total** | **60** | **60** | **60** | **60** | **60** | **300** |  |
+| **Recall** | **0.3667** | **0.3333** | **0.4167** | **0.3000** | **0.5167** |  | **0.3867** |
+
+Edge accuracy: **38.7%** (116 of 300). No edge call: 44.0%.
+
+#### n = 300
+
+| inferred \ true | M0 | M1 | M2 | M3 | M4 | Total | Precision |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| T1 - T2 Edge Absent | 19 | 6 | 11 | 20 | 7 | 63 | 0.6190 |
+| T1 - T2 Edge Present | 27 | 38 | 34 | 24 | 40 | 163 | 0.6871 |
+| Other | 14 | 16 | 15 | 16 | 13 | 74 |  |
+| **Total** | **60** | **60** | **60** | **60** | **60** | **300** |  |
+| **Recall** | **0.3167** | **0.6333** | **0.5667** | **0.3333** | **0.6667** |  | **0.5033** |
+
+Edge accuracy: **50.3%** (151 of 300). No edge call: 24.7%.
+
+#### n = 670
+
+| inferred \ true | M0 | M1 | M2 | M3 | M4 | Total | Precision |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| T1 - T2 Edge Absent | 23 | 5 | 7 | 20 | 4 | 59 | 0.7288 |
+| T1 - T2 Edge Present | 24 | 47 | 47 | 34 | 51 | 203 | 0.7143 |
+| Other | 13 | 8 | 6 | 6 | 5 | 38 |  |
+| **Total** | **60** | **60** | **60** | **60** | **60** | **300** |  |
+| **Recall** | **0.3833** | **0.7833** | **0.7833** | **0.3333** | **0.8500** |  | **0.6267** |
+
+Edge accuracy: **62.7%** (188 of 300). No edge call: 12.7%.
+
+#### n = 1000
+
+| inferred \ true | M0 | M1 | M2 | M3 | M4 | Total | Precision |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| T1 - T2 Edge Absent | 27 | 8 | 2 | 22 | 3 | 62 | 0.7903 |
+| T1 - T2 Edge Present | 29 | 46 | 53 | 32 | 53 | 213 | 0.7136 |
+| Other | 4 | 6 | 5 | 6 | 4 | 25 |  |
+| **Total** | **60** | **60** | **60** | **60** | **60** | **300** |  |
+| **Recall** | **0.4500** | **0.7667** | **0.8833** | **0.3667** | **0.8833** |  | **0.6700** |
+
+Edge accuracy: **67.0%** (201 of 300). No edge call: 8.3%.
+
 ### Summary
 
 Also written as `tables/edge_comparison.csv`. `MRGN truth`, `MRPC truth` and `GMAC truth` are oracle arms and not attainable results; they are the ceiling each method would reach with perfect confounder selection. The arms to compare against each other are the selected ones -- `MRGN CSq`, `MRPC CSq` and `GMAC` -- which choose their confounders from the same pool.
@@ -712,6 +855,7 @@ Trios whose T1-T2 edge status was called correctly. MRGN's `Other` and MR-GGI's 
 | MRGN truth | 0.227 | 0.670 | 0.813 | 0.870 | 0.900 |
 | MRGN CSq | 0.237 | 0.380 | 0.507 | 0.617 | 0.667 |
 | MRGN CSa | 0.000 | 0.157 | 0.547 | 0.677 | 0.677 |
+| MRGN CSi | 0.190 | 0.387 | 0.503 | 0.627 | 0.670 |
 | MRPC truth | 0.137 | 0.377 | 0.363 | -- | -- |
 | MRPC CSq | 0.230 | 0.483 | 0.547 | -- | -- |
 | GMAC | 0.633 | 0.660 | 0.623 | 0.663 | 0.687 |
@@ -726,6 +870,7 @@ Of the `M1`/`M2`/`M4` trios, the share found to have an edge.
 | MRGN truth | 0.156 | 0.622 | 0.806 | 0.878 | 0.917 |
 | MRGN CSq | 0.194 | 0.439 | 0.622 | 0.789 | 0.844 |
 | MRGN CSa | 0.000 | 0.106 | 0.578 | 0.800 | 0.817 |
+| MRGN CSi | 0.167 | 0.422 | 0.622 | 0.806 | 0.844 |
 | MRPC truth | 0.067 | 0.289 | 0.317 | -- | -- |
 | MRPC CSq | 0.206 | 0.411 | 0.489 | -- | -- |
 | GMAC | 0.606 | 0.817 | 0.828 | 0.911 | 0.933 |
@@ -740,6 +885,7 @@ Of the `M0`/`M3` trios, the share correctly found to have none. This is where th
 | MRGN truth | 0.333 | 0.742 | 0.825 | 0.858 | 0.875 |
 | MRGN CSq | 0.300 | 0.292 | 0.333 | 0.358 | 0.400 |
 | MRGN CSa | 0.000 | 0.233 | 0.500 | 0.492 | 0.467 |
+| MRGN CSi | 0.225 | 0.333 | 0.325 | 0.358 | 0.408 |
 | MRPC truth | 0.242 | 0.508 | 0.433 | -- | -- |
 | MRPC CSq | 0.267 | 0.592 | 0.633 | -- | -- |
 | GMAC | 0.675 | 0.425 | 0.317 | 0.292 | 0.317 |
@@ -754,6 +900,7 @@ Share of trios left without an edge call: MRGN's `Other`, MR-GGI's `Weak instrum
 | MRGN truth | 0.693 | 0.283 | 0.147 | 0.093 | 0.067 |
 | MRGN CSq | 0.657 | 0.423 | 0.250 | 0.133 | 0.080 |
 | MRGN CSa | 1.000 | 0.817 | 0.370 | 0.123 | 0.110 |
+| MRGN CSi | 0.733 | 0.440 | 0.247 | 0.127 | 0.083 |
 | MRPC truth | 0.813 | 0.600 | 0.603 | -- | -- |
 | MRPC CSq | 0.713 | 0.460 | 0.333 | -- | -- |
 | GMAC | 0.000 | 0.000 | 0.000 | 0.000 | 0.000 |

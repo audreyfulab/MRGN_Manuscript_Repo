@@ -101,7 +101,7 @@
 
 source("bioinfo_revision/simulation_results/results_scripts/confusion_utils.R")
 
-MRGGI.ARMS <- c("none", "truth", "CSq", "CSa")
+MRGGI.ARMS <- c("none", "truth", "CSq", "CSa", "CSi")
 
 
 # ---------------------------------------------------------------------------------------

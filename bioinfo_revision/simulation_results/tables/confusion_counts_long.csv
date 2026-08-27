@@ -2699,6 +2699,906 @@
 "mrgn","CSa","edge",1000,"large","M2","Other",0
 "mrgn","CSa","edge",1000,"large","M3","Other",0
 "mrgn","CSa","edge",1000,"large","M4","Other",0
+"mrgn","CSi","model",50,"all","M0","M0",12
+"mrgn","CSi","model",50,"all","M1","M0",11
+"mrgn","CSi","model",50,"all","M2","M0",4
+"mrgn","CSi","model",50,"all","M3","M0",8
+"mrgn","CSi","model",50,"all","M4","M0",4
+"mrgn","CSi","model",50,"all","M0","M1",0
+"mrgn","CSi","model",50,"all","M1","M1",7
+"mrgn","CSi","model",50,"all","M2","M1",13
+"mrgn","CSi","model",50,"all","M3","M1",1
+"mrgn","CSi","model",50,"all","M4","M1",7
+"mrgn","CSi","model",50,"all","M0","M2",1
+"mrgn","CSi","model",50,"all","M1","M2",0
+"mrgn","CSi","model",50,"all","M2","M2",3
+"mrgn","CSi","model",50,"all","M3","M2",1
+"mrgn","CSi","model",50,"all","M4","M2",0
+"mrgn","CSi","model",50,"all","M0","M3",0
+"mrgn","CSi","model",50,"all","M1","M3",0
+"mrgn","CSi","model",50,"all","M2","M3",0
+"mrgn","CSi","model",50,"all","M3","M3",7
+"mrgn","CSi","model",50,"all","M4","M3",0
+"mrgn","CSi","model",50,"all","M0","M4",0
+"mrgn","CSi","model",50,"all","M1","M4",0
+"mrgn","CSi","model",50,"all","M2","M4",0
+"mrgn","CSi","model",50,"all","M3","M4",1
+"mrgn","CSi","model",50,"all","M4","M4",0
+"mrgn","CSi","model",50,"all","M0","Other",47
+"mrgn","CSi","model",50,"all","M1","Other",42
+"mrgn","CSi","model",50,"all","M2","Other",40
+"mrgn","CSi","model",50,"all","M3","Other",42
+"mrgn","CSi","model",50,"all","M4","Other",49
+"mrgn","CSi","edge",50,"all","M0","T1 - T2 Edge Absent",12
+"mrgn","CSi","edge",50,"all","M1","T1 - T2 Edge Absent",11
+"mrgn","CSi","edge",50,"all","M2","T1 - T2 Edge Absent",4
+"mrgn","CSi","edge",50,"all","M3","T1 - T2 Edge Absent",15
+"mrgn","CSi","edge",50,"all","M4","T1 - T2 Edge Absent",4
+"mrgn","CSi","edge",50,"all","M0","T1 - T2 Edge Present",1
+"mrgn","CSi","edge",50,"all","M1","T1 - T2 Edge Present",7
+"mrgn","CSi","edge",50,"all","M2","T1 - T2 Edge Present",16
+"mrgn","CSi","edge",50,"all","M3","T1 - T2 Edge Present",3
+"mrgn","CSi","edge",50,"all","M4","T1 - T2 Edge Present",7
+"mrgn","CSi","edge",50,"all","M0","Other",47
+"mrgn","CSi","edge",50,"all","M1","Other",42
+"mrgn","CSi","edge",50,"all","M2","Other",40
+"mrgn","CSi","edge",50,"all","M3","Other",42
+"mrgn","CSi","edge",50,"all","M4","Other",49
+"mrgn","CSi","model",50,"small","M0","M0",0
+"mrgn","CSi","model",50,"small","M1","M0",1
+"mrgn","CSi","model",50,"small","M2","M0",1
+"mrgn","CSi","model",50,"small","M3","M0",1
+"mrgn","CSi","model",50,"small","M4","M0",3
+"mrgn","CSi","model",50,"small","M0","M1",0
+"mrgn","CSi","model",50,"small","M1","M1",0
+"mrgn","CSi","model",50,"small","M2","M1",0
+"mrgn","CSi","model",50,"small","M3","M1",0
+"mrgn","CSi","model",50,"small","M4","M1",0
+"mrgn","CSi","model",50,"small","M0","M2",0
+"mrgn","CSi","model",50,"small","M1","M2",0
+"mrgn","CSi","model",50,"small","M2","M2",0
+"mrgn","CSi","model",50,"small","M3","M2",0
+"mrgn","CSi","model",50,"small","M4","M2",0
+"mrgn","CSi","model",50,"small","M0","M3",0
+"mrgn","CSi","model",50,"small","M1","M3",0
+"mrgn","CSi","model",50,"small","M2","M3",0
+"mrgn","CSi","model",50,"small","M3","M3",0
+"mrgn","CSi","model",50,"small","M4","M3",0
+"mrgn","CSi","model",50,"small","M0","M4",0
+"mrgn","CSi","model",50,"small","M1","M4",0
+"mrgn","CSi","model",50,"small","M2","M4",0
+"mrgn","CSi","model",50,"small","M3","M4",0
+"mrgn","CSi","model",50,"small","M4","M4",0
+"mrgn","CSi","model",50,"small","M0","Other",20
+"mrgn","CSi","model",50,"small","M1","Other",19
+"mrgn","CSi","model",50,"small","M2","Other",19
+"mrgn","CSi","model",50,"small","M3","Other",19
+"mrgn","CSi","model",50,"small","M4","Other",17
+"mrgn","CSi","edge",50,"small","M0","T1 - T2 Edge Absent",0
+"mrgn","CSi","edge",50,"small","M1","T1 - T2 Edge Absent",1
+"mrgn","CSi","edge",50,"small","M2","T1 - T2 Edge Absent",1
+"mrgn","CSi","edge",50,"small","M3","T1 - T2 Edge Absent",1
+"mrgn","CSi","edge",50,"small","M4","T1 - T2 Edge Absent",3
+"mrgn","CSi","edge",50,"small","M0","T1 - T2 Edge Present",0
+"mrgn","CSi","edge",50,"small","M1","T1 - T2 Edge Present",0
+"mrgn","CSi","edge",50,"small","M2","T1 - T2 Edge Present",0
+"mrgn","CSi","edge",50,"small","M3","T1 - T2 Edge Present",0
+"mrgn","CSi","edge",50,"small","M4","T1 - T2 Edge Present",0
+"mrgn","CSi","edge",50,"small","M0","Other",20
+"mrgn","CSi","edge",50,"small","M1","Other",19
+"mrgn","CSi","edge",50,"small","M2","Other",19
+"mrgn","CSi","edge",50,"small","M3","Other",19
+"mrgn","CSi","edge",50,"small","M4","Other",17
+"mrgn","CSi","model",50,"medium","M0","M0",2
+"mrgn","CSi","model",50,"medium","M1","M0",7
+"mrgn","CSi","model",50,"medium","M2","M0",2
+"mrgn","CSi","model",50,"medium","M3","M0",2
+"mrgn","CSi","model",50,"medium","M4","M0",1
+"mrgn","CSi","model",50,"medium","M0","M1",0
+"mrgn","CSi","model",50,"medium","M1","M1",2
+"mrgn","CSi","model",50,"medium","M2","M1",6
+"mrgn","CSi","model",50,"medium","M3","M1",0
+"mrgn","CSi","model",50,"medium","M4","M1",1
+"mrgn","CSi","model",50,"medium","M0","M2",0
+"mrgn","CSi","model",50,"medium","M1","M2",0
+"mrgn","CSi","model",50,"medium","M2","M2",0
+"mrgn","CSi","model",50,"medium","M3","M2",1
+"mrgn","CSi","model",50,"medium","M4","M2",0
+"mrgn","CSi","model",50,"medium","M0","M3",0
+"mrgn","CSi","model",50,"medium","M1","M3",0
+"mrgn","CSi","model",50,"medium","M2","M3",0
+"mrgn","CSi","model",50,"medium","M3","M3",2
+"mrgn","CSi","model",50,"medium","M4","M3",0
+"mrgn","CSi","model",50,"medium","M0","M4",0
+"mrgn","CSi","model",50,"medium","M1","M4",0
+"mrgn","CSi","model",50,"medium","M2","M4",0
+"mrgn","CSi","model",50,"medium","M3","M4",0
+"mrgn","CSi","model",50,"medium","M4","M4",0
+"mrgn","CSi","model",50,"medium","M0","Other",18
+"mrgn","CSi","model",50,"medium","M1","Other",11
+"mrgn","CSi","model",50,"medium","M2","Other",12
+"mrgn","CSi","model",50,"medium","M3","Other",15
+"mrgn","CSi","model",50,"medium","M4","Other",18
+"mrgn","CSi","edge",50,"medium","M0","T1 - T2 Edge Absent",2
+"mrgn","CSi","edge",50,"medium","M1","T1 - T2 Edge Absent",7
+"mrgn","CSi","edge",50,"medium","M2","T1 - T2 Edge Absent",2
+"mrgn","CSi","edge",50,"medium","M3","T1 - T2 Edge Absent",4
+"mrgn","CSi","edge",50,"medium","M4","T1 - T2 Edge Absent",1
+"mrgn","CSi","edge",50,"medium","M0","T1 - T2 Edge Present",0
+"mrgn","CSi","edge",50,"medium","M1","T1 - T2 Edge Present",2
+"mrgn","CSi","edge",50,"medium","M2","T1 - T2 Edge Present",6
+"mrgn","CSi","edge",50,"medium","M3","T1 - T2 Edge Present",1
+"mrgn","CSi","edge",50,"medium","M4","T1 - T2 Edge Present",1
+"mrgn","CSi","edge",50,"medium","M0","Other",18
+"mrgn","CSi","edge",50,"medium","M1","Other",11
+"mrgn","CSi","edge",50,"medium","M2","Other",12
+"mrgn","CSi","edge",50,"medium","M3","Other",15
+"mrgn","CSi","edge",50,"medium","M4","Other",18
+"mrgn","CSi","model",50,"large","M0","M0",10
+"mrgn","CSi","model",50,"large","M1","M0",3
+"mrgn","CSi","model",50,"large","M2","M0",1
+"mrgn","CSi","model",50,"large","M3","M0",5
+"mrgn","CSi","model",50,"large","M4","M0",0
+"mrgn","CSi","model",50,"large","M0","M1",0
+"mrgn","CSi","model",50,"large","M1","M1",5
+"mrgn","CSi","model",50,"large","M2","M1",7
+"mrgn","CSi","model",50,"large","M3","M1",1
+"mrgn","CSi","model",50,"large","M4","M1",6
+"mrgn","CSi","model",50,"large","M0","M2",1
+"mrgn","CSi","model",50,"large","M1","M2",0
+"mrgn","CSi","model",50,"large","M2","M2",3
+"mrgn","CSi","model",50,"large","M3","M2",0
+"mrgn","CSi","model",50,"large","M4","M2",0
+"mrgn","CSi","model",50,"large","M0","M3",0
+"mrgn","CSi","model",50,"large","M1","M3",0
+"mrgn","CSi","model",50,"large","M2","M3",0
+"mrgn","CSi","model",50,"large","M3","M3",5
+"mrgn","CSi","model",50,"large","M4","M3",0
+"mrgn","CSi","model",50,"large","M0","M4",0
+"mrgn","CSi","model",50,"large","M1","M4",0
+"mrgn","CSi","model",50,"large","M2","M4",0
+"mrgn","CSi","model",50,"large","M3","M4",1
+"mrgn","CSi","model",50,"large","M4","M4",0
+"mrgn","CSi","model",50,"large","M0","Other",9
+"mrgn","CSi","model",50,"large","M1","Other",12
+"mrgn","CSi","model",50,"large","M2","Other",9
+"mrgn","CSi","model",50,"large","M3","Other",8
+"mrgn","CSi","model",50,"large","M4","Other",14
+"mrgn","CSi","edge",50,"large","M0","T1 - T2 Edge Absent",10
+"mrgn","CSi","edge",50,"large","M1","T1 - T2 Edge Absent",3
+"mrgn","CSi","edge",50,"large","M2","T1 - T2 Edge Absent",1
+"mrgn","CSi","edge",50,"large","M3","T1 - T2 Edge Absent",10
+"mrgn","CSi","edge",50,"large","M4","T1 - T2 Edge Absent",0
+"mrgn","CSi","edge",50,"large","M0","T1 - T2 Edge Present",1
+"mrgn","CSi","edge",50,"large","M1","T1 - T2 Edge Present",5
+"mrgn","CSi","edge",50,"large","M2","T1 - T2 Edge Present",10
+"mrgn","CSi","edge",50,"large","M3","T1 - T2 Edge Present",2
+"mrgn","CSi","edge",50,"large","M4","T1 - T2 Edge Present",6
+"mrgn","CSi","edge",50,"large","M0","Other",9
+"mrgn","CSi","edge",50,"large","M1","Other",12
+"mrgn","CSi","edge",50,"large","M2","Other",9
+"mrgn","CSi","edge",50,"large","M3","Other",8
+"mrgn","CSi","edge",50,"large","M4","Other",14
+"mrgn","CSi","model",150,"all","M0","M0",22
+"mrgn","CSi","model",150,"all","M1","M0",4
+"mrgn","CSi","model",150,"all","M2","M0",7
+"mrgn","CSi","model",150,"all","M3","M0",3
+"mrgn","CSi","model",150,"all","M4","M0",4
+"mrgn","CSi","model",150,"all","M0","M1",15
+"mrgn","CSi","model",150,"all","M1","M1",20
+"mrgn","CSi","model",150,"all","M2","M1",15
+"mrgn","CSi","model",150,"all","M3","M1",6
+"mrgn","CSi","model",150,"all","M4","M1",29
+"mrgn","CSi","model",150,"all","M0","M2",0
+"mrgn","CSi","model",150,"all","M1","M2",0
+"mrgn","CSi","model",150,"all","M2","M2",10
+"mrgn","CSi","model",150,"all","M3","M2",1
+"mrgn","CSi","model",150,"all","M4","M2",0
+"mrgn","CSi","model",150,"all","M0","M3",0
+"mrgn","CSi","model",150,"all","M1","M3",0
+"mrgn","CSi","model",150,"all","M2","M3",0
+"mrgn","CSi","model",150,"all","M3","M3",15
+"mrgn","CSi","model",150,"all","M4","M3",0
+"mrgn","CSi","model",150,"all","M0","M4",0
+"mrgn","CSi","model",150,"all","M1","M4",0
+"mrgn","CSi","model",150,"all","M2","M4",0
+"mrgn","CSi","model",150,"all","M3","M4",15
+"mrgn","CSi","model",150,"all","M4","M4",2
+"mrgn","CSi","model",150,"all","M0","Other",23
+"mrgn","CSi","model",150,"all","M1","Other",36
+"mrgn","CSi","model",150,"all","M2","Other",28
+"mrgn","CSi","model",150,"all","M3","Other",20
+"mrgn","CSi","model",150,"all","M4","Other",25
+"mrgn","CSi","edge",150,"all","M0","T1 - T2 Edge Absent",22
+"mrgn","CSi","edge",150,"all","M1","T1 - T2 Edge Absent",4
+"mrgn","CSi","edge",150,"all","M2","T1 - T2 Edge Absent",7
+"mrgn","CSi","edge",150,"all","M3","T1 - T2 Edge Absent",18
+"mrgn","CSi","edge",150,"all","M4","T1 - T2 Edge Absent",4
+"mrgn","CSi","edge",150,"all","M0","T1 - T2 Edge Present",15
+"mrgn","CSi","edge",150,"all","M1","T1 - T2 Edge Present",20
+"mrgn","CSi","edge",150,"all","M2","T1 - T2 Edge Present",25
+"mrgn","CSi","edge",150,"all","M3","T1 - T2 Edge Present",22
+"mrgn","CSi","edge",150,"all","M4","T1 - T2 Edge Present",31
+"mrgn","CSi","edge",150,"all","M0","Other",23
+"mrgn","CSi","edge",150,"all","M1","Other",36
+"mrgn","CSi","edge",150,"all","M2","Other",28
+"mrgn","CSi","edge",150,"all","M3","Other",20
+"mrgn","CSi","edge",150,"all","M4","Other",25
+"mrgn","CSi","model",150,"small","M0","M0",0
+"mrgn","CSi","model",150,"small","M1","M0",1
+"mrgn","CSi","model",150,"small","M2","M0",0
+"mrgn","CSi","model",150,"small","M3","M0",2
+"mrgn","CSi","model",150,"small","M4","M0",1
+"mrgn","CSi","model",150,"small","M0","M1",0
+"mrgn","CSi","model",150,"small","M1","M1",1
+"mrgn","CSi","model",150,"small","M2","M1",1
+"mrgn","CSi","model",150,"small","M3","M1",1
+"mrgn","CSi","model",150,"small","M4","M1",2
+"mrgn","CSi","model",150,"small","M0","M2",0
+"mrgn","CSi","model",150,"small","M1","M2",0
+"mrgn","CSi","model",150,"small","M2","M2",0
+"mrgn","CSi","model",150,"small","M3","M2",1
+"mrgn","CSi","model",150,"small","M4","M2",0
+"mrgn","CSi","model",150,"small","M0","M3",0
+"mrgn","CSi","model",150,"small","M1","M3",0
+"mrgn","CSi","model",150,"small","M2","M3",0
+"mrgn","CSi","model",150,"small","M3","M3",0
+"mrgn","CSi","model",150,"small","M4","M3",0
+"mrgn","CSi","model",150,"small","M0","M4",0
+"mrgn","CSi","model",150,"small","M1","M4",0
+"mrgn","CSi","model",150,"small","M2","M4",0
+"mrgn","CSi","model",150,"small","M3","M4",1
+"mrgn","CSi","model",150,"small","M4","M4",1
+"mrgn","CSi","model",150,"small","M0","Other",20
+"mrgn","CSi","model",150,"small","M1","Other",18
+"mrgn","CSi","model",150,"small","M2","Other",19
+"mrgn","CSi","model",150,"small","M3","Other",15
+"mrgn","CSi","model",150,"small","M4","Other",16
+"mrgn","CSi","edge",150,"small","M0","T1 - T2 Edge Absent",0
+"mrgn","CSi","edge",150,"small","M1","T1 - T2 Edge Absent",1
+"mrgn","CSi","edge",150,"small","M2","T1 - T2 Edge Absent",0
+"mrgn","CSi","edge",150,"small","M3","T1 - T2 Edge Absent",2
+"mrgn","CSi","edge",150,"small","M4","T1 - T2 Edge Absent",1
+"mrgn","CSi","edge",150,"small","M0","T1 - T2 Edge Present",0
+"mrgn","CSi","edge",150,"small","M1","T1 - T2 Edge Present",1
+"mrgn","CSi","edge",150,"small","M2","T1 - T2 Edge Present",1
+"mrgn","CSi","edge",150,"small","M3","T1 - T2 Edge Present",3
+"mrgn","CSi","edge",150,"small","M4","T1 - T2 Edge Present",3
+"mrgn","CSi","edge",150,"small","M0","Other",20
+"mrgn","CSi","edge",150,"small","M1","Other",18
+"mrgn","CSi","edge",150,"small","M2","Other",19
+"mrgn","CSi","edge",150,"small","M3","Other",15
+"mrgn","CSi","edge",150,"small","M4","Other",16
+"mrgn","CSi","model",150,"medium","M0","M0",10
+"mrgn","CSi","model",150,"medium","M1","M0",2
+"mrgn","CSi","model",150,"medium","M2","M0",5
+"mrgn","CSi","model",150,"medium","M3","M0",1
+"mrgn","CSi","model",150,"medium","M4","M0",3
+"mrgn","CSi","model",150,"medium","M0","M1",7
+"mrgn","CSi","model",150,"medium","M1","M1",5
+"mrgn","CSi","model",150,"medium","M2","M1",7
+"mrgn","CSi","model",150,"medium","M3","M1",4
+"mrgn","CSi","model",150,"medium","M4","M1",9
+"mrgn","CSi","model",150,"medium","M0","M2",0
+"mrgn","CSi","model",150,"medium","M1","M2",0
+"mrgn","CSi","model",150,"medium","M2","M2",1
+"mrgn","CSi","model",150,"medium","M3","M2",0
+"mrgn","CSi","model",150,"medium","M4","M2",0
+"mrgn","CSi","model",150,"medium","M0","M3",0
+"mrgn","CSi","model",150,"medium","M1","M3",0
+"mrgn","CSi","model",150,"medium","M2","M3",0
+"mrgn","CSi","model",150,"medium","M3","M3",5
+"mrgn","CSi","model",150,"medium","M4","M3",0
+"mrgn","CSi","model",150,"medium","M0","M4",0
+"mrgn","CSi","model",150,"medium","M1","M4",0
+"mrgn","CSi","model",150,"medium","M2","M4",0
+"mrgn","CSi","model",150,"medium","M3","M4",5
+"mrgn","CSi","model",150,"medium","M4","M4",1
+"mrgn","CSi","model",150,"medium","M0","Other",3
+"mrgn","CSi","model",150,"medium","M1","Other",13
+"mrgn","CSi","model",150,"medium","M2","Other",7
+"mrgn","CSi","model",150,"medium","M3","Other",5
+"mrgn","CSi","model",150,"medium","M4","Other",7
+"mrgn","CSi","edge",150,"medium","M0","T1 - T2 Edge Absent",10
+"mrgn","CSi","edge",150,"medium","M1","T1 - T2 Edge Absent",2
+"mrgn","CSi","edge",150,"medium","M2","T1 - T2 Edge Absent",5
+"mrgn","CSi","edge",150,"medium","M3","T1 - T2 Edge Absent",6
+"mrgn","CSi","edge",150,"medium","M4","T1 - T2 Edge Absent",3
+"mrgn","CSi","edge",150,"medium","M0","T1 - T2 Edge Present",7
+"mrgn","CSi","edge",150,"medium","M1","T1 - T2 Edge Present",5
+"mrgn","CSi","edge",150,"medium","M2","T1 - T2 Edge Present",8
+"mrgn","CSi","edge",150,"medium","M3","T1 - T2 Edge Present",9
+"mrgn","CSi","edge",150,"medium","M4","T1 - T2 Edge Present",10
+"mrgn","CSi","edge",150,"medium","M0","Other",3
+"mrgn","CSi","edge",150,"medium","M1","Other",13
+"mrgn","CSi","edge",150,"medium","M2","Other",7
+"mrgn","CSi","edge",150,"medium","M3","Other",5
+"mrgn","CSi","edge",150,"medium","M4","Other",7
+"mrgn","CSi","model",150,"large","M0","M0",12
+"mrgn","CSi","model",150,"large","M1","M0",1
+"mrgn","CSi","model",150,"large","M2","M0",2
+"mrgn","CSi","model",150,"large","M3","M0",0
+"mrgn","CSi","model",150,"large","M4","M0",0
+"mrgn","CSi","model",150,"large","M0","M1",8
+"mrgn","CSi","model",150,"large","M1","M1",14
+"mrgn","CSi","model",150,"large","M2","M1",7
+"mrgn","CSi","model",150,"large","M3","M1",1
+"mrgn","CSi","model",150,"large","M4","M1",18
+"mrgn","CSi","model",150,"large","M0","M2",0
+"mrgn","CSi","model",150,"large","M1","M2",0
+"mrgn","CSi","model",150,"large","M2","M2",9
+"mrgn","CSi","model",150,"large","M3","M2",0
+"mrgn","CSi","model",150,"large","M4","M2",0
+"mrgn","CSi","model",150,"large","M0","M3",0
+"mrgn","CSi","model",150,"large","M1","M3",0
+"mrgn","CSi","model",150,"large","M2","M3",0
+"mrgn","CSi","model",150,"large","M3","M3",10
+"mrgn","CSi","model",150,"large","M4","M3",0
+"mrgn","CSi","model",150,"large","M0","M4",0
+"mrgn","CSi","model",150,"large","M1","M4",0
+"mrgn","CSi","model",150,"large","M2","M4",0
+"mrgn","CSi","model",150,"large","M3","M4",9
+"mrgn","CSi","model",150,"large","M4","M4",0
+"mrgn","CSi","model",150,"large","M0","Other",0
+"mrgn","CSi","model",150,"large","M1","Other",5
+"mrgn","CSi","model",150,"large","M2","Other",2
+"mrgn","CSi","model",150,"large","M3","Other",0
+"mrgn","CSi","model",150,"large","M4","Other",2
+"mrgn","CSi","edge",150,"large","M0","T1 - T2 Edge Absent",12
+"mrgn","CSi","edge",150,"large","M1","T1 - T2 Edge Absent",1
+"mrgn","CSi","edge",150,"large","M2","T1 - T2 Edge Absent",2
+"mrgn","CSi","edge",150,"large","M3","T1 - T2 Edge Absent",10
+"mrgn","CSi","edge",150,"large","M4","T1 - T2 Edge Absent",0
+"mrgn","CSi","edge",150,"large","M0","T1 - T2 Edge Present",8
+"mrgn","CSi","edge",150,"large","M1","T1 - T2 Edge Present",14
+"mrgn","CSi","edge",150,"large","M2","T1 - T2 Edge Present",16
+"mrgn","CSi","edge",150,"large","M3","T1 - T2 Edge Present",10
+"mrgn","CSi","edge",150,"large","M4","T1 - T2 Edge Present",18
+"mrgn","CSi","edge",150,"large","M0","Other",0
+"mrgn","CSi","edge",150,"large","M1","Other",5
+"mrgn","CSi","edge",150,"large","M2","Other",2
+"mrgn","CSi","edge",150,"large","M3","Other",0
+"mrgn","CSi","edge",150,"large","M4","Other",2
+"mrgn","CSi","model",300,"all","M0","M0",19
+"mrgn","CSi","model",300,"all","M1","M0",6
+"mrgn","CSi","model",300,"all","M2","M0",9
+"mrgn","CSi","model",300,"all","M3","M0",1
+"mrgn","CSi","model",300,"all","M4","M0",4
+"mrgn","CSi","model",300,"all","M0","M1",26
+"mrgn","CSi","model",300,"all","M1","M1",37
+"mrgn","CSi","model",300,"all","M2","M1",14
+"mrgn","CSi","model",300,"all","M3","M1",5
+"mrgn","CSi","model",300,"all","M4","M1",28
+"mrgn","CSi","model",300,"all","M0","M2",1
+"mrgn","CSi","model",300,"all","M1","M2",0
+"mrgn","CSi","model",300,"all","M2","M2",20
+"mrgn","CSi","model",300,"all","M3","M2",1
+"mrgn","CSi","model",300,"all","M4","M2",0
+"mrgn","CSi","model",300,"all","M0","M3",0
+"mrgn","CSi","model",300,"all","M1","M3",0
+"mrgn","CSi","model",300,"all","M2","M3",2
+"mrgn","CSi","model",300,"all","M3","M3",19
+"mrgn","CSi","model",300,"all","M4","M3",3
+"mrgn","CSi","model",300,"all","M0","M4",0
+"mrgn","CSi","model",300,"all","M1","M4",1
+"mrgn","CSi","model",300,"all","M2","M4",0
+"mrgn","CSi","model",300,"all","M3","M4",18
+"mrgn","CSi","model",300,"all","M4","M4",12
+"mrgn","CSi","model",300,"all","M0","Other",14
+"mrgn","CSi","model",300,"all","M1","Other",16
+"mrgn","CSi","model",300,"all","M2","Other",15
+"mrgn","CSi","model",300,"all","M3","Other",16
+"mrgn","CSi","model",300,"all","M4","Other",13
+"mrgn","CSi","edge",300,"all","M0","T1 - T2 Edge Absent",19
+"mrgn","CSi","edge",300,"all","M1","T1 - T2 Edge Absent",6
+"mrgn","CSi","edge",300,"all","M2","T1 - T2 Edge Absent",11
+"mrgn","CSi","edge",300,"all","M3","T1 - T2 Edge Absent",20
+"mrgn","CSi","edge",300,"all","M4","T1 - T2 Edge Absent",7
+"mrgn","CSi","edge",300,"all","M0","T1 - T2 Edge Present",27
+"mrgn","CSi","edge",300,"all","M1","T1 - T2 Edge Present",38
+"mrgn","CSi","edge",300,"all","M2","T1 - T2 Edge Present",34
+"mrgn","CSi","edge",300,"all","M3","T1 - T2 Edge Present",24
+"mrgn","CSi","edge",300,"all","M4","T1 - T2 Edge Present",40
+"mrgn","CSi","edge",300,"all","M0","Other",14
+"mrgn","CSi","edge",300,"all","M1","Other",16
+"mrgn","CSi","edge",300,"all","M2","Other",15
+"mrgn","CSi","edge",300,"all","M3","Other",16
+"mrgn","CSi","edge",300,"all","M4","Other",13
+"mrgn","CSi","model",300,"small","M0","M0",6
+"mrgn","CSi","model",300,"small","M1","M0",4
+"mrgn","CSi","model",300,"small","M2","M0",4
+"mrgn","CSi","model",300,"small","M3","M0",0
+"mrgn","CSi","model",300,"small","M4","M0",3
+"mrgn","CSi","model",300,"small","M0","M1",5
+"mrgn","CSi","model",300,"small","M1","M1",3
+"mrgn","CSi","model",300,"small","M2","M1",3
+"mrgn","CSi","model",300,"small","M3","M1",3
+"mrgn","CSi","model",300,"small","M4","M1",2
+"mrgn","CSi","model",300,"small","M0","M2",0
+"mrgn","CSi","model",300,"small","M1","M2",0
+"mrgn","CSi","model",300,"small","M2","M2",0
+"mrgn","CSi","model",300,"small","M3","M2",1
+"mrgn","CSi","model",300,"small","M4","M2",0
+"mrgn","CSi","model",300,"small","M0","M3",0
+"mrgn","CSi","model",300,"small","M1","M3",0
+"mrgn","CSi","model",300,"small","M2","M3",0
+"mrgn","CSi","model",300,"small","M3","M3",0
+"mrgn","CSi","model",300,"small","M4","M3",0
+"mrgn","CSi","model",300,"small","M0","M4",0
+"mrgn","CSi","model",300,"small","M1","M4",0
+"mrgn","CSi","model",300,"small","M2","M4",0
+"mrgn","CSi","model",300,"small","M3","M4",2
+"mrgn","CSi","model",300,"small","M4","M4",2
+"mrgn","CSi","model",300,"small","M0","Other",9
+"mrgn","CSi","model",300,"small","M1","Other",13
+"mrgn","CSi","model",300,"small","M2","Other",13
+"mrgn","CSi","model",300,"small","M3","Other",14
+"mrgn","CSi","model",300,"small","M4","Other",13
+"mrgn","CSi","edge",300,"small","M0","T1 - T2 Edge Absent",6
+"mrgn","CSi","edge",300,"small","M1","T1 - T2 Edge Absent",4
+"mrgn","CSi","edge",300,"small","M2","T1 - T2 Edge Absent",4
+"mrgn","CSi","edge",300,"small","M3","T1 - T2 Edge Absent",0
+"mrgn","CSi","edge",300,"small","M4","T1 - T2 Edge Absent",3
+"mrgn","CSi","edge",300,"small","M0","T1 - T2 Edge Present",5
+"mrgn","CSi","edge",300,"small","M1","T1 - T2 Edge Present",3
+"mrgn","CSi","edge",300,"small","M2","T1 - T2 Edge Present",3
+"mrgn","CSi","edge",300,"small","M3","T1 - T2 Edge Present",6
+"mrgn","CSi","edge",300,"small","M4","T1 - T2 Edge Present",4
+"mrgn","CSi","edge",300,"small","M0","Other",9
+"mrgn","CSi","edge",300,"small","M1","Other",13
+"mrgn","CSi","edge",300,"small","M2","Other",13
+"mrgn","CSi","edge",300,"small","M3","Other",14
+"mrgn","CSi","edge",300,"small","M4","Other",13
+"mrgn","CSi","model",300,"medium","M0","M0",5
+"mrgn","CSi","model",300,"medium","M1","M0",2
+"mrgn","CSi","model",300,"medium","M2","M0",4
+"mrgn","CSi","model",300,"medium","M3","M0",0
+"mrgn","CSi","model",300,"medium","M4","M0",1
+"mrgn","CSi","model",300,"medium","M0","M1",10
+"mrgn","CSi","model",300,"medium","M1","M1",16
+"mrgn","CSi","model",300,"medium","M2","M1",8
+"mrgn","CSi","model",300,"medium","M3","M1",1
+"mrgn","CSi","model",300,"medium","M4","M1",7
+"mrgn","CSi","model",300,"medium","M0","M2",1
+"mrgn","CSi","model",300,"medium","M1","M2",0
+"mrgn","CSi","model",300,"medium","M2","M2",4
+"mrgn","CSi","model",300,"medium","M3","M2",0
+"mrgn","CSi","model",300,"medium","M4","M2",0
+"mrgn","CSi","model",300,"medium","M0","M3",0
+"mrgn","CSi","model",300,"medium","M1","M3",0
+"mrgn","CSi","model",300,"medium","M2","M3",2
+"mrgn","CSi","model",300,"medium","M3","M3",9
+"mrgn","CSi","model",300,"medium","M4","M3",3
+"mrgn","CSi","model",300,"medium","M0","M4",0
+"mrgn","CSi","model",300,"medium","M1","M4",1
+"mrgn","CSi","model",300,"medium","M2","M4",0
+"mrgn","CSi","model",300,"medium","M3","M4",8
+"mrgn","CSi","model",300,"medium","M4","M4",9
+"mrgn","CSi","model",300,"medium","M0","Other",4
+"mrgn","CSi","model",300,"medium","M1","Other",1
+"mrgn","CSi","model",300,"medium","M2","Other",2
+"mrgn","CSi","model",300,"medium","M3","Other",2
+"mrgn","CSi","model",300,"medium","M4","Other",0
+"mrgn","CSi","edge",300,"medium","M0","T1 - T2 Edge Absent",5
+"mrgn","CSi","edge",300,"medium","M1","T1 - T2 Edge Absent",2
+"mrgn","CSi","edge",300,"medium","M2","T1 - T2 Edge Absent",6
+"mrgn","CSi","edge",300,"medium","M3","T1 - T2 Edge Absent",9
+"mrgn","CSi","edge",300,"medium","M4","T1 - T2 Edge Absent",4
+"mrgn","CSi","edge",300,"medium","M0","T1 - T2 Edge Present",11
+"mrgn","CSi","edge",300,"medium","M1","T1 - T2 Edge Present",17
+"mrgn","CSi","edge",300,"medium","M2","T1 - T2 Edge Present",12
+"mrgn","CSi","edge",300,"medium","M3","T1 - T2 Edge Present",9
+"mrgn","CSi","edge",300,"medium","M4","T1 - T2 Edge Present",16
+"mrgn","CSi","edge",300,"medium","M0","Other",4
+"mrgn","CSi","edge",300,"medium","M1","Other",1
+"mrgn","CSi","edge",300,"medium","M2","Other",2
+"mrgn","CSi","edge",300,"medium","M3","Other",2
+"mrgn","CSi","edge",300,"medium","M4","Other",0
+"mrgn","CSi","model",300,"large","M0","M0",8
+"mrgn","CSi","model",300,"large","M1","M0",0
+"mrgn","CSi","model",300,"large","M2","M0",1
+"mrgn","CSi","model",300,"large","M3","M0",1
+"mrgn","CSi","model",300,"large","M4","M0",0
+"mrgn","CSi","model",300,"large","M0","M1",11
+"mrgn","CSi","model",300,"large","M1","M1",18
+"mrgn","CSi","model",300,"large","M2","M1",3
+"mrgn","CSi","model",300,"large","M3","M1",1
+"mrgn","CSi","model",300,"large","M4","M1",19
+"mrgn","CSi","model",300,"large","M0","M2",0
+"mrgn","CSi","model",300,"large","M1","M2",0
+"mrgn","CSi","model",300,"large","M2","M2",16
+"mrgn","CSi","model",300,"large","M3","M2",0
+"mrgn","CSi","model",300,"large","M4","M2",0
+"mrgn","CSi","model",300,"large","M0","M3",0
+"mrgn","CSi","model",300,"large","M1","M3",0
+"mrgn","CSi","model",300,"large","M2","M3",0
+"mrgn","CSi","model",300,"large","M3","M3",10
+"mrgn","CSi","model",300,"large","M4","M3",0
+"mrgn","CSi","model",300,"large","M0","M4",0
+"mrgn","CSi","model",300,"large","M1","M4",0
+"mrgn","CSi","model",300,"large","M2","M4",0
+"mrgn","CSi","model",300,"large","M3","M4",8
+"mrgn","CSi","model",300,"large","M4","M4",1
+"mrgn","CSi","model",300,"large","M0","Other",1
+"mrgn","CSi","model",300,"large","M1","Other",2
+"mrgn","CSi","model",300,"large","M2","Other",0
+"mrgn","CSi","model",300,"large","M3","Other",0
+"mrgn","CSi","model",300,"large","M4","Other",0
+"mrgn","CSi","edge",300,"large","M0","T1 - T2 Edge Absent",8
+"mrgn","CSi","edge",300,"large","M1","T1 - T2 Edge Absent",0
+"mrgn","CSi","edge",300,"large","M2","T1 - T2 Edge Absent",1
+"mrgn","CSi","edge",300,"large","M3","T1 - T2 Edge Absent",11
+"mrgn","CSi","edge",300,"large","M4","T1 - T2 Edge Absent",0
+"mrgn","CSi","edge",300,"large","M0","T1 - T2 Edge Present",11
+"mrgn","CSi","edge",300,"large","M1","T1 - T2 Edge Present",18
+"mrgn","CSi","edge",300,"large","M2","T1 - T2 Edge Present",19
+"mrgn","CSi","edge",300,"large","M3","T1 - T2 Edge Present",9
+"mrgn","CSi","edge",300,"large","M4","T1 - T2 Edge Present",20
+"mrgn","CSi","edge",300,"large","M0","Other",1
+"mrgn","CSi","edge",300,"large","M1","Other",2
+"mrgn","CSi","edge",300,"large","M2","Other",0
+"mrgn","CSi","edge",300,"large","M3","Other",0
+"mrgn","CSi","edge",300,"large","M4","Other",0
+"mrgn","CSi","model",670,"all","M0","M0",23
+"mrgn","CSi","model",670,"all","M1","M0",5
+"mrgn","CSi","model",670,"all","M2","M0",7
+"mrgn","CSi","model",670,"all","M3","M0",1
+"mrgn","CSi","model",670,"all","M4","M0",1
+"mrgn","CSi","model",670,"all","M0","M1",24
+"mrgn","CSi","model",670,"all","M1","M1",46
+"mrgn","CSi","model",670,"all","M2","M1",11
+"mrgn","CSi","model",670,"all","M3","M1",1
+"mrgn","CSi","model",670,"all","M4","M1",17
+"mrgn","CSi","model",670,"all","M0","M2",0
+"mrgn","CSi","model",670,"all","M1","M2",0
+"mrgn","CSi","model",670,"all","M2","M2",36
+"mrgn","CSi","model",670,"all","M3","M2",0
+"mrgn","CSi","model",670,"all","M4","M2",0
+"mrgn","CSi","model",670,"all","M0","M3",0
+"mrgn","CSi","model",670,"all","M1","M3",0
+"mrgn","CSi","model",670,"all","M2","M3",0
+"mrgn","CSi","model",670,"all","M3","M3",19
+"mrgn","CSi","model",670,"all","M4","M3",3
+"mrgn","CSi","model",670,"all","M0","M4",0
+"mrgn","CSi","model",670,"all","M1","M4",1
+"mrgn","CSi","model",670,"all","M2","M4",0
+"mrgn","CSi","model",670,"all","M3","M4",33
+"mrgn","CSi","model",670,"all","M4","M4",34
+"mrgn","CSi","model",670,"all","M0","Other",13
+"mrgn","CSi","model",670,"all","M1","Other",8
+"mrgn","CSi","model",670,"all","M2","Other",6
+"mrgn","CSi","model",670,"all","M3","Other",6
+"mrgn","CSi","model",670,"all","M4","Other",5
+"mrgn","CSi","edge",670,"all","M0","T1 - T2 Edge Absent",23
+"mrgn","CSi","edge",670,"all","M1","T1 - T2 Edge Absent",5
+"mrgn","CSi","edge",670,"all","M2","T1 - T2 Edge Absent",7
+"mrgn","CSi","edge",670,"all","M3","T1 - T2 Edge Absent",20
+"mrgn","CSi","edge",670,"all","M4","T1 - T2 Edge Absent",4
+"mrgn","CSi","edge",670,"all","M0","T1 - T2 Edge Present",24
+"mrgn","CSi","edge",670,"all","M1","T1 - T2 Edge Present",47
+"mrgn","CSi","edge",670,"all","M2","T1 - T2 Edge Present",47
+"mrgn","CSi","edge",670,"all","M3","T1 - T2 Edge Present",34
+"mrgn","CSi","edge",670,"all","M4","T1 - T2 Edge Present",51
+"mrgn","CSi","edge",670,"all","M0","Other",13
+"mrgn","CSi","edge",670,"all","M1","Other",8
+"mrgn","CSi","edge",670,"all","M2","Other",6
+"mrgn","CSi","edge",670,"all","M3","Other",6
+"mrgn","CSi","edge",670,"all","M4","Other",5
+"mrgn","CSi","model",670,"small","M0","M0",3
+"mrgn","CSi","model",670,"small","M1","M0",3
+"mrgn","CSi","model",670,"small","M2","M0",7
+"mrgn","CSi","model",670,"small","M3","M0",0
+"mrgn","CSi","model",670,"small","M4","M0",1
+"mrgn","CSi","model",670,"small","M0","M1",6
+"mrgn","CSi","model",670,"small","M1","M1",11
+"mrgn","CSi","model",670,"small","M2","M1",7
+"mrgn","CSi","model",670,"small","M3","M1",1
+"mrgn","CSi","model",670,"small","M4","M1",2
+"mrgn","CSi","model",670,"small","M0","M2",0
+"mrgn","CSi","model",670,"small","M1","M2",0
+"mrgn","CSi","model",670,"small","M2","M2",0
+"mrgn","CSi","model",670,"small","M3","M2",0
+"mrgn","CSi","model",670,"small","M4","M2",0
+"mrgn","CSi","model",670,"small","M0","M3",0
+"mrgn","CSi","model",670,"small","M1","M3",0
+"mrgn","CSi","model",670,"small","M2","M3",0
+"mrgn","CSi","model",670,"small","M3","M3",4
+"mrgn","CSi","model",670,"small","M4","M3",3
+"mrgn","CSi","model",670,"small","M0","M4",0
+"mrgn","CSi","model",670,"small","M1","M4",0
+"mrgn","CSi","model",670,"small","M2","M4",0
+"mrgn","CSi","model",670,"small","M3","M4",9
+"mrgn","CSi","model",670,"small","M4","M4",9
+"mrgn","CSi","model",670,"small","M0","Other",11
+"mrgn","CSi","model",670,"small","M1","Other",6
+"mrgn","CSi","model",670,"small","M2","Other",6
+"mrgn","CSi","model",670,"small","M3","Other",6
+"mrgn","CSi","model",670,"small","M4","Other",5
+"mrgn","CSi","edge",670,"small","M0","T1 - T2 Edge Absent",3
+"mrgn","CSi","edge",670,"small","M1","T1 - T2 Edge Absent",3
+"mrgn","CSi","edge",670,"small","M2","T1 - T2 Edge Absent",7
+"mrgn","CSi","edge",670,"small","M3","T1 - T2 Edge Absent",4
+"mrgn","CSi","edge",670,"small","M4","T1 - T2 Edge Absent",4
+"mrgn","CSi","edge",670,"small","M0","T1 - T2 Edge Present",6
+"mrgn","CSi","edge",670,"small","M1","T1 - T2 Edge Present",11
+"mrgn","CSi","edge",670,"small","M2","T1 - T2 Edge Present",7
+"mrgn","CSi","edge",670,"small","M3","T1 - T2 Edge Present",10
+"mrgn","CSi","edge",670,"small","M4","T1 - T2 Edge Present",11
+"mrgn","CSi","edge",670,"small","M0","Other",11
+"mrgn","CSi","edge",670,"small","M1","Other",6
+"mrgn","CSi","edge",670,"small","M2","Other",6
+"mrgn","CSi","edge",670,"small","M3","Other",6
+"mrgn","CSi","edge",670,"small","M4","Other",5
+"mrgn","CSi","model",670,"medium","M0","M0",8
+"mrgn","CSi","model",670,"medium","M1","M0",2
+"mrgn","CSi","model",670,"medium","M2","M0",0
+"mrgn","CSi","model",670,"medium","M3","M0",1
+"mrgn","CSi","model",670,"medium","M4","M0",0
+"mrgn","CSi","model",670,"medium","M0","M1",11
+"mrgn","CSi","model",670,"medium","M1","M1",16
+"mrgn","CSi","model",670,"medium","M2","M1",3
+"mrgn","CSi","model",670,"medium","M3","M1",0
+"mrgn","CSi","model",670,"medium","M4","M1",4
+"mrgn","CSi","model",670,"medium","M0","M2",0
+"mrgn","CSi","model",670,"medium","M1","M2",0
+"mrgn","CSi","model",670,"medium","M2","M2",17
+"mrgn","CSi","model",670,"medium","M3","M2",0
+"mrgn","CSi","model",670,"medium","M4","M2",0
+"mrgn","CSi","model",670,"medium","M0","M3",0
+"mrgn","CSi","model",670,"medium","M1","M3",0
+"mrgn","CSi","model",670,"medium","M2","M3",0
+"mrgn","CSi","model",670,"medium","M3","M3",6
+"mrgn","CSi","model",670,"medium","M4","M3",0
+"mrgn","CSi","model",670,"medium","M0","M4",0
+"mrgn","CSi","model",670,"medium","M1","M4",0
+"mrgn","CSi","model",670,"medium","M2","M4",0
+"mrgn","CSi","model",670,"medium","M3","M4",13
+"mrgn","CSi","model",670,"medium","M4","M4",16
+"mrgn","CSi","model",670,"medium","M0","Other",1
+"mrgn","CSi","model",670,"medium","M1","Other",2
+"mrgn","CSi","model",670,"medium","M2","Other",0
+"mrgn","CSi","model",670,"medium","M3","Other",0
+"mrgn","CSi","model",670,"medium","M4","Other",0
+"mrgn","CSi","edge",670,"medium","M0","T1 - T2 Edge Absent",8
+"mrgn","CSi","edge",670,"medium","M1","T1 - T2 Edge Absent",2
+"mrgn","CSi","edge",670,"medium","M2","T1 - T2 Edge Absent",0
+"mrgn","CSi","edge",670,"medium","M3","T1 - T2 Edge Absent",7
+"mrgn","CSi","edge",670,"medium","M4","T1 - T2 Edge Absent",0
+"mrgn","CSi","edge",670,"medium","M0","T1 - T2 Edge Present",11
+"mrgn","CSi","edge",670,"medium","M1","T1 - T2 Edge Present",16
+"mrgn","CSi","edge",670,"medium","M2","T1 - T2 Edge Present",20
+"mrgn","CSi","edge",670,"medium","M3","T1 - T2 Edge Present",13
+"mrgn","CSi","edge",670,"medium","M4","T1 - T2 Edge Present",20
+"mrgn","CSi","edge",670,"medium","M0","Other",1
+"mrgn","CSi","edge",670,"medium","M1","Other",2
+"mrgn","CSi","edge",670,"medium","M2","Other",0
+"mrgn","CSi","edge",670,"medium","M3","Other",0
+"mrgn","CSi","edge",670,"medium","M4","Other",0
+"mrgn","CSi","model",670,"large","M0","M0",12
+"mrgn","CSi","model",670,"large","M1","M0",0
+"mrgn","CSi","model",670,"large","M2","M0",0
+"mrgn","CSi","model",670,"large","M3","M0",0
+"mrgn","CSi","model",670,"large","M4","M0",0
+"mrgn","CSi","model",670,"large","M0","M1",7
+"mrgn","CSi","model",670,"large","M1","M1",19
+"mrgn","CSi","model",670,"large","M2","M1",1
+"mrgn","CSi","model",670,"large","M3","M1",0
+"mrgn","CSi","model",670,"large","M4","M1",11
+"mrgn","CSi","model",670,"large","M0","M2",0
+"mrgn","CSi","model",670,"large","M1","M2",0
+"mrgn","CSi","model",670,"large","M2","M2",19
+"mrgn","CSi","model",670,"large","M3","M2",0
+"mrgn","CSi","model",670,"large","M4","M2",0
+"mrgn","CSi","model",670,"large","M0","M3",0
+"mrgn","CSi","model",670,"large","M1","M3",0
+"mrgn","CSi","model",670,"large","M2","M3",0
+"mrgn","CSi","model",670,"large","M3","M3",9
+"mrgn","CSi","model",670,"large","M4","M3",0
+"mrgn","CSi","model",670,"large","M0","M4",0
+"mrgn","CSi","model",670,"large","M1","M4",1
+"mrgn","CSi","model",670,"large","M2","M4",0
+"mrgn","CSi","model",670,"large","M3","M4",11
+"mrgn","CSi","model",670,"large","M4","M4",9
+"mrgn","CSi","model",670,"large","M0","Other",1
+"mrgn","CSi","model",670,"large","M1","Other",0
+"mrgn","CSi","model",670,"large","M2","Other",0
+"mrgn","CSi","model",670,"large","M3","Other",0
+"mrgn","CSi","model",670,"large","M4","Other",0
+"mrgn","CSi","edge",670,"large","M0","T1 - T2 Edge Absent",12
+"mrgn","CSi","edge",670,"large","M1","T1 - T2 Edge Absent",0
+"mrgn","CSi","edge",670,"large","M2","T1 - T2 Edge Absent",0
+"mrgn","CSi","edge",670,"large","M3","T1 - T2 Edge Absent",9
+"mrgn","CSi","edge",670,"large","M4","T1 - T2 Edge Absent",0
+"mrgn","CSi","edge",670,"large","M0","T1 - T2 Edge Present",7
+"mrgn","CSi","edge",670,"large","M1","T1 - T2 Edge Present",20
+"mrgn","CSi","edge",670,"large","M2","T1 - T2 Edge Present",20
+"mrgn","CSi","edge",670,"large","M3","T1 - T2 Edge Present",11
+"mrgn","CSi","edge",670,"large","M4","T1 - T2 Edge Present",20
+"mrgn","CSi","edge",670,"large","M0","Other",1
+"mrgn","CSi","edge",670,"large","M1","Other",0
+"mrgn","CSi","edge",670,"large","M2","Other",0
+"mrgn","CSi","edge",670,"large","M3","Other",0
+"mrgn","CSi","edge",670,"large","M4","Other",0
+"mrgn","CSi","model",1000,"all","M0","M0",26
+"mrgn","CSi","model",1000,"all","M1","M0",8
+"mrgn","CSi","model",1000,"all","M2","M0",1
+"mrgn","CSi","model",1000,"all","M3","M0",0
+"mrgn","CSi","model",1000,"all","M4","M0",2
+"mrgn","CSi","model",1000,"all","M0","M1",29
+"mrgn","CSi","model",1000,"all","M1","M1",46
+"mrgn","CSi","model",1000,"all","M2","M1",18
+"mrgn","CSi","model",1000,"all","M3","M1",1
+"mrgn","CSi","model",1000,"all","M4","M1",13
+"mrgn","CSi","model",1000,"all","M0","M2",0
+"mrgn","CSi","model",1000,"all","M1","M2",0
+"mrgn","CSi","model",1000,"all","M2","M2",35
+"mrgn","CSi","model",1000,"all","M3","M2",3
+"mrgn","CSi","model",1000,"all","M4","M2",1
+"mrgn","CSi","model",1000,"all","M0","M3",1
+"mrgn","CSi","model",1000,"all","M1","M3",0
+"mrgn","CSi","model",1000,"all","M2","M3",1
+"mrgn","CSi","model",1000,"all","M3","M3",22
+"mrgn","CSi","model",1000,"all","M4","M3",1
+"mrgn","CSi","model",1000,"all","M0","M4",0
+"mrgn","CSi","model",1000,"all","M1","M4",0
+"mrgn","CSi","model",1000,"all","M2","M4",0
+"mrgn","CSi","model",1000,"all","M3","M4",28
+"mrgn","CSi","model",1000,"all","M4","M4",39
+"mrgn","CSi","model",1000,"all","M0","Other",4
+"mrgn","CSi","model",1000,"all","M1","Other",6
+"mrgn","CSi","model",1000,"all","M2","Other",5
+"mrgn","CSi","model",1000,"all","M3","Other",6
+"mrgn","CSi","model",1000,"all","M4","Other",4
+"mrgn","CSi","edge",1000,"all","M0","T1 - T2 Edge Absent",27
+"mrgn","CSi","edge",1000,"all","M1","T1 - T2 Edge Absent",8
+"mrgn","CSi","edge",1000,"all","M2","T1 - T2 Edge Absent",2
+"mrgn","CSi","edge",1000,"all","M3","T1 - T2 Edge Absent",22
+"mrgn","CSi","edge",1000,"all","M4","T1 - T2 Edge Absent",3
+"mrgn","CSi","edge",1000,"all","M0","T1 - T2 Edge Present",29
+"mrgn","CSi","edge",1000,"all","M1","T1 - T2 Edge Present",46
+"mrgn","CSi","edge",1000,"all","M2","T1 - T2 Edge Present",53
+"mrgn","CSi","edge",1000,"all","M3","T1 - T2 Edge Present",32
+"mrgn","CSi","edge",1000,"all","M4","T1 - T2 Edge Present",53
+"mrgn","CSi","edge",1000,"all","M0","Other",4
+"mrgn","CSi","edge",1000,"all","M1","Other",6
+"mrgn","CSi","edge",1000,"all","M2","Other",5
+"mrgn","CSi","edge",1000,"all","M3","Other",6
+"mrgn","CSi","edge",1000,"all","M4","Other",4
+"mrgn","CSi","model",1000,"small","M0","M0",2
+"mrgn","CSi","model",1000,"small","M1","M0",7
+"mrgn","CSi","model",1000,"small","M2","M0",1
+"mrgn","CSi","model",1000,"small","M3","M0",0
+"mrgn","CSi","model",1000,"small","M4","M0",2
+"mrgn","CSi","model",1000,"small","M0","M1",14
+"mrgn","CSi","model",1000,"small","M1","M1",8
+"mrgn","CSi","model",1000,"small","M2","M1",12
+"mrgn","CSi","model",1000,"small","M3","M1",1
+"mrgn","CSi","model",1000,"small","M4","M1",4
+"mrgn","CSi","model",1000,"small","M0","M2",0
+"mrgn","CSi","model",1000,"small","M1","M2",0
+"mrgn","CSi","model",1000,"small","M2","M2",1
+"mrgn","CSi","model",1000,"small","M3","M2",3
+"mrgn","CSi","model",1000,"small","M4","M2",1
+"mrgn","CSi","model",1000,"small","M0","M3",0
+"mrgn","CSi","model",1000,"small","M1","M3",0
+"mrgn","CSi","model",1000,"small","M2","M3",1
+"mrgn","CSi","model",1000,"small","M3","M3",4
+"mrgn","CSi","model",1000,"small","M4","M3",1
+"mrgn","CSi","model",1000,"small","M0","M4",0
+"mrgn","CSi","model",1000,"small","M1","M4",0
+"mrgn","CSi","model",1000,"small","M2","M4",0
+"mrgn","CSi","model",1000,"small","M3","M4",8
+"mrgn","CSi","model",1000,"small","M4","M4",9
+"mrgn","CSi","model",1000,"small","M0","Other",4
+"mrgn","CSi","model",1000,"small","M1","Other",5
+"mrgn","CSi","model",1000,"small","M2","Other",5
+"mrgn","CSi","model",1000,"small","M3","Other",4
+"mrgn","CSi","model",1000,"small","M4","Other",3
+"mrgn","CSi","edge",1000,"small","M0","T1 - T2 Edge Absent",2
+"mrgn","CSi","edge",1000,"small","M1","T1 - T2 Edge Absent",7
+"mrgn","CSi","edge",1000,"small","M2","T1 - T2 Edge Absent",2
+"mrgn","CSi","edge",1000,"small","M3","T1 - T2 Edge Absent",4
+"mrgn","CSi","edge",1000,"small","M4","T1 - T2 Edge Absent",3
+"mrgn","CSi","edge",1000,"small","M0","T1 - T2 Edge Present",14
+"mrgn","CSi","edge",1000,"small","M1","T1 - T2 Edge Present",8
+"mrgn","CSi","edge",1000,"small","M2","T1 - T2 Edge Present",13
+"mrgn","CSi","edge",1000,"small","M3","T1 - T2 Edge Present",12
+"mrgn","CSi","edge",1000,"small","M4","T1 - T2 Edge Present",14
+"mrgn","CSi","edge",1000,"small","M0","Other",4
+"mrgn","CSi","edge",1000,"small","M1","Other",5
+"mrgn","CSi","edge",1000,"small","M2","Other",5
+"mrgn","CSi","edge",1000,"small","M3","Other",4
+"mrgn","CSi","edge",1000,"small","M4","Other",3
+"mrgn","CSi","model",1000,"medium","M0","M0",10
+"mrgn","CSi","model",1000,"medium","M1","M0",1
+"mrgn","CSi","model",1000,"medium","M2","M0",0
+"mrgn","CSi","model",1000,"medium","M3","M0",0
+"mrgn","CSi","model",1000,"medium","M4","M0",0
+"mrgn","CSi","model",1000,"medium","M0","M1",10
+"mrgn","CSi","model",1000,"medium","M1","M1",19
+"mrgn","CSi","model",1000,"medium","M2","M1",6
+"mrgn","CSi","model",1000,"medium","M3","M1",0
+"mrgn","CSi","model",1000,"medium","M4","M1",2
+"mrgn","CSi","model",1000,"medium","M0","M2",0
+"mrgn","CSi","model",1000,"medium","M1","M2",0
+"mrgn","CSi","model",1000,"medium","M2","M2",14
+"mrgn","CSi","model",1000,"medium","M3","M2",0
+"mrgn","CSi","model",1000,"medium","M4","M2",0
+"mrgn","CSi","model",1000,"medium","M0","M3",0
+"mrgn","CSi","model",1000,"medium","M1","M3",0
+"mrgn","CSi","model",1000,"medium","M2","M3",0
+"mrgn","CSi","model",1000,"medium","M3","M3",8
+"mrgn","CSi","model",1000,"medium","M4","M3",0
+"mrgn","CSi","model",1000,"medium","M0","M4",0
+"mrgn","CSi","model",1000,"medium","M1","M4",0
+"mrgn","CSi","model",1000,"medium","M2","M4",0
+"mrgn","CSi","model",1000,"medium","M3","M4",10
+"mrgn","CSi","model",1000,"medium","M4","M4",17
+"mrgn","CSi","model",1000,"medium","M0","Other",0
+"mrgn","CSi","model",1000,"medium","M1","Other",0
+"mrgn","CSi","model",1000,"medium","M2","Other",0
+"mrgn","CSi","model",1000,"medium","M3","Other",2
+"mrgn","CSi","model",1000,"medium","M4","Other",1
+"mrgn","CSi","edge",1000,"medium","M0","T1 - T2 Edge Absent",10
+"mrgn","CSi","edge",1000,"medium","M1","T1 - T2 Edge Absent",1
+"mrgn","CSi","edge",1000,"medium","M2","T1 - T2 Edge Absent",0
+"mrgn","CSi","edge",1000,"medium","M3","T1 - T2 Edge Absent",8
+"mrgn","CSi","edge",1000,"medium","M4","T1 - T2 Edge Absent",0
+"mrgn","CSi","edge",1000,"medium","M0","T1 - T2 Edge Present",10
+"mrgn","CSi","edge",1000,"medium","M1","T1 - T2 Edge Present",19
+"mrgn","CSi","edge",1000,"medium","M2","T1 - T2 Edge Present",20
+"mrgn","CSi","edge",1000,"medium","M3","T1 - T2 Edge Present",10
+"mrgn","CSi","edge",1000,"medium","M4","T1 - T2 Edge Present",19
+"mrgn","CSi","edge",1000,"medium","M0","Other",0
+"mrgn","CSi","edge",1000,"medium","M1","Other",0
+"mrgn","CSi","edge",1000,"medium","M2","Other",0
+"mrgn","CSi","edge",1000,"medium","M3","Other",2
+"mrgn","CSi","edge",1000,"medium","M4","Other",1
+"mrgn","CSi","model",1000,"large","M0","M0",14
+"mrgn","CSi","model",1000,"large","M1","M0",0
+"mrgn","CSi","model",1000,"large","M2","M0",0
+"mrgn","CSi","model",1000,"large","M3","M0",0
+"mrgn","CSi","model",1000,"large","M4","M0",0
+"mrgn","CSi","model",1000,"large","M0","M1",5
+"mrgn","CSi","model",1000,"large","M1","M1",19
+"mrgn","CSi","model",1000,"large","M2","M1",0
+"mrgn","CSi","model",1000,"large","M3","M1",0
+"mrgn","CSi","model",1000,"large","M4","M1",7
+"mrgn","CSi","model",1000,"large","M0","M2",0
+"mrgn","CSi","model",1000,"large","M1","M2",0
+"mrgn","CSi","model",1000,"large","M2","M2",20
+"mrgn","CSi","model",1000,"large","M3","M2",0
+"mrgn","CSi","model",1000,"large","M4","M2",0
+"mrgn","CSi","model",1000,"large","M0","M3",1
+"mrgn","CSi","model",1000,"large","M1","M3",0
+"mrgn","CSi","model",1000,"large","M2","M3",0
+"mrgn","CSi","model",1000,"large","M3","M3",10
+"mrgn","CSi","model",1000,"large","M4","M3",0
+"mrgn","CSi","model",1000,"large","M0","M4",0
+"mrgn","CSi","model",1000,"large","M1","M4",0
+"mrgn","CSi","model",1000,"large","M2","M4",0
+"mrgn","CSi","model",1000,"large","M3","M4",10
+"mrgn","CSi","model",1000,"large","M4","M4",13
+"mrgn","CSi","model",1000,"large","M0","Other",0
+"mrgn","CSi","model",1000,"large","M1","Other",1
+"mrgn","CSi","model",1000,"large","M2","Other",0
+"mrgn","CSi","model",1000,"large","M3","Other",0
+"mrgn","CSi","model",1000,"large","M4","Other",0
+"mrgn","CSi","edge",1000,"large","M0","T1 - T2 Edge Absent",15
+"mrgn","CSi","edge",1000,"large","M1","T1 - T2 Edge Absent",0
+"mrgn","CSi","edge",1000,"large","M2","T1 - T2 Edge Absent",0
+"mrgn","CSi","edge",1000,"large","M3","T1 - T2 Edge Absent",10
+"mrgn","CSi","edge",1000,"large","M4","T1 - T2 Edge Absent",0
+"mrgn","CSi","edge",1000,"large","M0","T1 - T2 Edge Present",5
+"mrgn","CSi","edge",1000,"large","M1","T1 - T2 Edge Present",19
+"mrgn","CSi","edge",1000,"large","M2","T1 - T2 Edge Present",20
+"mrgn","CSi","edge",1000,"large","M3","T1 - T2 Edge Present",10
+"mrgn","CSi","edge",1000,"large","M4","T1 - T2 Edge Present",20
+"mrgn","CSi","edge",1000,"large","M0","Other",0
+"mrgn","CSi","edge",1000,"large","M1","Other",1
+"mrgn","CSi","edge",1000,"large","M2","Other",0
+"mrgn","CSi","edge",1000,"large","M3","Other",0
+"mrgn","CSi","edge",1000,"large","M4","Other",0
 "mrpc","truth","model",50,"all","M0","M0",15
 "mrpc","truth","model",50,"all","M1","M0",3
 "mrpc","truth","model",50,"all","M2","M0",9

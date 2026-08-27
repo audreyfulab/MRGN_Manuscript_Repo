@@ -64,6 +64,10 @@ ARM.BLURB <- c(
                   "reach if confounder selection were perfect, not an attainable result."),
     CSq   = "CS-q confounder selection.",
     CSa   = "CS-alpha confounder selection.",
+    CSi   = paste("CS-i confounder selection -- `adjust_by = \"individual\"`, the setting",
+                  "the published GTEx analysis ran. Measured identical to the confounders",
+                  "GMAC selects for itself (Jaccard 1.000 over all 1,500 trios), so this",
+                  "is the one arm on which another method sees exactly GMAC's covariates."),
     # MR-GGI's arms are covariate sets carried through y, not confounder adjustments
     none  = paste("The bare trio, no covariates in `y`. For MR-GGI this is not a different",
                   "estimate -- see the note in the MR-GGI section."),

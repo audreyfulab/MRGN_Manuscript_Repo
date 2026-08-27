@@ -126,7 +126,7 @@ Rscript bioinfo_revision/simulation_results/apply_mrggi.R \
 | `tables.dir` | `<results.root>/tables` | where `results_scripts/` writes; a **sibling** of `data/`, not a child |
 | `n.bootstrap` | 1000 | bootstrap replicates per MRGN fit |
 | `mrpc.timeout` | 180 s | MRPC has taken hours on trios with many confounders; raised from 120 s, at which 61% of n=670 and 75% of n=1000 trios timed out |
-| `mrpc.arms` | `c("truth","CSq")` | CS-α is off; it does not finish |
+| `mrpc.arms` | `c("truth","CSq")` | the only two MRPC arms. CS-α is excluded permanently, not toggled off — MRPC cannot fit 82–102 covariates at any `n` here |
 | `mrpc.truth.max.n` | 300 | largest `n` at which the truth arm is attempted; above it it is recorded as *not attempted*, which the tables keep distinct from *timed out*. A budget control: the truth arm carries 25–29 confounders against CS-q's 16, and CS-q already timed out on 61% / 75% of trios at n = 670 / 1000 |
 | `gmac.nperm` | 1000 | GMAC permutations |
 | `selection.alpha` | 0.05 | cutoff for the GMAC mediation calls |
@@ -201,7 +201,7 @@ ones can be read for each of them rather than only for MRGN — which is the com
 | `mrgn.CSa.` | MRGN | CS-α selected |
 | `mrpc.truth.` | MRPC | the true ones |
 | `mrpc.CSq.` | MRPC | CS-q selected |
-| `mrpc.CSa.` | MRPC | CS-α selected — off by default, does not finish |
+| `mrpc.CSa.` | MRPC | CS-α selected — **never fitted**; the CS-α set is too large for MRPC to run a PC algorithm over. Columns are present but always `NA`, with the reason in `mrpc.CSa.error` |
 | `gmac.` | GMAC | whatever GMAC selects for itself |
 | `gmac.truth.` | GMAC | the true ones |
 | `mrggi.none.` | MR-GGI | none — the bare trio |

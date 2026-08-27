@@ -17,11 +17,18 @@ present.
 | --- | --- |
 | `confusion_utils.R` | label sets, the results loader, the `confusion()` builder, `scored.table()`, the Markdown writer |
 | `confusion_mrgn.R` | MRGN matrices for all three confounder arms |
-| `confusion_mrpc.R` | MRPC matrices, `truth`/`CSq`/`CSa` arms, with the timeout column scored |
+| `confusion_mrpc.R` | MRPC matrices, `truth`/`CSq` arms, with the timeout column scored. CS-α is excluded outright — see `inference_config.R` |
 | `confusion_gmac.R` | GMAC T1–T2 edge matrices, selected and truth arms |
 | `confusion_mrggi.R` | MR-GGI T1–T2 edge matrices, four arms |
 | `make_all_tables.R` | **driver** — sources all four, then writes the three output files |
 | `confusion_structures.R` | **standalone** — MRGN across the four confounder structures at n = 670; writes its own two files |
+| `selection_metrics.R` | confounder-selection scoring: per-trio precision/recall for CS-q and CS-α, pool width, the 2×2 selection table. Writes nothing |
+| `make_figures.R` | **standalone** — Figures 3 and 4 reproduced on the revised simulation; writes PNGs to `../../reports/figures/` |
+| `make_selection_report.R` | **driver** — writes `../../reports/CONFOUNDER_SELECTION.md`. Run `make_figures.R` first |
+| `make_inference_report.R` | **driver** — writes `../../reports/INFERENCE_PERFORMANCE.md`, every matrix in both views. Run `make_all_tables.R` first |
+| `make_structure_report.R` | **driver** — writes `../../reports/CONFOUNDER_STRUCTURE.md`: which of `W`/`Z` damages MRGN, and which generating models it hits. Needs the three `data_structures/` runs |
+| `compute_time.R` | **standalone** — median and IQR of per-trio compute time for all four methods. Writes `../tables/compute_time{,_long}.csv`, three PNGs, and `../../reports/COMPUTE_TIME.md`. Needs ggplot2 |
+| `make_edge_pr_figure.R` | **standalone** — edge precision/recall for all four methods in a sample-size × effect-treatment grid, bootstrapped. Writes `../../reports/figures/fig_edge_pr_grid.png` (embedded in `INFERENCE_PERFORMANCE.md` §2) and `../tables/edge_pr_grid.csv`. Run `make_all_tables.R` first; needs ggplot2 |
 
 Each method script runs standalone and leaves its counts in a
 `<method>.confusion.long` global, but **writes nothing**. Only the drivers write.
@@ -158,9 +165,13 @@ generated:
 
 | arm | n=50 | n=150 | n=300 | n=670 | n=1000 |
 | --- | --- | --- | --- | --- | --- |
-| `truth` | 13.3% | 42.3% | 54.0% | 64.7% | 64.0% |
-| `CSq` | 2.7% | 17.0% | 29.7% | 49.0% | 51.0% |
-| `CSa` | 0.0% | 3.0% | 22.3% | 47.7% | 49.3% |
+| `truth` | 14.3% | 46.3% | 63.3% | 75.3% | 79.3% |
+| `CSq` | 14.7% | 22.7% | 34.3% | 51.3% | 55.3% |
+| `CSa` | 0.0% | 6.7% | 36.3% | 54.0% | 55.7% |
+
+For MRGN the `truth` arm really is a ceiling. **That is not true of MRPC**, whose oracle
+arm is beaten by CS-q at every sample size — see `../../reports/INFERENCE_PERFORMANCE.md`
+§3.1 and `METHODS.md` Table 12c.
 
 ### GMAC: scored on the T1–T2 edge
 

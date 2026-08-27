@@ -39,31 +39,67 @@ dir.create(out.dir, recursive = TRUE, showWarnings = FALSE)
 
 # ---- per-method inference settings ----
 n.bootstrap     <- 1000    # bootstrap replicates per MRGN fit
+
+# Whether MRGN runs its bootstrap at all. THIS IS THE ENTIRE COST OF THE MRGN STAGE.
+#
+# The bootstrap does not produce the model call. apply.mrgn() gets that from
+# MRGN::infer.trio(), which never sees the bootstrap argument and defaults it to FALSE.
+# What the bootstrap adds is the boot.* block -- boot.model, boot.min.edge.prob, the four
+# boot.p.* edge probabilities and bootstrap.time.seconds -- and mrgn.fields() already
+# returns NA for every one of them when res$bootstrap is NULL. So the SCHEMA IS THE SAME
+# either way and model / correct / correct.coarse are bit-identical; only the boot.*
+# columns go empty.
+#
+# The cost is n.bootstrap x 3 arms x n.trios replicates per group, dispatched through
+# parLapply one replicate at a time. Measured on the confounder-structure runs: three
+# concurrent 4-core clusters held 1.9 core-equivalents of 14 busy, with the disk at 0.3%
+# and 8 GB of RAM free -- the cluster spends its time on socket round-trips for tasks that
+# are individually trivial, not on arithmetic.
+#
+# Set FALSE for any run whose output is read on the model call -- the confusion matrices,
+# and the confounder-structure comparison of METHODS.md section 7b. Set TRUE only when the
+# edge probabilities themselves are wanted.
+mrgn.bootstrap  <- TRUE
 mrpc.timeout    <- 180     # seconds; MRPC has taken hours on trios with many confounders
 gmac.nperm      <- 1000
 selection.alpha <- 0.05    # significance cutoff for the GMAC mediation calls
 
-# Which confounder sets MRPC is run against. CS-alpha is off because it does not finish;
-# `truth` is the oracle arm, added so the gap between perfect confounders and selected ones
-# can be read for MRPC the way METHODS.md section 5 reads it for MRGN.
+# Which confounder sets MRPC is run against. There are exactly two: `truth`, the oracle arm,
+# added so the gap between perfect confounders and selected ones can be read for MRPC the
+# way METHODS.md section 5 reads it for MRGN, and `CSq`, the CS-q selection.
 #
-# CS-alpha hands MRPC alpha x pool false-positive covariates by construction -- a median
-# of 95 at n = 150 -- and MRPC cannot fit that many. Measured on the completed groups:
+# CS-ALPHA IS PERMANENTLY EXCLUDED FOR MRPC. It is not a budget toggle and not "off by
+# default". CS-alpha hands MRPC alpha x pool false-positive covariates by construction -- a
+# median of 82-102 under the current simulation -- and MRPC cannot run a PC algorithm over
+# that many nodes at any sample size this study uses. There is no setting under which the
+# arm returns usable results, so putting "CSa" back in mrpc.arms buys a column of NAs.
 #
-#   n = 50   CS-q  2 confounders,  0% timeout, median 0.0 s   |  group took 48 min
-#   n = 150  CS-q  2 confounders,  0% timeout, median 0.0 s   |  group took 8.8 h
+# This is specific to MRPC. CS-alpha is still a real arm for MRGN and MR-GGI (see
+# mrggi.arms), and the CS-alpha SELECTION is still scored for every trio in the CSa.n.*
+# columns. Only the MRPC fit is excluded.
+#
+# COST, for the record. The only CS-alpha fits ever completed were in the first pass, whose
+# simulation was invalidated on 2026-08-22 and archived to legacy/first_pass/. These figures
+# are therefore indicative, NOT current-simulation results:
+#
 #   n = 50   CS-a 82 confounders,  0% timeout, median 7.8 s
 #   n = 150  CS-a 95 confounders, 79% timeout, ~106 s/trio
 #
-# The n = 50 CS-alpha fits are fast only because 82 covariates on 50 observations is
-# rank deficient and bails early. By n = 150 the fits are estimable, MRPC genuinely
-# attempts a PC algorithm over ~98 nodes, and the timeout rate jumps to 79% -- heading to
-# ~100% at larger n, i.e. ~10 h per group to produce a column of NAs. CS-q costs nothing
-# because it selects a median of 2 covariates.
+# The n = 50 fits are fast only because 82 covariates on 50 observations is rank deficient
+# and bails early. By n = 150 the fits are estimable, MRPC genuinely attempts a PC algorithm
+# over ~98 nodes, and the timeout rate jumps to 79% -- heading to ~100% at larger n, i.e.
+# ~10 h per group to produce a column of NAs. The covariate counts do carry over to the
+# current simulation (82 at n = 50, 97 at n = 150, 102 at n = 300), which is why the
+# conclusion stands even though the timings are from the discarded run.
 #
-# Groups already run with both arms (n = 50, n = 150) keep their real CS-alpha results.
-# Groups run under this setting record CS-alpha as not attempted, with the reason in
-# mrpc.CSa.error, rather than silently NA.
+# CS-q costs nothing by comparison, because it selects a median of 2 covariates:
+#
+#   n = 50   CS-q  2 confounders,  0% timeout, median 0.0 s   |  group took 48 min
+#   n = 150  CS-q  2 confounders,  0% timeout, median 0.0 s   |  group took 8.8 h
+#
+# Every group records CS-alpha as not attempted, with the reason in mrpc.CSa.error, rather
+# than silently NA. confusion_mrpc.R reads that column and skips the arm instead of
+# tabulating 300 failures.
 #
 # THE TRUTH ARM IS THE ONE TO WATCH, not CS-alpha. It carries every one of that trio's own
 # U confounders -- a median of 25-29 -- against CS-q's 16 at n = 670, so it is strictly
@@ -76,7 +112,7 @@ selection.alpha <- 0.05    # significance cutoff for the GMAC mediation calls
 # the large groups rather than spending hours writing a column of NAs -- the same call
 # already made for CS-alpha above. A disabled arm still gets its columns, with the reason
 # in mrpc.<arm>.error, so the schema is unchanged either way.
-mrpc.arms <- c("truth", "CSq")   # add "CSa" to attempt the CS-alpha arm again
+mrpc.arms <- c("truth", "CSq")   # the only two arms; CSa is excluded, not a toggle
 
 # Largest sample size at which the truth arm is ATTEMPTED. Above this it is recorded as not
 # attempted, exactly as a disabled arm is, and the group still gets its columns. Inf runs it
@@ -191,6 +227,12 @@ if (!is.null(inference.opt("--filter-int-child"))) {
 # old one would otherwise be combined with new ones and silently produce a master with
 # missing columns. Prefer this to deleting checkpoints by hand: it only overwrites the
 # groups this invocation actually recomputes.
+# --bootstrap 0 turns off the MRGN bootstrap. See mrgn.bootstrap above: it changes no
+# model call and no column, it only leaves the boot.* block NA, and it is the difference
+# between minutes and hours per group.
+if (!is.null(inference.opt("--bootstrap"))) {
+    mrgn.bootstrap <- as.logical(as.integer(inference.opt("--bootstrap")))
+}
 if (!is.null(inference.opt("--rerun-inference"))) {
     rerun.inference <- as.logical(as.integer(inference.opt("--rerun-inference")))
 }

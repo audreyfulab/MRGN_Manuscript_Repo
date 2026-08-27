@@ -54,12 +54,8 @@ cat(sprintf("\n  wrote %s | %d rows\n", basename(long.path), nrow(confusion.coun
 # Only the pooled (effect-size = "all") matrices go in the report. The per-effect-size
 # breakdown is 60 more tables and belongs in the CSVs, not on a page someone reads.
 
-matrix.from.long <- function(counts, pred.levels) {
-    m <- matrix(0L, nrow = length(TRUTH.LEVELS), ncol = length(pred.levels),
-                dimnames = list(truth = TRUTH.LEVELS, predicted = pred.levels))
-    m[cbind(counts$truth, counts$predicted)] <- as.integer(counts$n)
-    m
-}
+# matrix.from.long() now lives in confusion_utils.R, beside view.matrices(), so the report
+# writers in reports/ and this driver share one definition.
 
 pooled <- confusion.counts[confusion.counts$effect_size == "all", , drop = FALSE]
 

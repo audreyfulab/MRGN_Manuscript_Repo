@@ -436,3 +436,152 @@ md.scored.table <- function(st, caption = NULL, note = NULL) {
       "",
       if (!is.null(note)) c(note, ""))
 }
+
+
+# ---------------------------------------------------------------------------------------
+# the two views: by sample size, and by effect size
+# ---------------------------------------------------------------------------------------
+#
+# confusion_counts_long.csv is keyed method x arm x level x sample_size x effect_size, with
+# effect_size taking "all" alongside the three treatments. That single file already holds
+# both views of every matrix; they differ only in which key is held fixed and which is
+# summed over.
+#
+#   "size"    effect_size == "all", one matrix per sample size. The pooled view
+#             make_all_tables.R renders.
+#   "effect"  one matrix per effect treatment, summed ACROSS sample sizes. Not stored
+#             anywhere, because it is an aggregation rather than a measurement -- every
+#             cell is a raw count, so summing is exact and nothing is re-derived.
+#
+# Both are needed to read a result: a method can look stable across n while hiding a
+# collapse at one effect size, and vice versa.
+
+matrix.from.long <- function(counts, pred.levels, truth.levels = TRUTH.LEVELS) {
+    m <- matrix(0L, nrow = length(truth.levels), ncol = length(pred.levels),
+                dimnames = list(truth = truth.levels, predicted = pred.levels))
+    if (nrow(counts) == 0) return(m)
+    m[cbind(as.character(counts$truth), as.character(counts$predicted))] <-
+        as.integer(counts$n)
+    m
+}
+
+# Returns a named list of matrices: names are the sample sizes ("50", "150", ...) for
+# view = "size" and the treatments ("small", "medium", "large") for view = "effect".
+# Groups absent from `counts` are dropped rather than returned empty, so MRPC -- which
+# stops at n = 300 -- yields three entries under "size" and not five.
+#
+# `check` verifies the identity the effect view depends on: for every sample size, the
+# three treatment matrices must sum to the "all" matrix. If that fails the long file is
+# internally inconsistent and every number downstream is suspect, so it stops rather than
+# warns.
+view.matrices <- function(counts, method, arm, level,
+                          view = c("size", "effect"),
+                          pred.levels, truth.levels = TRUTH.LEVELS, check = TRUE) {
+    view <- match.arg(view)
+    x <- counts[counts$method == method & counts$arm == arm & counts$level == level, ,
+                drop = FALSE]
+    if (nrow(x) == 0) return(list())
+
+    if (check) {
+        for (s in unique(x$sample_size)) {
+            xs <- x[x$sample_size == s, , drop = FALSE]
+            all.m <- matrix.from.long(xs[xs$effect_size == "all", , drop = FALSE],
+                                      pred.levels, truth.levels)
+            parts <- xs[xs$effect_size %in% EFFECT.SIZES, , drop = FALSE]
+            if (nrow(parts) == 0) next
+            sum.m <- matrix.from.long(
+                stats::aggregate(n ~ truth + predicted, data = parts, FUN = sum),
+                pred.levels, truth.levels)
+            if (!identical(as.vector(all.m), as.vector(sum.m))) {
+                stop(sprintf(paste("%s/%s/%s n=%s: the three effect-size matrices do not",
+                                   "sum to the pooled one (%d vs %d trios). The long",
+                                   "counts are inconsistent."),
+                             method, arm, level, s, sum(sum.m), sum(all.m)))
+            }
+        }
+    }
+
+    if (view == "size") {
+        x <- x[x$effect_size == "all", , drop = FALSE]
+        keys <- SAMPLE.SIZES[SAMPLE.SIZES %in% x$sample_size]
+        out <- lapply(keys, function(s)
+            matrix.from.long(x[x$sample_size == s, , drop = FALSE],
+                             pred.levels, truth.levels))
+        names(out) <- as.character(keys)
+    } else {
+        x <- x[x$effect_size %in% EFFECT.SIZES, , drop = FALSE]
+        keys <- EFFECT.SIZES[EFFECT.SIZES %in% x$effect_size]
+        out <- lapply(keys, function(e)
+            matrix.from.long(
+                stats::aggregate(n ~ truth + predicted,
+                                 data = x[x$effect_size == e, , drop = FALSE], FUN = sum),
+                pred.levels, truth.levels))
+        names(out) <- keys
+    }
+    out
+}
+
+# How a view's groups are labelled in a caption. Kept next to view.matrices() so the two
+# cannot drift apart.
+view.label <- function(view, key) {
+    if (view == "size") paste0("n = ", key) else paste0(key, " effect")
+}
+
+# The inferred-label space for one method at one level. The report writers all need this and
+# would otherwise each re-derive it from the data, which would silently accept a truncated
+# level set whenever a label happens not to occur in some group -- a matrix missing its
+# "Failed" column reads as a method that never failed.
+#
+# GMAC is the one that is NOT the obvious constant: it has no "Other", because gmac.edge()
+# maps every mediation call onto one of the two edge states, so it uses the bare
+# EDGE.LEVELS rather than MRGN.EDGE.LEVELS.
+pred.levels.for <- function(method, level) {
+    switch(paste(method, level),
+           "mrgn model"     = MRGN.LEVELS,
+           "mrgn edge"      = MRGN.EDGE.LEVELS,
+           "mrpc model"     = MRPC.LEVELS,
+           "mrpc edge"      = MRPC.EDGE.LEVELS,
+           "gmac edge"      = EDGE.LEVELS,
+           "mrggi edge"     = MRGGI.EDGE.LEVELS,
+           "mrggi edge.fdr" = MRGGI.EDGE.LEVELS,
+           stop("no level set defined for method '", method, "' at level '", level, "'"))
+}
+
+# The truth -> correct-inferred-label map that scores a given level. Model levels score
+# against the eight-topology map, edge levels against the edge map.
+correct.for <- function(level) if (level == "model") MRGN.CORRECT else EDGE.CORRECT
+
+# ---------------------------------------------------------------------------------------
+# the confounder-structure runs
+# ---------------------------------------------------------------------------------------
+#
+# The four covariate structures of METHODS.md section 7b. Shared by confusion_structures.R
+# and make_structure_report.R so the directory map has one definition -- in particular that
+# u_w_z IS the main simulation and reads from out.dir rather than from data_structures/,
+# which is the detail most easily got wrong when copied.
+STRUCTURE.SIZE <- 670
+
+STRUCTURES <- list(
+    u_only = list(dir = file.path(results.root, "data_structures", "u_only"),
+                  label = "Confounders only",
+                  detail = "W_n = 0, Z_n = 0, filter_int_child = FALSE"),
+    u_w    = list(dir = file.path(results.root, "data_structures", "u_w"),
+                  label = "Confounders + 1 intermediate",
+                  detail = "W_n = 1, Z_n = 0, filter_int_child = TRUE"),
+    u_z    = list(dir = file.path(results.root, "data_structures", "u_z"),
+                  label = "Confounders + 1 common child",
+                  detail = "W_n = 0, Z_n = 1, filter_int_child = TRUE"),
+    u_w_z  = list(dir = out.dir,
+                  label = "Confounders + intermediate + common child",
+                  detail = "W_n = 1, Z_n = 1, filter_int_child = TRUE -- the main simulation"))
+
+# The per-group checkpoint, not the combined inference_mrgn.RData: three of the four cases
+# have only this one group, so there is nothing to combine and combine.method() was never
+# run for them.
+load.structure <- function(dir) {
+    path <- file.path(dir, sprintf("mrgn_group_n%d.RData", STRUCTURE.SIZE))
+    if (!file.exists(path)) return(NULL)
+    env <- new.env(parent = emptyenv())
+    load(path, envir = env)
+    get("results", envir = env)
+}

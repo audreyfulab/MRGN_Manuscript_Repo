@@ -38,35 +38,13 @@
 
 source("bioinfo_revision/simulation_results/results_scripts/confusion_utils.R")
 
-STRUCTURE.SIZE <- 670
-
-STRUCTURES <- list(
-    u_only = list(dir = file.path(results.root, "data_structures", "u_only"),
-                  label = "Confounders only",
-                  detail = "W_n = 0, Z_n = 0, filter_int_child = FALSE"),
-    u_w    = list(dir = file.path(results.root, "data_structures", "u_w"),
-                  label = "Confounders + 1 intermediate",
-                  detail = "W_n = 1, Z_n = 0, filter_int_child = TRUE"),
-    u_z    = list(dir = file.path(results.root, "data_structures", "u_z"),
-                  label = "Confounders + 1 common child",
-                  detail = "W_n = 0, Z_n = 1, filter_int_child = TRUE"),
-    u_w_z  = list(dir = out.dir,
-                  label = "Confounders + intermediate + common child",
-                  detail = "W_n = 1, Z_n = 1, filter_int_child = TRUE -- the main simulation"))
+# STRUCTURE.SIZE, STRUCTURES and load.structure() now live in confusion_utils.R, so this
+# script and make_structure_report.R read one definition of the directory map.
 
 MRGN.ARMS <- c("truth", "CSq", "CSa")
 
 
-# The per-group checkpoint, not the combined inference_mrgn.RData: three of the four cases
-# have only this one group, so there is nothing to combine and combine.method() was never
-# run for them.
-load.structure <- function(dir) {
-    path <- file.path(dir, sprintf("mrgn_group_n%d.RData", STRUCTURE.SIZE))
-    if (!file.exists(path)) return(NULL)
-    env <- new.env(parent = emptyenv())
-    load(path, envir = env)
-    get("results", envir = env)
-}
+# load.structure() is in confusion_utils.R.
 
 
 # ---------------------------------------------------------------------------------------

@@ -24,7 +24,8 @@ source("bioinfo_revision/simulation/simulation_utils.R")
 source("bioinfo_revision/simulation_results/inference_config.R")
 source("bioinfo_revision/simulation_results/inference_utils.R")
 
-cat("=== MRGN ===  cores:", n.cores, "| bootstrap:", n.bootstrap,
+cat("=== MRGN ===  cores:", n.cores,
+    "| bootstrap:", if (mrgn.bootstrap) n.bootstrap else "OFF (boot.* columns will be NA)",
     "| sizes:", if (is.null(sample.sizes)) "all" else paste(sample.sizes, collapse = ","), "\n")
 
 cl <- parallel::makeCluster(n.cores)
@@ -38,7 +39,8 @@ run.method.groups(
     cl = cl,
     runner = function(datasets, sel, cov.pool, known.conf, cl) {
         run.mrgn.group(datasets, sel, colnames(cov.pool), cl = cl,
-                       bootstrap = TRUE, number_of_samples = n.bootstrap, verbose = TRUE)
+                       bootstrap = mrgn.bootstrap, number_of_samples = n.bootstrap,
+                       verbose = TRUE)
     })
 
 cat("\ncombining MRGN:\n")

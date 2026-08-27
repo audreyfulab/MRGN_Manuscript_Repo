@@ -2699,6 +2699,1326 @@
 "mrgn","CSa","edge",1000,"large","M2","Other",0
 "mrgn","CSa","edge",1000,"large","M3","Other",0
 "mrgn","CSa","edge",1000,"large","M4","Other",0
+"mrpc","truth","model",50,"all","M0","M0",15
+"mrpc","truth","model",50,"all","M1","M0",3
+"mrpc","truth","model",50,"all","M2","M0",9
+"mrpc","truth","model",50,"all","M3","M0",10
+"mrpc","truth","model",50,"all","M4","M0",3
+"mrpc","truth","model",50,"all","M0","M1",0
+"mrpc","truth","model",50,"all","M1","M1",3
+"mrpc","truth","model",50,"all","M2","M1",2
+"mrpc","truth","model",50,"all","M3","M1",0
+"mrpc","truth","model",50,"all","M4","M1",3
+"mrpc","truth","model",50,"all","M0","M2",0
+"mrpc","truth","model",50,"all","M1","M2",1
+"mrpc","truth","model",50,"all","M2","M2",3
+"mrpc","truth","model",50,"all","M3","M2",0
+"mrpc","truth","model",50,"all","M4","M2",0
+"mrpc","truth","model",50,"all","M0","M3",0
+"mrpc","truth","model",50,"all","M1","M3",0
+"mrpc","truth","model",50,"all","M2","M3",0
+"mrpc","truth","model",50,"all","M3","M3",4
+"mrpc","truth","model",50,"all","M4","M3",0
+"mrpc","truth","model",50,"all","M0","M4",0
+"mrpc","truth","model",50,"all","M1","M4",0
+"mrpc","truth","model",50,"all","M2","M4",0
+"mrpc","truth","model",50,"all","M3","M4",0
+"mrpc","truth","model",50,"all","M4","M4",0
+"mrpc","truth","model",50,"all","M0","Other",45
+"mrpc","truth","model",50,"all","M1","Other",53
+"mrpc","truth","model",50,"all","M2","Other",46
+"mrpc","truth","model",50,"all","M3","Other",46
+"mrpc","truth","model",50,"all","M4","Other",54
+"mrpc","truth","model",50,"all","M0","Failed",0
+"mrpc","truth","model",50,"all","M1","Failed",0
+"mrpc","truth","model",50,"all","M2","Failed",0
+"mrpc","truth","model",50,"all","M3","Failed",0
+"mrpc","truth","model",50,"all","M4","Failed",0
+"mrpc","truth","edge",50,"all","M0","T1 - T2 Edge Absent",15
+"mrpc","truth","edge",50,"all","M1","T1 - T2 Edge Absent",3
+"mrpc","truth","edge",50,"all","M2","T1 - T2 Edge Absent",9
+"mrpc","truth","edge",50,"all","M3","T1 - T2 Edge Absent",14
+"mrpc","truth","edge",50,"all","M4","T1 - T2 Edge Absent",3
+"mrpc","truth","edge",50,"all","M0","T1 - T2 Edge Present",0
+"mrpc","truth","edge",50,"all","M1","T1 - T2 Edge Present",4
+"mrpc","truth","edge",50,"all","M2","T1 - T2 Edge Present",5
+"mrpc","truth","edge",50,"all","M3","T1 - T2 Edge Present",0
+"mrpc","truth","edge",50,"all","M4","T1 - T2 Edge Present",3
+"mrpc","truth","edge",50,"all","M0","Other",45
+"mrpc","truth","edge",50,"all","M1","Other",53
+"mrpc","truth","edge",50,"all","M2","Other",46
+"mrpc","truth","edge",50,"all","M3","Other",46
+"mrpc","truth","edge",50,"all","M4","Other",54
+"mrpc","truth","edge",50,"all","M0","Failed",0
+"mrpc","truth","edge",50,"all","M1","Failed",0
+"mrpc","truth","edge",50,"all","M2","Failed",0
+"mrpc","truth","edge",50,"all","M3","Failed",0
+"mrpc","truth","edge",50,"all","M4","Failed",0
+"mrpc","truth","model",50,"small","M0","M0",0
+"mrpc","truth","model",50,"small","M1","M0",0
+"mrpc","truth","model",50,"small","M2","M0",0
+"mrpc","truth","model",50,"small","M3","M0",0
+"mrpc","truth","model",50,"small","M4","M0",2
+"mrpc","truth","model",50,"small","M0","M1",0
+"mrpc","truth","model",50,"small","M1","M1",0
+"mrpc","truth","model",50,"small","M2","M1",0
+"mrpc","truth","model",50,"small","M3","M1",0
+"mrpc","truth","model",50,"small","M4","M1",0
+"mrpc","truth","model",50,"small","M0","M2",0
+"mrpc","truth","model",50,"small","M1","M2",0
+"mrpc","truth","model",50,"small","M2","M2",0
+"mrpc","truth","model",50,"small","M3","M2",0
+"mrpc","truth","model",50,"small","M4","M2",0
+"mrpc","truth","model",50,"small","M0","M3",0
+"mrpc","truth","model",50,"small","M1","M3",0
+"mrpc","truth","model",50,"small","M2","M3",0
+"mrpc","truth","model",50,"small","M3","M3",0
+"mrpc","truth","model",50,"small","M4","M3",0
+"mrpc","truth","model",50,"small","M0","M4",0
+"mrpc","truth","model",50,"small","M1","M4",0
+"mrpc","truth","model",50,"small","M2","M4",0
+"mrpc","truth","model",50,"small","M3","M4",0
+"mrpc","truth","model",50,"small","M4","M4",0
+"mrpc","truth","model",50,"small","M0","Other",20
+"mrpc","truth","model",50,"small","M1","Other",20
+"mrpc","truth","model",50,"small","M2","Other",20
+"mrpc","truth","model",50,"small","M3","Other",20
+"mrpc","truth","model",50,"small","M4","Other",18
+"mrpc","truth","model",50,"small","M0","Failed",0
+"mrpc","truth","model",50,"small","M1","Failed",0
+"mrpc","truth","model",50,"small","M2","Failed",0
+"mrpc","truth","model",50,"small","M3","Failed",0
+"mrpc","truth","model",50,"small","M4","Failed",0
+"mrpc","truth","edge",50,"small","M0","T1 - T2 Edge Absent",0
+"mrpc","truth","edge",50,"small","M1","T1 - T2 Edge Absent",0
+"mrpc","truth","edge",50,"small","M2","T1 - T2 Edge Absent",0
+"mrpc","truth","edge",50,"small","M3","T1 - T2 Edge Absent",0
+"mrpc","truth","edge",50,"small","M4","T1 - T2 Edge Absent",2
+"mrpc","truth","edge",50,"small","M0","T1 - T2 Edge Present",0
+"mrpc","truth","edge",50,"small","M1","T1 - T2 Edge Present",0
+"mrpc","truth","edge",50,"small","M2","T1 - T2 Edge Present",0
+"mrpc","truth","edge",50,"small","M3","T1 - T2 Edge Present",0
+"mrpc","truth","edge",50,"small","M4","T1 - T2 Edge Present",0
+"mrpc","truth","edge",50,"small","M0","Other",20
+"mrpc","truth","edge",50,"small","M1","Other",20
+"mrpc","truth","edge",50,"small","M2","Other",20
+"mrpc","truth","edge",50,"small","M3","Other",20
+"mrpc","truth","edge",50,"small","M4","Other",18
+"mrpc","truth","edge",50,"small","M0","Failed",0
+"mrpc","truth","edge",50,"small","M1","Failed",0
+"mrpc","truth","edge",50,"small","M2","Failed",0
+"mrpc","truth","edge",50,"small","M3","Failed",0
+"mrpc","truth","edge",50,"small","M4","Failed",0
+"mrpc","truth","model",50,"medium","M0","M0",2
+"mrpc","truth","model",50,"medium","M1","M0",3
+"mrpc","truth","model",50,"medium","M2","M0",5
+"mrpc","truth","model",50,"medium","M3","M0",5
+"mrpc","truth","model",50,"medium","M4","M0",1
+"mrpc","truth","model",50,"medium","M0","M1",0
+"mrpc","truth","model",50,"medium","M1","M1",0
+"mrpc","truth","model",50,"medium","M2","M1",0
+"mrpc","truth","model",50,"medium","M3","M1",0
+"mrpc","truth","model",50,"medium","M4","M1",1
+"mrpc","truth","model",50,"medium","M0","M2",0
+"mrpc","truth","model",50,"medium","M1","M2",0
+"mrpc","truth","model",50,"medium","M2","M2",0
+"mrpc","truth","model",50,"medium","M3","M2",0
+"mrpc","truth","model",50,"medium","M4","M2",0
+"mrpc","truth","model",50,"medium","M0","M3",0
+"mrpc","truth","model",50,"medium","M1","M3",0
+"mrpc","truth","model",50,"medium","M2","M3",0
+"mrpc","truth","model",50,"medium","M3","M3",1
+"mrpc","truth","model",50,"medium","M4","M3",0
+"mrpc","truth","model",50,"medium","M0","M4",0
+"mrpc","truth","model",50,"medium","M1","M4",0
+"mrpc","truth","model",50,"medium","M2","M4",0
+"mrpc","truth","model",50,"medium","M3","M4",0
+"mrpc","truth","model",50,"medium","M4","M4",0
+"mrpc","truth","model",50,"medium","M0","Other",18
+"mrpc","truth","model",50,"medium","M1","Other",17
+"mrpc","truth","model",50,"medium","M2","Other",15
+"mrpc","truth","model",50,"medium","M3","Other",14
+"mrpc","truth","model",50,"medium","M4","Other",18
+"mrpc","truth","model",50,"medium","M0","Failed",0
+"mrpc","truth","model",50,"medium","M1","Failed",0
+"mrpc","truth","model",50,"medium","M2","Failed",0
+"mrpc","truth","model",50,"medium","M3","Failed",0
+"mrpc","truth","model",50,"medium","M4","Failed",0
+"mrpc","truth","edge",50,"medium","M0","T1 - T2 Edge Absent",2
+"mrpc","truth","edge",50,"medium","M1","T1 - T2 Edge Absent",3
+"mrpc","truth","edge",50,"medium","M2","T1 - T2 Edge Absent",5
+"mrpc","truth","edge",50,"medium","M3","T1 - T2 Edge Absent",6
+"mrpc","truth","edge",50,"medium","M4","T1 - T2 Edge Absent",1
+"mrpc","truth","edge",50,"medium","M0","T1 - T2 Edge Present",0
+"mrpc","truth","edge",50,"medium","M1","T1 - T2 Edge Present",0
+"mrpc","truth","edge",50,"medium","M2","T1 - T2 Edge Present",0
+"mrpc","truth","edge",50,"medium","M3","T1 - T2 Edge Present",0
+"mrpc","truth","edge",50,"medium","M4","T1 - T2 Edge Present",1
+"mrpc","truth","edge",50,"medium","M0","Other",18
+"mrpc","truth","edge",50,"medium","M1","Other",17
+"mrpc","truth","edge",50,"medium","M2","Other",15
+"mrpc","truth","edge",50,"medium","M3","Other",14
+"mrpc","truth","edge",50,"medium","M4","Other",18
+"mrpc","truth","edge",50,"medium","M0","Failed",0
+"mrpc","truth","edge",50,"medium","M1","Failed",0
+"mrpc","truth","edge",50,"medium","M2","Failed",0
+"mrpc","truth","edge",50,"medium","M3","Failed",0
+"mrpc","truth","edge",50,"medium","M4","Failed",0
+"mrpc","truth","model",50,"large","M0","M0",13
+"mrpc","truth","model",50,"large","M1","M0",0
+"mrpc","truth","model",50,"large","M2","M0",4
+"mrpc","truth","model",50,"large","M3","M0",5
+"mrpc","truth","model",50,"large","M4","M0",0
+"mrpc","truth","model",50,"large","M0","M1",0
+"mrpc","truth","model",50,"large","M1","M1",3
+"mrpc","truth","model",50,"large","M2","M1",2
+"mrpc","truth","model",50,"large","M3","M1",0
+"mrpc","truth","model",50,"large","M4","M1",2
+"mrpc","truth","model",50,"large","M0","M2",0
+"mrpc","truth","model",50,"large","M1","M2",1
+"mrpc","truth","model",50,"large","M2","M2",3
+"mrpc","truth","model",50,"large","M3","M2",0
+"mrpc","truth","model",50,"large","M4","M2",0
+"mrpc","truth","model",50,"large","M0","M3",0
+"mrpc","truth","model",50,"large","M1","M3",0
+"mrpc","truth","model",50,"large","M2","M3",0
+"mrpc","truth","model",50,"large","M3","M3",3
+"mrpc","truth","model",50,"large","M4","M3",0
+"mrpc","truth","model",50,"large","M0","M4",0
+"mrpc","truth","model",50,"large","M1","M4",0
+"mrpc","truth","model",50,"large","M2","M4",0
+"mrpc","truth","model",50,"large","M3","M4",0
+"mrpc","truth","model",50,"large","M4","M4",0
+"mrpc","truth","model",50,"large","M0","Other",7
+"mrpc","truth","model",50,"large","M1","Other",16
+"mrpc","truth","model",50,"large","M2","Other",11
+"mrpc","truth","model",50,"large","M3","Other",12
+"mrpc","truth","model",50,"large","M4","Other",18
+"mrpc","truth","model",50,"large","M0","Failed",0
+"mrpc","truth","model",50,"large","M1","Failed",0
+"mrpc","truth","model",50,"large","M2","Failed",0
+"mrpc","truth","model",50,"large","M3","Failed",0
+"mrpc","truth","model",50,"large","M4","Failed",0
+"mrpc","truth","edge",50,"large","M0","T1 - T2 Edge Absent",13
+"mrpc","truth","edge",50,"large","M1","T1 - T2 Edge Absent",0
+"mrpc","truth","edge",50,"large","M2","T1 - T2 Edge Absent",4
+"mrpc","truth","edge",50,"large","M3","T1 - T2 Edge Absent",8
+"mrpc","truth","edge",50,"large","M4","T1 - T2 Edge Absent",0
+"mrpc","truth","edge",50,"large","M0","T1 - T2 Edge Present",0
+"mrpc","truth","edge",50,"large","M1","T1 - T2 Edge Present",4
+"mrpc","truth","edge",50,"large","M2","T1 - T2 Edge Present",5
+"mrpc","truth","edge",50,"large","M3","T1 - T2 Edge Present",0
+"mrpc","truth","edge",50,"large","M4","T1 - T2 Edge Present",2
+"mrpc","truth","edge",50,"large","M0","Other",7
+"mrpc","truth","edge",50,"large","M1","Other",16
+"mrpc","truth","edge",50,"large","M2","Other",11
+"mrpc","truth","edge",50,"large","M3","Other",12
+"mrpc","truth","edge",50,"large","M4","Other",18
+"mrpc","truth","edge",50,"large","M0","Failed",0
+"mrpc","truth","edge",50,"large","M1","Failed",0
+"mrpc","truth","edge",50,"large","M2","Failed",0
+"mrpc","truth","edge",50,"large","M3","Failed",0
+"mrpc","truth","edge",50,"large","M4","Failed",0
+"mrpc","truth","model",150,"all","M0","M0",29
+"mrpc","truth","model",150,"all","M1","M0",3
+"mrpc","truth","model",150,"all","M2","M0",4
+"mrpc","truth","model",150,"all","M3","M0",8
+"mrpc","truth","model",150,"all","M4","M0",0
+"mrpc","truth","model",150,"all","M0","M1",0
+"mrpc","truth","model",150,"all","M1","M1",11
+"mrpc","truth","model",150,"all","M2","M1",0
+"mrpc","truth","model",150,"all","M3","M1",0
+"mrpc","truth","model",150,"all","M4","M1",19
+"mrpc","truth","model",150,"all","M0","M2",0
+"mrpc","truth","model",150,"all","M1","M2",1
+"mrpc","truth","model",150,"all","M2","M2",18
+"mrpc","truth","model",150,"all","M3","M2",0
+"mrpc","truth","model",150,"all","M4","M2",2
+"mrpc","truth","model",150,"all","M0","M3",0
+"mrpc","truth","model",150,"all","M1","M3",0
+"mrpc","truth","model",150,"all","M2","M3",0
+"mrpc","truth","model",150,"all","M3","M3",24
+"mrpc","truth","model",150,"all","M4","M3",0
+"mrpc","truth","model",150,"all","M0","M4",0
+"mrpc","truth","model",150,"all","M1","M4",0
+"mrpc","truth","model",150,"all","M2","M4",0
+"mrpc","truth","model",150,"all","M3","M4",0
+"mrpc","truth","model",150,"all","M4","M4",1
+"mrpc","truth","model",150,"all","M0","Other",31
+"mrpc","truth","model",150,"all","M1","Other",45
+"mrpc","truth","model",150,"all","M2","Other",38
+"mrpc","truth","model",150,"all","M3","Other",28
+"mrpc","truth","model",150,"all","M4","Other",38
+"mrpc","truth","model",150,"all","M0","Failed",0
+"mrpc","truth","model",150,"all","M1","Failed",0
+"mrpc","truth","model",150,"all","M2","Failed",0
+"mrpc","truth","model",150,"all","M3","Failed",0
+"mrpc","truth","model",150,"all","M4","Failed",0
+"mrpc","truth","edge",150,"all","M0","T1 - T2 Edge Absent",29
+"mrpc","truth","edge",150,"all","M1","T1 - T2 Edge Absent",3
+"mrpc","truth","edge",150,"all","M2","T1 - T2 Edge Absent",4
+"mrpc","truth","edge",150,"all","M3","T1 - T2 Edge Absent",32
+"mrpc","truth","edge",150,"all","M4","T1 - T2 Edge Absent",0
+"mrpc","truth","edge",150,"all","M0","T1 - T2 Edge Present",0
+"mrpc","truth","edge",150,"all","M1","T1 - T2 Edge Present",12
+"mrpc","truth","edge",150,"all","M2","T1 - T2 Edge Present",18
+"mrpc","truth","edge",150,"all","M3","T1 - T2 Edge Present",0
+"mrpc","truth","edge",150,"all","M4","T1 - T2 Edge Present",22
+"mrpc","truth","edge",150,"all","M0","Other",31
+"mrpc","truth","edge",150,"all","M1","Other",45
+"mrpc","truth","edge",150,"all","M2","Other",38
+"mrpc","truth","edge",150,"all","M3","Other",28
+"mrpc","truth","edge",150,"all","M4","Other",38
+"mrpc","truth","edge",150,"all","M0","Failed",0
+"mrpc","truth","edge",150,"all","M1","Failed",0
+"mrpc","truth","edge",150,"all","M2","Failed",0
+"mrpc","truth","edge",150,"all","M3","Failed",0
+"mrpc","truth","edge",150,"all","M4","Failed",0
+"mrpc","truth","model",150,"small","M0","M0",0
+"mrpc","truth","model",150,"small","M1","M0",3
+"mrpc","truth","model",150,"small","M2","M0",0
+"mrpc","truth","model",150,"small","M3","M0",2
+"mrpc","truth","model",150,"small","M4","M0",0
+"mrpc","truth","model",150,"small","M0","M1",0
+"mrpc","truth","model",150,"small","M1","M1",0
+"mrpc","truth","model",150,"small","M2","M1",0
+"mrpc","truth","model",150,"small","M3","M1",0
+"mrpc","truth","model",150,"small","M4","M1",0
+"mrpc","truth","model",150,"small","M0","M2",0
+"mrpc","truth","model",150,"small","M1","M2",0
+"mrpc","truth","model",150,"small","M2","M2",0
+"mrpc","truth","model",150,"small","M3","M2",0
+"mrpc","truth","model",150,"small","M4","M2",0
+"mrpc","truth","model",150,"small","M0","M3",0
+"mrpc","truth","model",150,"small","M1","M3",0
+"mrpc","truth","model",150,"small","M2","M3",0
+"mrpc","truth","model",150,"small","M3","M3",1
+"mrpc","truth","model",150,"small","M4","M3",0
+"mrpc","truth","model",150,"small","M0","M4",0
+"mrpc","truth","model",150,"small","M1","M4",0
+"mrpc","truth","model",150,"small","M2","M4",0
+"mrpc","truth","model",150,"small","M3","M4",0
+"mrpc","truth","model",150,"small","M4","M4",0
+"mrpc","truth","model",150,"small","M0","Other",20
+"mrpc","truth","model",150,"small","M1","Other",17
+"mrpc","truth","model",150,"small","M2","Other",20
+"mrpc","truth","model",150,"small","M3","Other",17
+"mrpc","truth","model",150,"small","M4","Other",20
+"mrpc","truth","model",150,"small","M0","Failed",0
+"mrpc","truth","model",150,"small","M1","Failed",0
+"mrpc","truth","model",150,"small","M2","Failed",0
+"mrpc","truth","model",150,"small","M3","Failed",0
+"mrpc","truth","model",150,"small","M4","Failed",0
+"mrpc","truth","edge",150,"small","M0","T1 - T2 Edge Absent",0
+"mrpc","truth","edge",150,"small","M1","T1 - T2 Edge Absent",3
+"mrpc","truth","edge",150,"small","M2","T1 - T2 Edge Absent",0
+"mrpc","truth","edge",150,"small","M3","T1 - T2 Edge Absent",3
+"mrpc","truth","edge",150,"small","M4","T1 - T2 Edge Absent",0
+"mrpc","truth","edge",150,"small","M0","T1 - T2 Edge Present",0
+"mrpc","truth","edge",150,"small","M1","T1 - T2 Edge Present",0
+"mrpc","truth","edge",150,"small","M2","T1 - T2 Edge Present",0
+"mrpc","truth","edge",150,"small","M3","T1 - T2 Edge Present",0
+"mrpc","truth","edge",150,"small","M4","T1 - T2 Edge Present",0
+"mrpc","truth","edge",150,"small","M0","Other",20
+"mrpc","truth","edge",150,"small","M1","Other",17
+"mrpc","truth","edge",150,"small","M2","Other",20
+"mrpc","truth","edge",150,"small","M3","Other",17
+"mrpc","truth","edge",150,"small","M4","Other",20
+"mrpc","truth","edge",150,"small","M0","Failed",0
+"mrpc","truth","edge",150,"small","M1","Failed",0
+"mrpc","truth","edge",150,"small","M2","Failed",0
+"mrpc","truth","edge",150,"small","M3","Failed",0
+"mrpc","truth","edge",150,"small","M4","Failed",0
+"mrpc","truth","model",150,"medium","M0","M0",11
+"mrpc","truth","model",150,"medium","M1","M0",0
+"mrpc","truth","model",150,"medium","M2","M0",4
+"mrpc","truth","model",150,"medium","M3","M0",3
+"mrpc","truth","model",150,"medium","M4","M0",0
+"mrpc","truth","model",150,"medium","M0","M1",0
+"mrpc","truth","model",150,"medium","M1","M1",2
+"mrpc","truth","model",150,"medium","M2","M1",0
+"mrpc","truth","model",150,"medium","M3","M1",0
+"mrpc","truth","model",150,"medium","M4","M1",6
+"mrpc","truth","model",150,"medium","M0","M2",0
+"mrpc","truth","model",150,"medium","M1","M2",0
+"mrpc","truth","model",150,"medium","M2","M2",2
+"mrpc","truth","model",150,"medium","M3","M2",0
+"mrpc","truth","model",150,"medium","M4","M2",2
+"mrpc","truth","model",150,"medium","M0","M3",0
+"mrpc","truth","model",150,"medium","M1","M3",0
+"mrpc","truth","model",150,"medium","M2","M3",0
+"mrpc","truth","model",150,"medium","M3","M3",7
+"mrpc","truth","model",150,"medium","M4","M3",0
+"mrpc","truth","model",150,"medium","M0","M4",0
+"mrpc","truth","model",150,"medium","M1","M4",0
+"mrpc","truth","model",150,"medium","M2","M4",0
+"mrpc","truth","model",150,"medium","M3","M4",0
+"mrpc","truth","model",150,"medium","M4","M4",0
+"mrpc","truth","model",150,"medium","M0","Other",9
+"mrpc","truth","model",150,"medium","M1","Other",18
+"mrpc","truth","model",150,"medium","M2","Other",14
+"mrpc","truth","model",150,"medium","M3","Other",10
+"mrpc","truth","model",150,"medium","M4","Other",12
+"mrpc","truth","model",150,"medium","M0","Failed",0
+"mrpc","truth","model",150,"medium","M1","Failed",0
+"mrpc","truth","model",150,"medium","M2","Failed",0
+"mrpc","truth","model",150,"medium","M3","Failed",0
+"mrpc","truth","model",150,"medium","M4","Failed",0
+"mrpc","truth","edge",150,"medium","M0","T1 - T2 Edge Absent",11
+"mrpc","truth","edge",150,"medium","M1","T1 - T2 Edge Absent",0
+"mrpc","truth","edge",150,"medium","M2","T1 - T2 Edge Absent",4
+"mrpc","truth","edge",150,"medium","M3","T1 - T2 Edge Absent",10
+"mrpc","truth","edge",150,"medium","M4","T1 - T2 Edge Absent",0
+"mrpc","truth","edge",150,"medium","M0","T1 - T2 Edge Present",0
+"mrpc","truth","edge",150,"medium","M1","T1 - T2 Edge Present",2
+"mrpc","truth","edge",150,"medium","M2","T1 - T2 Edge Present",2
+"mrpc","truth","edge",150,"medium","M3","T1 - T2 Edge Present",0
+"mrpc","truth","edge",150,"medium","M4","T1 - T2 Edge Present",8
+"mrpc","truth","edge",150,"medium","M0","Other",9
+"mrpc","truth","edge",150,"medium","M1","Other",18
+"mrpc","truth","edge",150,"medium","M2","Other",14
+"mrpc","truth","edge",150,"medium","M3","Other",10
+"mrpc","truth","edge",150,"medium","M4","Other",12
+"mrpc","truth","edge",150,"medium","M0","Failed",0
+"mrpc","truth","edge",150,"medium","M1","Failed",0
+"mrpc","truth","edge",150,"medium","M2","Failed",0
+"mrpc","truth","edge",150,"medium","M3","Failed",0
+"mrpc","truth","edge",150,"medium","M4","Failed",0
+"mrpc","truth","model",150,"large","M0","M0",18
+"mrpc","truth","model",150,"large","M1","M0",0
+"mrpc","truth","model",150,"large","M2","M0",0
+"mrpc","truth","model",150,"large","M3","M0",3
+"mrpc","truth","model",150,"large","M4","M0",0
+"mrpc","truth","model",150,"large","M0","M1",0
+"mrpc","truth","model",150,"large","M1","M1",9
+"mrpc","truth","model",150,"large","M2","M1",0
+"mrpc","truth","model",150,"large","M3","M1",0
+"mrpc","truth","model",150,"large","M4","M1",13
+"mrpc","truth","model",150,"large","M0","M2",0
+"mrpc","truth","model",150,"large","M1","M2",1
+"mrpc","truth","model",150,"large","M2","M2",16
+"mrpc","truth","model",150,"large","M3","M2",0
+"mrpc","truth","model",150,"large","M4","M2",0
+"mrpc","truth","model",150,"large","M0","M3",0
+"mrpc","truth","model",150,"large","M1","M3",0
+"mrpc","truth","model",150,"large","M2","M3",0
+"mrpc","truth","model",150,"large","M3","M3",16
+"mrpc","truth","model",150,"large","M4","M3",0
+"mrpc","truth","model",150,"large","M0","M4",0
+"mrpc","truth","model",150,"large","M1","M4",0
+"mrpc","truth","model",150,"large","M2","M4",0
+"mrpc","truth","model",150,"large","M3","M4",0
+"mrpc","truth","model",150,"large","M4","M4",1
+"mrpc","truth","model",150,"large","M0","Other",2
+"mrpc","truth","model",150,"large","M1","Other",10
+"mrpc","truth","model",150,"large","M2","Other",4
+"mrpc","truth","model",150,"large","M3","Other",1
+"mrpc","truth","model",150,"large","M4","Other",6
+"mrpc","truth","model",150,"large","M0","Failed",0
+"mrpc","truth","model",150,"large","M1","Failed",0
+"mrpc","truth","model",150,"large","M2","Failed",0
+"mrpc","truth","model",150,"large","M3","Failed",0
+"mrpc","truth","model",150,"large","M4","Failed",0
+"mrpc","truth","edge",150,"large","M0","T1 - T2 Edge Absent",18
+"mrpc","truth","edge",150,"large","M1","T1 - T2 Edge Absent",0
+"mrpc","truth","edge",150,"large","M2","T1 - T2 Edge Absent",0
+"mrpc","truth","edge",150,"large","M3","T1 - T2 Edge Absent",19
+"mrpc","truth","edge",150,"large","M4","T1 - T2 Edge Absent",0
+"mrpc","truth","edge",150,"large","M0","T1 - T2 Edge Present",0
+"mrpc","truth","edge",150,"large","M1","T1 - T2 Edge Present",10
+"mrpc","truth","edge",150,"large","M2","T1 - T2 Edge Present",16
+"mrpc","truth","edge",150,"large","M3","T1 - T2 Edge Present",0
+"mrpc","truth","edge",150,"large","M4","T1 - T2 Edge Present",14
+"mrpc","truth","edge",150,"large","M0","Other",2
+"mrpc","truth","edge",150,"large","M1","Other",10
+"mrpc","truth","edge",150,"large","M2","Other",4
+"mrpc","truth","edge",150,"large","M3","Other",1
+"mrpc","truth","edge",150,"large","M4","Other",6
+"mrpc","truth","edge",150,"large","M0","Failed",0
+"mrpc","truth","edge",150,"large","M1","Failed",0
+"mrpc","truth","edge",150,"large","M2","Failed",0
+"mrpc","truth","edge",150,"large","M3","Failed",0
+"mrpc","truth","edge",150,"large","M4","Failed",0
+"mrpc","truth","model",300,"all","M0","M0",27
+"mrpc","truth","model",300,"all","M1","M0",2
+"mrpc","truth","model",300,"all","M2","M0",3
+"mrpc","truth","model",300,"all","M3","M0",1
+"mrpc","truth","model",300,"all","M4","M0",3
+"mrpc","truth","model",300,"all","M0","M1",0
+"mrpc","truth","model",300,"all","M1","M1",4
+"mrpc","truth","model",300,"all","M2","M1",0
+"mrpc","truth","model",300,"all","M3","M1",0
+"mrpc","truth","model",300,"all","M4","M1",18
+"mrpc","truth","model",300,"all","M0","M2",0
+"mrpc","truth","model",300,"all","M1","M2",12
+"mrpc","truth","model",300,"all","M2","M2",14
+"mrpc","truth","model",300,"all","M3","M2",0
+"mrpc","truth","model",300,"all","M4","M2",0
+"mrpc","truth","model",300,"all","M0","M3",0
+"mrpc","truth","model",300,"all","M1","M3",1
+"mrpc","truth","model",300,"all","M2","M3",0
+"mrpc","truth","model",300,"all","M3","M3",24
+"mrpc","truth","model",300,"all","M4","M3",1
+"mrpc","truth","model",300,"all","M0","M4",0
+"mrpc","truth","model",300,"all","M1","M4",2
+"mrpc","truth","model",300,"all","M2","M4",0
+"mrpc","truth","model",300,"all","M3","M4",0
+"mrpc","truth","model",300,"all","M4","M4",7
+"mrpc","truth","model",300,"all","M0","Other",19
+"mrpc","truth","model",300,"all","M1","Other",17
+"mrpc","truth","model",300,"all","M2","Other",16
+"mrpc","truth","model",300,"all","M3","Other",15
+"mrpc","truth","model",300,"all","M4","Other",11
+"mrpc","truth","model",300,"all","M0","Failed",14
+"mrpc","truth","model",300,"all","M1","Failed",22
+"mrpc","truth","model",300,"all","M2","Failed",27
+"mrpc","truth","model",300,"all","M3","Failed",20
+"mrpc","truth","model",300,"all","M4","Failed",20
+"mrpc","truth","edge",300,"all","M0","T1 - T2 Edge Absent",27
+"mrpc","truth","edge",300,"all","M1","T1 - T2 Edge Absent",3
+"mrpc","truth","edge",300,"all","M2","T1 - T2 Edge Absent",3
+"mrpc","truth","edge",300,"all","M3","T1 - T2 Edge Absent",25
+"mrpc","truth","edge",300,"all","M4","T1 - T2 Edge Absent",4
+"mrpc","truth","edge",300,"all","M0","T1 - T2 Edge Present",0
+"mrpc","truth","edge",300,"all","M1","T1 - T2 Edge Present",18
+"mrpc","truth","edge",300,"all","M2","T1 - T2 Edge Present",14
+"mrpc","truth","edge",300,"all","M3","T1 - T2 Edge Present",0
+"mrpc","truth","edge",300,"all","M4","T1 - T2 Edge Present",25
+"mrpc","truth","edge",300,"all","M0","Other",19
+"mrpc","truth","edge",300,"all","M1","Other",17
+"mrpc","truth","edge",300,"all","M2","Other",16
+"mrpc","truth","edge",300,"all","M3","Other",15
+"mrpc","truth","edge",300,"all","M4","Other",11
+"mrpc","truth","edge",300,"all","M0","Failed",14
+"mrpc","truth","edge",300,"all","M1","Failed",22
+"mrpc","truth","edge",300,"all","M2","Failed",27
+"mrpc","truth","edge",300,"all","M3","Failed",20
+"mrpc","truth","edge",300,"all","M4","Failed",20
+"mrpc","truth","model",300,"small","M0","M0",4
+"mrpc","truth","model",300,"small","M1","M0",1
+"mrpc","truth","model",300,"small","M2","M0",0
+"mrpc","truth","model",300,"small","M3","M0",0
+"mrpc","truth","model",300,"small","M4","M0",2
+"mrpc","truth","model",300,"small","M0","M1",0
+"mrpc","truth","model",300,"small","M1","M1",0
+"mrpc","truth","model",300,"small","M2","M1",0
+"mrpc","truth","model",300,"small","M3","M1",0
+"mrpc","truth","model",300,"small","M4","M1",1
+"mrpc","truth","model",300,"small","M0","M2",0
+"mrpc","truth","model",300,"small","M1","M2",0
+"mrpc","truth","model",300,"small","M2","M2",1
+"mrpc","truth","model",300,"small","M3","M2",0
+"mrpc","truth","model",300,"small","M4","M2",0
+"mrpc","truth","model",300,"small","M0","M3",0
+"mrpc","truth","model",300,"small","M1","M3",0
+"mrpc","truth","model",300,"small","M2","M3",0
+"mrpc","truth","model",300,"small","M3","M3",2
+"mrpc","truth","model",300,"small","M4","M3",1
+"mrpc","truth","model",300,"small","M0","M4",0
+"mrpc","truth","model",300,"small","M1","M4",0
+"mrpc","truth","model",300,"small","M2","M4",0
+"mrpc","truth","model",300,"small","M3","M4",0
+"mrpc","truth","model",300,"small","M4","M4",0
+"mrpc","truth","model",300,"small","M0","Other",9
+"mrpc","truth","model",300,"small","M1","Other",15
+"mrpc","truth","model",300,"small","M2","Other",11
+"mrpc","truth","model",300,"small","M3","Other",12
+"mrpc","truth","model",300,"small","M4","Other",10
+"mrpc","truth","model",300,"small","M0","Failed",7
+"mrpc","truth","model",300,"small","M1","Failed",4
+"mrpc","truth","model",300,"small","M2","Failed",8
+"mrpc","truth","model",300,"small","M3","Failed",6
+"mrpc","truth","model",300,"small","M4","Failed",6
+"mrpc","truth","edge",300,"small","M0","T1 - T2 Edge Absent",4
+"mrpc","truth","edge",300,"small","M1","T1 - T2 Edge Absent",1
+"mrpc","truth","edge",300,"small","M2","T1 - T2 Edge Absent",0
+"mrpc","truth","edge",300,"small","M3","T1 - T2 Edge Absent",2
+"mrpc","truth","edge",300,"small","M4","T1 - T2 Edge Absent",3
+"mrpc","truth","edge",300,"small","M0","T1 - T2 Edge Present",0
+"mrpc","truth","edge",300,"small","M1","T1 - T2 Edge Present",0
+"mrpc","truth","edge",300,"small","M2","T1 - T2 Edge Present",1
+"mrpc","truth","edge",300,"small","M3","T1 - T2 Edge Present",0
+"mrpc","truth","edge",300,"small","M4","T1 - T2 Edge Present",1
+"mrpc","truth","edge",300,"small","M0","Other",9
+"mrpc","truth","edge",300,"small","M1","Other",15
+"mrpc","truth","edge",300,"small","M2","Other",11
+"mrpc","truth","edge",300,"small","M3","Other",12
+"mrpc","truth","edge",300,"small","M4","Other",10
+"mrpc","truth","edge",300,"small","M0","Failed",7
+"mrpc","truth","edge",300,"small","M1","Failed",4
+"mrpc","truth","edge",300,"small","M2","Failed",8
+"mrpc","truth","edge",300,"small","M3","Failed",6
+"mrpc","truth","edge",300,"small","M4","Failed",6
+"mrpc","truth","model",300,"medium","M0","M0",10
+"mrpc","truth","model",300,"medium","M1","M0",1
+"mrpc","truth","model",300,"medium","M2","M0",3
+"mrpc","truth","model",300,"medium","M3","M0",1
+"mrpc","truth","model",300,"medium","M4","M0",1
+"mrpc","truth","model",300,"medium","M0","M1",0
+"mrpc","truth","model",300,"medium","M1","M1",1
+"mrpc","truth","model",300,"medium","M2","M1",0
+"mrpc","truth","model",300,"medium","M3","M1",0
+"mrpc","truth","model",300,"medium","M4","M1",2
+"mrpc","truth","model",300,"medium","M0","M2",0
+"mrpc","truth","model",300,"medium","M1","M2",4
+"mrpc","truth","model",300,"medium","M2","M2",2
+"mrpc","truth","model",300,"medium","M3","M2",0
+"mrpc","truth","model",300,"medium","M4","M2",0
+"mrpc","truth","model",300,"medium","M0","M3",0
+"mrpc","truth","model",300,"medium","M1","M3",1
+"mrpc","truth","model",300,"medium","M2","M3",0
+"mrpc","truth","model",300,"medium","M3","M3",7
+"mrpc","truth","model",300,"medium","M4","M3",0
+"mrpc","truth","model",300,"medium","M0","M4",0
+"mrpc","truth","model",300,"medium","M1","M4",1
+"mrpc","truth","model",300,"medium","M2","M4",0
+"mrpc","truth","model",300,"medium","M3","M4",0
+"mrpc","truth","model",300,"medium","M4","M4",7
+"mrpc","truth","model",300,"medium","M0","Other",8
+"mrpc","truth","model",300,"medium","M1","Other",0
+"mrpc","truth","model",300,"medium","M2","Other",4
+"mrpc","truth","model",300,"medium","M3","Other",2
+"mrpc","truth","model",300,"medium","M4","Other",1
+"mrpc","truth","model",300,"medium","M0","Failed",2
+"mrpc","truth","model",300,"medium","M1","Failed",12
+"mrpc","truth","model",300,"medium","M2","Failed",11
+"mrpc","truth","model",300,"medium","M3","Failed",10
+"mrpc","truth","model",300,"medium","M4","Failed",9
+"mrpc","truth","edge",300,"medium","M0","T1 - T2 Edge Absent",10
+"mrpc","truth","edge",300,"medium","M1","T1 - T2 Edge Absent",2
+"mrpc","truth","edge",300,"medium","M2","T1 - T2 Edge Absent",3
+"mrpc","truth","edge",300,"medium","M3","T1 - T2 Edge Absent",8
+"mrpc","truth","edge",300,"medium","M4","T1 - T2 Edge Absent",1
+"mrpc","truth","edge",300,"medium","M0","T1 - T2 Edge Present",0
+"mrpc","truth","edge",300,"medium","M1","T1 - T2 Edge Present",6
+"mrpc","truth","edge",300,"medium","M2","T1 - T2 Edge Present",2
+"mrpc","truth","edge",300,"medium","M3","T1 - T2 Edge Present",0
+"mrpc","truth","edge",300,"medium","M4","T1 - T2 Edge Present",9
+"mrpc","truth","edge",300,"medium","M0","Other",8
+"mrpc","truth","edge",300,"medium","M1","Other",0
+"mrpc","truth","edge",300,"medium","M2","Other",4
+"mrpc","truth","edge",300,"medium","M3","Other",2
+"mrpc","truth","edge",300,"medium","M4","Other",1
+"mrpc","truth","edge",300,"medium","M0","Failed",2
+"mrpc","truth","edge",300,"medium","M1","Failed",12
+"mrpc","truth","edge",300,"medium","M2","Failed",11
+"mrpc","truth","edge",300,"medium","M3","Failed",10
+"mrpc","truth","edge",300,"medium","M4","Failed",9
+"mrpc","truth","model",300,"large","M0","M0",13
+"mrpc","truth","model",300,"large","M1","M0",0
+"mrpc","truth","model",300,"large","M2","M0",0
+"mrpc","truth","model",300,"large","M3","M0",0
+"mrpc","truth","model",300,"large","M4","M0",0
+"mrpc","truth","model",300,"large","M0","M1",0
+"mrpc","truth","model",300,"large","M1","M1",3
+"mrpc","truth","model",300,"large","M2","M1",0
+"mrpc","truth","model",300,"large","M3","M1",0
+"mrpc","truth","model",300,"large","M4","M1",15
+"mrpc","truth","model",300,"large","M0","M2",0
+"mrpc","truth","model",300,"large","M1","M2",8
+"mrpc","truth","model",300,"large","M2","M2",11
+"mrpc","truth","model",300,"large","M3","M2",0
+"mrpc","truth","model",300,"large","M4","M2",0
+"mrpc","truth","model",300,"large","M0","M3",0
+"mrpc","truth","model",300,"large","M1","M3",0
+"mrpc","truth","model",300,"large","M2","M3",0
+"mrpc","truth","model",300,"large","M3","M3",15
+"mrpc","truth","model",300,"large","M4","M3",0
+"mrpc","truth","model",300,"large","M0","M4",0
+"mrpc","truth","model",300,"large","M1","M4",1
+"mrpc","truth","model",300,"large","M2","M4",0
+"mrpc","truth","model",300,"large","M3","M4",0
+"mrpc","truth","model",300,"large","M4","M4",0
+"mrpc","truth","model",300,"large","M0","Other",2
+"mrpc","truth","model",300,"large","M1","Other",2
+"mrpc","truth","model",300,"large","M2","Other",1
+"mrpc","truth","model",300,"large","M3","Other",1
+"mrpc","truth","model",300,"large","M4","Other",0
+"mrpc","truth","model",300,"large","M0","Failed",5
+"mrpc","truth","model",300,"large","M1","Failed",6
+"mrpc","truth","model",300,"large","M2","Failed",8
+"mrpc","truth","model",300,"large","M3","Failed",4
+"mrpc","truth","model",300,"large","M4","Failed",5
+"mrpc","truth","edge",300,"large","M0","T1 - T2 Edge Absent",13
+"mrpc","truth","edge",300,"large","M1","T1 - T2 Edge Absent",0
+"mrpc","truth","edge",300,"large","M2","T1 - T2 Edge Absent",0
+"mrpc","truth","edge",300,"large","M3","T1 - T2 Edge Absent",15
+"mrpc","truth","edge",300,"large","M4","T1 - T2 Edge Absent",0
+"mrpc","truth","edge",300,"large","M0","T1 - T2 Edge Present",0
+"mrpc","truth","edge",300,"large","M1","T1 - T2 Edge Present",12
+"mrpc","truth","edge",300,"large","M2","T1 - T2 Edge Present",11
+"mrpc","truth","edge",300,"large","M3","T1 - T2 Edge Present",0
+"mrpc","truth","edge",300,"large","M4","T1 - T2 Edge Present",15
+"mrpc","truth","edge",300,"large","M0","Other",2
+"mrpc","truth","edge",300,"large","M1","Other",2
+"mrpc","truth","edge",300,"large","M2","Other",1
+"mrpc","truth","edge",300,"large","M3","Other",1
+"mrpc","truth","edge",300,"large","M4","Other",0
+"mrpc","truth","edge",300,"large","M0","Failed",5
+"mrpc","truth","edge",300,"large","M1","Failed",6
+"mrpc","truth","edge",300,"large","M2","Failed",8
+"mrpc","truth","edge",300,"large","M3","Failed",4
+"mrpc","truth","edge",300,"large","M4","Failed",5
+"mrpc","CSq","model",50,"all","M0","M0",14
+"mrpc","CSq","model",50,"all","M1","M0",4
+"mrpc","CSq","model",50,"all","M2","M0",7
+"mrpc","CSq","model",50,"all","M3","M0",8
+"mrpc","CSq","model",50,"all","M4","M0",6
+"mrpc","CSq","model",50,"all","M0","M1",0
+"mrpc","CSq","model",50,"all","M1","M1",13
+"mrpc","CSq","model",50,"all","M2","M1",5
+"mrpc","CSq","model",50,"all","M3","M1",0
+"mrpc","CSq","model",50,"all","M4","M1",12
+"mrpc","CSq","model",50,"all","M0","M2",0
+"mrpc","CSq","model",50,"all","M1","M2",0
+"mrpc","CSq","model",50,"all","M2","M2",6
+"mrpc","CSq","model",50,"all","M3","M2",0
+"mrpc","CSq","model",50,"all","M4","M2",1
+"mrpc","CSq","model",50,"all","M0","M3",0
+"mrpc","CSq","model",50,"all","M1","M3",0
+"mrpc","CSq","model",50,"all","M2","M3",0
+"mrpc","CSq","model",50,"all","M3","M3",10
+"mrpc","CSq","model",50,"all","M4","M3",0
+"mrpc","CSq","model",50,"all","M0","M4",0
+"mrpc","CSq","model",50,"all","M1","M4",0
+"mrpc","CSq","model",50,"all","M2","M4",0
+"mrpc","CSq","model",50,"all","M3","M4",0
+"mrpc","CSq","model",50,"all","M4","M4",0
+"mrpc","CSq","model",50,"all","M0","Other",46
+"mrpc","CSq","model",50,"all","M1","Other",43
+"mrpc","CSq","model",50,"all","M2","Other",42
+"mrpc","CSq","model",50,"all","M3","Other",42
+"mrpc","CSq","model",50,"all","M4","Other",41
+"mrpc","CSq","model",50,"all","M0","Failed",0
+"mrpc","CSq","model",50,"all","M1","Failed",0
+"mrpc","CSq","model",50,"all","M2","Failed",0
+"mrpc","CSq","model",50,"all","M3","Failed",0
+"mrpc","CSq","model",50,"all","M4","Failed",0
+"mrpc","CSq","edge",50,"all","M0","T1 - T2 Edge Absent",14
+"mrpc","CSq","edge",50,"all","M1","T1 - T2 Edge Absent",4
+"mrpc","CSq","edge",50,"all","M2","T1 - T2 Edge Absent",7
+"mrpc","CSq","edge",50,"all","M3","T1 - T2 Edge Absent",18
+"mrpc","CSq","edge",50,"all","M4","T1 - T2 Edge Absent",6
+"mrpc","CSq","edge",50,"all","M0","T1 - T2 Edge Present",0
+"mrpc","CSq","edge",50,"all","M1","T1 - T2 Edge Present",13
+"mrpc","CSq","edge",50,"all","M2","T1 - T2 Edge Present",11
+"mrpc","CSq","edge",50,"all","M3","T1 - T2 Edge Present",0
+"mrpc","CSq","edge",50,"all","M4","T1 - T2 Edge Present",13
+"mrpc","CSq","edge",50,"all","M0","Other",46
+"mrpc","CSq","edge",50,"all","M1","Other",43
+"mrpc","CSq","edge",50,"all","M2","Other",42
+"mrpc","CSq","edge",50,"all","M3","Other",42
+"mrpc","CSq","edge",50,"all","M4","Other",41
+"mrpc","CSq","edge",50,"all","M0","Failed",0
+"mrpc","CSq","edge",50,"all","M1","Failed",0
+"mrpc","CSq","edge",50,"all","M2","Failed",0
+"mrpc","CSq","edge",50,"all","M3","Failed",0
+"mrpc","CSq","edge",50,"all","M4","Failed",0
+"mrpc","CSq","model",50,"small","M0","M0",0
+"mrpc","CSq","model",50,"small","M1","M0",0
+"mrpc","CSq","model",50,"small","M2","M0",0
+"mrpc","CSq","model",50,"small","M3","M0",0
+"mrpc","CSq","model",50,"small","M4","M0",2
+"mrpc","CSq","model",50,"small","M0","M1",0
+"mrpc","CSq","model",50,"small","M1","M1",0
+"mrpc","CSq","model",50,"small","M2","M1",0
+"mrpc","CSq","model",50,"small","M3","M1",0
+"mrpc","CSq","model",50,"small","M4","M1",0
+"mrpc","CSq","model",50,"small","M0","M2",0
+"mrpc","CSq","model",50,"small","M1","M2",0
+"mrpc","CSq","model",50,"small","M2","M2",0
+"mrpc","CSq","model",50,"small","M3","M2",0
+"mrpc","CSq","model",50,"small","M4","M2",0
+"mrpc","CSq","model",50,"small","M0","M3",0
+"mrpc","CSq","model",50,"small","M1","M3",0
+"mrpc","CSq","model",50,"small","M2","M3",0
+"mrpc","CSq","model",50,"small","M3","M3",0
+"mrpc","CSq","model",50,"small","M4","M3",0
+"mrpc","CSq","model",50,"small","M0","M4",0
+"mrpc","CSq","model",50,"small","M1","M4",0
+"mrpc","CSq","model",50,"small","M2","M4",0
+"mrpc","CSq","model",50,"small","M3","M4",0
+"mrpc","CSq","model",50,"small","M4","M4",0
+"mrpc","CSq","model",50,"small","M0","Other",20
+"mrpc","CSq","model",50,"small","M1","Other",20
+"mrpc","CSq","model",50,"small","M2","Other",20
+"mrpc","CSq","model",50,"small","M3","Other",20
+"mrpc","CSq","model",50,"small","M4","Other",18
+"mrpc","CSq","model",50,"small","M0","Failed",0
+"mrpc","CSq","model",50,"small","M1","Failed",0
+"mrpc","CSq","model",50,"small","M2","Failed",0
+"mrpc","CSq","model",50,"small","M3","Failed",0
+"mrpc","CSq","model",50,"small","M4","Failed",0
+"mrpc","CSq","edge",50,"small","M0","T1 - T2 Edge Absent",0
+"mrpc","CSq","edge",50,"small","M1","T1 - T2 Edge Absent",0
+"mrpc","CSq","edge",50,"small","M2","T1 - T2 Edge Absent",0
+"mrpc","CSq","edge",50,"small","M3","T1 - T2 Edge Absent",0
+"mrpc","CSq","edge",50,"small","M4","T1 - T2 Edge Absent",2
+"mrpc","CSq","edge",50,"small","M0","T1 - T2 Edge Present",0
+"mrpc","CSq","edge",50,"small","M1","T1 - T2 Edge Present",0
+"mrpc","CSq","edge",50,"small","M2","T1 - T2 Edge Present",0
+"mrpc","CSq","edge",50,"small","M3","T1 - T2 Edge Present",0
+"mrpc","CSq","edge",50,"small","M4","T1 - T2 Edge Present",0
+"mrpc","CSq","edge",50,"small","M0","Other",20
+"mrpc","CSq","edge",50,"small","M1","Other",20
+"mrpc","CSq","edge",50,"small","M2","Other",20
+"mrpc","CSq","edge",50,"small","M3","Other",20
+"mrpc","CSq","edge",50,"small","M4","Other",18
+"mrpc","CSq","edge",50,"small","M0","Failed",0
+"mrpc","CSq","edge",50,"small","M1","Failed",0
+"mrpc","CSq","edge",50,"small","M2","Failed",0
+"mrpc","CSq","edge",50,"small","M3","Failed",0
+"mrpc","CSq","edge",50,"small","M4","Failed",0
+"mrpc","CSq","model",50,"medium","M0","M0",2
+"mrpc","CSq","model",50,"medium","M1","M0",3
+"mrpc","CSq","model",50,"medium","M2","M0",3
+"mrpc","CSq","model",50,"medium","M3","M0",4
+"mrpc","CSq","model",50,"medium","M4","M0",2
+"mrpc","CSq","model",50,"medium","M0","M1",0
+"mrpc","CSq","model",50,"medium","M1","M1",2
+"mrpc","CSq","model",50,"medium","M2","M1",4
+"mrpc","CSq","model",50,"medium","M3","M1",0
+"mrpc","CSq","model",50,"medium","M4","M1",2
+"mrpc","CSq","model",50,"medium","M0","M2",0
+"mrpc","CSq","model",50,"medium","M1","M2",0
+"mrpc","CSq","model",50,"medium","M2","M2",0
+"mrpc","CSq","model",50,"medium","M3","M2",0
+"mrpc","CSq","model",50,"medium","M4","M2",0
+"mrpc","CSq","model",50,"medium","M0","M3",0
+"mrpc","CSq","model",50,"medium","M1","M3",0
+"mrpc","CSq","model",50,"medium","M2","M3",0
+"mrpc","CSq","model",50,"medium","M3","M3",1
+"mrpc","CSq","model",50,"medium","M4","M3",0
+"mrpc","CSq","model",50,"medium","M0","M4",0
+"mrpc","CSq","model",50,"medium","M1","M4",0
+"mrpc","CSq","model",50,"medium","M2","M4",0
+"mrpc","CSq","model",50,"medium","M3","M4",0
+"mrpc","CSq","model",50,"medium","M4","M4",0
+"mrpc","CSq","model",50,"medium","M0","Other",18
+"mrpc","CSq","model",50,"medium","M1","Other",15
+"mrpc","CSq","model",50,"medium","M2","Other",13
+"mrpc","CSq","model",50,"medium","M3","Other",15
+"mrpc","CSq","model",50,"medium","M4","Other",16
+"mrpc","CSq","model",50,"medium","M0","Failed",0
+"mrpc","CSq","model",50,"medium","M1","Failed",0
+"mrpc","CSq","model",50,"medium","M2","Failed",0
+"mrpc","CSq","model",50,"medium","M3","Failed",0
+"mrpc","CSq","model",50,"medium","M4","Failed",0
+"mrpc","CSq","edge",50,"medium","M0","T1 - T2 Edge Absent",2
+"mrpc","CSq","edge",50,"medium","M1","T1 - T2 Edge Absent",3
+"mrpc","CSq","edge",50,"medium","M2","T1 - T2 Edge Absent",3
+"mrpc","CSq","edge",50,"medium","M3","T1 - T2 Edge Absent",5
+"mrpc","CSq","edge",50,"medium","M4","T1 - T2 Edge Absent",2
+"mrpc","CSq","edge",50,"medium","M0","T1 - T2 Edge Present",0
+"mrpc","CSq","edge",50,"medium","M1","T1 - T2 Edge Present",2
+"mrpc","CSq","edge",50,"medium","M2","T1 - T2 Edge Present",4
+"mrpc","CSq","edge",50,"medium","M3","T1 - T2 Edge Present",0
+"mrpc","CSq","edge",50,"medium","M4","T1 - T2 Edge Present",2
+"mrpc","CSq","edge",50,"medium","M0","Other",18
+"mrpc","CSq","edge",50,"medium","M1","Other",15
+"mrpc","CSq","edge",50,"medium","M2","Other",13
+"mrpc","CSq","edge",50,"medium","M3","Other",15
+"mrpc","CSq","edge",50,"medium","M4","Other",16
+"mrpc","CSq","edge",50,"medium","M0","Failed",0
+"mrpc","CSq","edge",50,"medium","M1","Failed",0
+"mrpc","CSq","edge",50,"medium","M2","Failed",0
+"mrpc","CSq","edge",50,"medium","M3","Failed",0
+"mrpc","CSq","edge",50,"medium","M4","Failed",0
+"mrpc","CSq","model",50,"large","M0","M0",12
+"mrpc","CSq","model",50,"large","M1","M0",1
+"mrpc","CSq","model",50,"large","M2","M0",4
+"mrpc","CSq","model",50,"large","M3","M0",4
+"mrpc","CSq","model",50,"large","M4","M0",2
+"mrpc","CSq","model",50,"large","M0","M1",0
+"mrpc","CSq","model",50,"large","M1","M1",11
+"mrpc","CSq","model",50,"large","M2","M1",1
+"mrpc","CSq","model",50,"large","M3","M1",0
+"mrpc","CSq","model",50,"large","M4","M1",10
+"mrpc","CSq","model",50,"large","M0","M2",0
+"mrpc","CSq","model",50,"large","M1","M2",0
+"mrpc","CSq","model",50,"large","M2","M2",6
+"mrpc","CSq","model",50,"large","M3","M2",0
+"mrpc","CSq","model",50,"large","M4","M2",1
+"mrpc","CSq","model",50,"large","M0","M3",0
+"mrpc","CSq","model",50,"large","M1","M3",0
+"mrpc","CSq","model",50,"large","M2","M3",0
+"mrpc","CSq","model",50,"large","M3","M3",9
+"mrpc","CSq","model",50,"large","M4","M3",0
+"mrpc","CSq","model",50,"large","M0","M4",0
+"mrpc","CSq","model",50,"large","M1","M4",0
+"mrpc","CSq","model",50,"large","M2","M4",0
+"mrpc","CSq","model",50,"large","M3","M4",0
+"mrpc","CSq","model",50,"large","M4","M4",0
+"mrpc","CSq","model",50,"large","M0","Other",8
+"mrpc","CSq","model",50,"large","M1","Other",8
+"mrpc","CSq","model",50,"large","M2","Other",9
+"mrpc","CSq","model",50,"large","M3","Other",7
+"mrpc","CSq","model",50,"large","M4","Other",7
+"mrpc","CSq","model",50,"large","M0","Failed",0
+"mrpc","CSq","model",50,"large","M1","Failed",0
+"mrpc","CSq","model",50,"large","M2","Failed",0
+"mrpc","CSq","model",50,"large","M3","Failed",0
+"mrpc","CSq","model",50,"large","M4","Failed",0
+"mrpc","CSq","edge",50,"large","M0","T1 - T2 Edge Absent",12
+"mrpc","CSq","edge",50,"large","M1","T1 - T2 Edge Absent",1
+"mrpc","CSq","edge",50,"large","M2","T1 - T2 Edge Absent",4
+"mrpc","CSq","edge",50,"large","M3","T1 - T2 Edge Absent",13
+"mrpc","CSq","edge",50,"large","M4","T1 - T2 Edge Absent",2
+"mrpc","CSq","edge",50,"large","M0","T1 - T2 Edge Present",0
+"mrpc","CSq","edge",50,"large","M1","T1 - T2 Edge Present",11
+"mrpc","CSq","edge",50,"large","M2","T1 - T2 Edge Present",7
+"mrpc","CSq","edge",50,"large","M3","T1 - T2 Edge Present",0
+"mrpc","CSq","edge",50,"large","M4","T1 - T2 Edge Present",11
+"mrpc","CSq","edge",50,"large","M0","Other",8
+"mrpc","CSq","edge",50,"large","M1","Other",8
+"mrpc","CSq","edge",50,"large","M2","Other",9
+"mrpc","CSq","edge",50,"large","M3","Other",7
+"mrpc","CSq","edge",50,"large","M4","Other",7
+"mrpc","CSq","edge",50,"large","M0","Failed",0
+"mrpc","CSq","edge",50,"large","M1","Failed",0
+"mrpc","CSq","edge",50,"large","M2","Failed",0
+"mrpc","CSq","edge",50,"large","M3","Failed",0
+"mrpc","CSq","edge",50,"large","M4","Failed",0
+"mrpc","CSq","model",150,"all","M0","M0",36
+"mrpc","CSq","model",150,"all","M1","M0",4
+"mrpc","CSq","model",150,"all","M2","M0",5
+"mrpc","CSq","model",150,"all","M3","M0",6
+"mrpc","CSq","model",150,"all","M4","M0",2
+"mrpc","CSq","model",150,"all","M0","M1",0
+"mrpc","CSq","model",150,"all","M1","M1",16
+"mrpc","CSq","model",150,"all","M2","M1",0
+"mrpc","CSq","model",150,"all","M3","M1",0
+"mrpc","CSq","model",150,"all","M4","M1",21
+"mrpc","CSq","model",150,"all","M0","M2",0
+"mrpc","CSq","model",150,"all","M1","M2",5
+"mrpc","CSq","model",150,"all","M2","M2",18
+"mrpc","CSq","model",150,"all","M3","M2",0
+"mrpc","CSq","model",150,"all","M4","M2",6
+"mrpc","CSq","model",150,"all","M0","M3",0
+"mrpc","CSq","model",150,"all","M1","M3",0
+"mrpc","CSq","model",150,"all","M2","M3",0
+"mrpc","CSq","model",150,"all","M3","M3",29
+"mrpc","CSq","model",150,"all","M4","M3",3
+"mrpc","CSq","model",150,"all","M0","M4",0
+"mrpc","CSq","model",150,"all","M1","M4",0
+"mrpc","CSq","model",150,"all","M2","M4",0
+"mrpc","CSq","model",150,"all","M3","M4",3
+"mrpc","CSq","model",150,"all","M4","M4",8
+"mrpc","CSq","model",150,"all","M0","Other",24
+"mrpc","CSq","model",150,"all","M1","Other",35
+"mrpc","CSq","model",150,"all","M2","Other",37
+"mrpc","CSq","model",150,"all","M3","Other",22
+"mrpc","CSq","model",150,"all","M4","Other",20
+"mrpc","CSq","model",150,"all","M0","Failed",0
+"mrpc","CSq","model",150,"all","M1","Failed",0
+"mrpc","CSq","model",150,"all","M2","Failed",0
+"mrpc","CSq","model",150,"all","M3","Failed",0
+"mrpc","CSq","model",150,"all","M4","Failed",0
+"mrpc","CSq","edge",150,"all","M0","T1 - T2 Edge Absent",36
+"mrpc","CSq","edge",150,"all","M1","T1 - T2 Edge Absent",4
+"mrpc","CSq","edge",150,"all","M2","T1 - T2 Edge Absent",5
+"mrpc","CSq","edge",150,"all","M3","T1 - T2 Edge Absent",35
+"mrpc","CSq","edge",150,"all","M4","T1 - T2 Edge Absent",5
+"mrpc","CSq","edge",150,"all","M0","T1 - T2 Edge Present",0
+"mrpc","CSq","edge",150,"all","M1","T1 - T2 Edge Present",21
+"mrpc","CSq","edge",150,"all","M2","T1 - T2 Edge Present",18
+"mrpc","CSq","edge",150,"all","M3","T1 - T2 Edge Present",3
+"mrpc","CSq","edge",150,"all","M4","T1 - T2 Edge Present",35
+"mrpc","CSq","edge",150,"all","M0","Other",24
+"mrpc","CSq","edge",150,"all","M1","Other",35
+"mrpc","CSq","edge",150,"all","M2","Other",37
+"mrpc","CSq","edge",150,"all","M3","Other",22
+"mrpc","CSq","edge",150,"all","M4","Other",20
+"mrpc","CSq","edge",150,"all","M0","Failed",0
+"mrpc","CSq","edge",150,"all","M1","Failed",0
+"mrpc","CSq","edge",150,"all","M2","Failed",0
+"mrpc","CSq","edge",150,"all","M3","Failed",0
+"mrpc","CSq","edge",150,"all","M4","Failed",0
+"mrpc","CSq","model",150,"small","M0","M0",0
+"mrpc","CSq","model",150,"small","M1","M0",3
+"mrpc","CSq","model",150,"small","M2","M0",0
+"mrpc","CSq","model",150,"small","M3","M0",2
+"mrpc","CSq","model",150,"small","M4","M0",2
+"mrpc","CSq","model",150,"small","M0","M1",0
+"mrpc","CSq","model",150,"small","M1","M1",0
+"mrpc","CSq","model",150,"small","M2","M1",0
+"mrpc","CSq","model",150,"small","M3","M1",0
+"mrpc","CSq","model",150,"small","M4","M1",1
+"mrpc","CSq","model",150,"small","M0","M2",0
+"mrpc","CSq","model",150,"small","M1","M2",0
+"mrpc","CSq","model",150,"small","M2","M2",0
+"mrpc","CSq","model",150,"small","M3","M2",0
+"mrpc","CSq","model",150,"small","M4","M2",1
+"mrpc","CSq","model",150,"small","M0","M3",0
+"mrpc","CSq","model",150,"small","M1","M3",0
+"mrpc","CSq","model",150,"small","M2","M3",0
+"mrpc","CSq","model",150,"small","M3","M3",1
+"mrpc","CSq","model",150,"small","M4","M3",1
+"mrpc","CSq","model",150,"small","M0","M4",0
+"mrpc","CSq","model",150,"small","M1","M4",0
+"mrpc","CSq","model",150,"small","M2","M4",0
+"mrpc","CSq","model",150,"small","M3","M4",0
+"mrpc","CSq","model",150,"small","M4","M4",0
+"mrpc","CSq","model",150,"small","M0","Other",20
+"mrpc","CSq","model",150,"small","M1","Other",17
+"mrpc","CSq","model",150,"small","M2","Other",20
+"mrpc","CSq","model",150,"small","M3","Other",17
+"mrpc","CSq","model",150,"small","M4","Other",15
+"mrpc","CSq","model",150,"small","M0","Failed",0
+"mrpc","CSq","model",150,"small","M1","Failed",0
+"mrpc","CSq","model",150,"small","M2","Failed",0
+"mrpc","CSq","model",150,"small","M3","Failed",0
+"mrpc","CSq","model",150,"small","M4","Failed",0
+"mrpc","CSq","edge",150,"small","M0","T1 - T2 Edge Absent",0
+"mrpc","CSq","edge",150,"small","M1","T1 - T2 Edge Absent",3
+"mrpc","CSq","edge",150,"small","M2","T1 - T2 Edge Absent",0
+"mrpc","CSq","edge",150,"small","M3","T1 - T2 Edge Absent",3
+"mrpc","CSq","edge",150,"small","M4","T1 - T2 Edge Absent",3
+"mrpc","CSq","edge",150,"small","M0","T1 - T2 Edge Present",0
+"mrpc","CSq","edge",150,"small","M1","T1 - T2 Edge Present",0
+"mrpc","CSq","edge",150,"small","M2","T1 - T2 Edge Present",0
+"mrpc","CSq","edge",150,"small","M3","T1 - T2 Edge Present",0
+"mrpc","CSq","edge",150,"small","M4","T1 - T2 Edge Present",2
+"mrpc","CSq","edge",150,"small","M0","Other",20
+"mrpc","CSq","edge",150,"small","M1","Other",17
+"mrpc","CSq","edge",150,"small","M2","Other",20
+"mrpc","CSq","edge",150,"small","M3","Other",17
+"mrpc","CSq","edge",150,"small","M4","Other",15
+"mrpc","CSq","edge",150,"small","M0","Failed",0
+"mrpc","CSq","edge",150,"small","M1","Failed",0
+"mrpc","CSq","edge",150,"small","M2","Failed",0
+"mrpc","CSq","edge",150,"small","M3","Failed",0
+"mrpc","CSq","edge",150,"small","M4","Failed",0
+"mrpc","CSq","model",150,"medium","M0","M0",16
+"mrpc","CSq","model",150,"medium","M1","M0",1
+"mrpc","CSq","model",150,"medium","M2","M0",3
+"mrpc","CSq","model",150,"medium","M3","M0",3
+"mrpc","CSq","model",150,"medium","M4","M0",0
+"mrpc","CSq","model",150,"medium","M0","M1",0
+"mrpc","CSq","model",150,"medium","M1","M1",2
+"mrpc","CSq","model",150,"medium","M2","M1",0
+"mrpc","CSq","model",150,"medium","M3","M1",0
+"mrpc","CSq","model",150,"medium","M4","M1",8
+"mrpc","CSq","model",150,"medium","M0","M2",0
+"mrpc","CSq","model",150,"medium","M1","M2",3
+"mrpc","CSq","model",150,"medium","M2","M2",4
+"mrpc","CSq","model",150,"medium","M3","M2",0
+"mrpc","CSq","model",150,"medium","M4","M2",1
+"mrpc","CSq","model",150,"medium","M0","M3",0
+"mrpc","CSq","model",150,"medium","M1","M3",0
+"mrpc","CSq","model",150,"medium","M2","M3",0
+"mrpc","CSq","model",150,"medium","M3","M3",12
+"mrpc","CSq","model",150,"medium","M4","M3",2
+"mrpc","CSq","model",150,"medium","M0","M4",0
+"mrpc","CSq","model",150,"medium","M1","M4",0
+"mrpc","CSq","model",150,"medium","M2","M4",0
+"mrpc","CSq","model",150,"medium","M3","M4",0
+"mrpc","CSq","model",150,"medium","M4","M4",6
+"mrpc","CSq","model",150,"medium","M0","Other",4
+"mrpc","CSq","model",150,"medium","M1","Other",14
+"mrpc","CSq","model",150,"medium","M2","Other",13
+"mrpc","CSq","model",150,"medium","M3","Other",5
+"mrpc","CSq","model",150,"medium","M4","Other",3
+"mrpc","CSq","model",150,"medium","M0","Failed",0
+"mrpc","CSq","model",150,"medium","M1","Failed",0
+"mrpc","CSq","model",150,"medium","M2","Failed",0
+"mrpc","CSq","model",150,"medium","M3","Failed",0
+"mrpc","CSq","model",150,"medium","M4","Failed",0
+"mrpc","CSq","edge",150,"medium","M0","T1 - T2 Edge Absent",16
+"mrpc","CSq","edge",150,"medium","M1","T1 - T2 Edge Absent",1
+"mrpc","CSq","edge",150,"medium","M2","T1 - T2 Edge Absent",3
+"mrpc","CSq","edge",150,"medium","M3","T1 - T2 Edge Absent",15
+"mrpc","CSq","edge",150,"medium","M4","T1 - T2 Edge Absent",2
+"mrpc","CSq","edge",150,"medium","M0","T1 - T2 Edge Present",0
+"mrpc","CSq","edge",150,"medium","M1","T1 - T2 Edge Present",5
+"mrpc","CSq","edge",150,"medium","M2","T1 - T2 Edge Present",4
+"mrpc","CSq","edge",150,"medium","M3","T1 - T2 Edge Present",0
+"mrpc","CSq","edge",150,"medium","M4","T1 - T2 Edge Present",15
+"mrpc","CSq","edge",150,"medium","M0","Other",4
+"mrpc","CSq","edge",150,"medium","M1","Other",14
+"mrpc","CSq","edge",150,"medium","M2","Other",13
+"mrpc","CSq","edge",150,"medium","M3","Other",5
+"mrpc","CSq","edge",150,"medium","M4","Other",3
+"mrpc","CSq","edge",150,"medium","M0","Failed",0
+"mrpc","CSq","edge",150,"medium","M1","Failed",0
+"mrpc","CSq","edge",150,"medium","M2","Failed",0
+"mrpc","CSq","edge",150,"medium","M3","Failed",0
+"mrpc","CSq","edge",150,"medium","M4","Failed",0
+"mrpc","CSq","model",150,"large","M0","M0",20
+"mrpc","CSq","model",150,"large","M1","M0",0
+"mrpc","CSq","model",150,"large","M2","M0",2
+"mrpc","CSq","model",150,"large","M3","M0",1
+"mrpc","CSq","model",150,"large","M4","M0",0
+"mrpc","CSq","model",150,"large","M0","M1",0
+"mrpc","CSq","model",150,"large","M1","M1",14
+"mrpc","CSq","model",150,"large","M2","M1",0
+"mrpc","CSq","model",150,"large","M3","M1",0
+"mrpc","CSq","model",150,"large","M4","M1",12
+"mrpc","CSq","model",150,"large","M0","M2",0
+"mrpc","CSq","model",150,"large","M1","M2",2
+"mrpc","CSq","model",150,"large","M2","M2",14
+"mrpc","CSq","model",150,"large","M3","M2",0
+"mrpc","CSq","model",150,"large","M4","M2",4
+"mrpc","CSq","model",150,"large","M0","M3",0
+"mrpc","CSq","model",150,"large","M1","M3",0
+"mrpc","CSq","model",150,"large","M2","M3",0
+"mrpc","CSq","model",150,"large","M3","M3",16
+"mrpc","CSq","model",150,"large","M4","M3",0
+"mrpc","CSq","model",150,"large","M0","M4",0
+"mrpc","CSq","model",150,"large","M1","M4",0
+"mrpc","CSq","model",150,"large","M2","M4",0
+"mrpc","CSq","model",150,"large","M3","M4",3
+"mrpc","CSq","model",150,"large","M4","M4",2
+"mrpc","CSq","model",150,"large","M0","Other",0
+"mrpc","CSq","model",150,"large","M1","Other",4
+"mrpc","CSq","model",150,"large","M2","Other",4
+"mrpc","CSq","model",150,"large","M3","Other",0
+"mrpc","CSq","model",150,"large","M4","Other",2
+"mrpc","CSq","model",150,"large","M0","Failed",0
+"mrpc","CSq","model",150,"large","M1","Failed",0
+"mrpc","CSq","model",150,"large","M2","Failed",0
+"mrpc","CSq","model",150,"large","M3","Failed",0
+"mrpc","CSq","model",150,"large","M4","Failed",0
+"mrpc","CSq","edge",150,"large","M0","T1 - T2 Edge Absent",20
+"mrpc","CSq","edge",150,"large","M1","T1 - T2 Edge Absent",0
+"mrpc","CSq","edge",150,"large","M2","T1 - T2 Edge Absent",2
+"mrpc","CSq","edge",150,"large","M3","T1 - T2 Edge Absent",17
+"mrpc","CSq","edge",150,"large","M4","T1 - T2 Edge Absent",0
+"mrpc","CSq","edge",150,"large","M0","T1 - T2 Edge Present",0
+"mrpc","CSq","edge",150,"large","M1","T1 - T2 Edge Present",16
+"mrpc","CSq","edge",150,"large","M2","T1 - T2 Edge Present",14
+"mrpc","CSq","edge",150,"large","M3","T1 - T2 Edge Present",3
+"mrpc","CSq","edge",150,"large","M4","T1 - T2 Edge Present",18
+"mrpc","CSq","edge",150,"large","M0","Other",0
+"mrpc","CSq","edge",150,"large","M1","Other",4
+"mrpc","CSq","edge",150,"large","M2","Other",4
+"mrpc","CSq","edge",150,"large","M3","Other",0
+"mrpc","CSq","edge",150,"large","M4","Other",2
+"mrpc","CSq","edge",150,"large","M0","Failed",0
+"mrpc","CSq","edge",150,"large","M1","Failed",0
+"mrpc","CSq","edge",150,"large","M2","Failed",0
+"mrpc","CSq","edge",150,"large","M3","Failed",0
+"mrpc","CSq","edge",150,"large","M4","Failed",0
+"mrpc","CSq","model",300,"all","M0","M0",40
+"mrpc","CSq","model",300,"all","M1","M0",7
+"mrpc","CSq","model",300,"all","M2","M0",13
+"mrpc","CSq","model",300,"all","M3","M0",6
+"mrpc","CSq","model",300,"all","M4","M0",4
+"mrpc","CSq","model",300,"all","M0","M1",0
+"mrpc","CSq","model",300,"all","M1","M1",8
+"mrpc","CSq","model",300,"all","M2","M1",2
+"mrpc","CSq","model",300,"all","M3","M1",0
+"mrpc","CSq","model",300,"all","M4","M1",18
+"mrpc","CSq","model",300,"all","M0","M2",0
+"mrpc","CSq","model",300,"all","M1","M2",15
+"mrpc","CSq","model",300,"all","M2","M2",20
+"mrpc","CSq","model",300,"all","M3","M2",0
+"mrpc","CSq","model",300,"all","M4","M2",3
+"mrpc","CSq","model",300,"all","M0","M3",0
+"mrpc","CSq","model",300,"all","M1","M3",1
+"mrpc","CSq","model",300,"all","M2","M3",0
+"mrpc","CSq","model",300,"all","M3","M3",30
+"mrpc","CSq","model",300,"all","M4","M3",5
+"mrpc","CSq","model",300,"all","M0","M4",0
+"mrpc","CSq","model",300,"all","M1","M4",6
+"mrpc","CSq","model",300,"all","M2","M4",0
+"mrpc","CSq","model",300,"all","M3","M4",6
+"mrpc","CSq","model",300,"all","M4","M4",16
+"mrpc","CSq","model",300,"all","M0","Other",20
+"mrpc","CSq","model",300,"all","M1","Other",23
+"mrpc","CSq","model",300,"all","M2","Other",25
+"mrpc","CSq","model",300,"all","M3","Other",18
+"mrpc","CSq","model",300,"all","M4","Other",14
+"mrpc","CSq","model",300,"all","M0","Failed",0
+"mrpc","CSq","model",300,"all","M1","Failed",0
+"mrpc","CSq","model",300,"all","M2","Failed",0
+"mrpc","CSq","model",300,"all","M3","Failed",0
+"mrpc","CSq","model",300,"all","M4","Failed",0
+"mrpc","CSq","edge",300,"all","M0","T1 - T2 Edge Absent",40
+"mrpc","CSq","edge",300,"all","M1","T1 - T2 Edge Absent",8
+"mrpc","CSq","edge",300,"all","M2","T1 - T2 Edge Absent",13
+"mrpc","CSq","edge",300,"all","M3","T1 - T2 Edge Absent",36
+"mrpc","CSq","edge",300,"all","M4","T1 - T2 Edge Absent",9
+"mrpc","CSq","edge",300,"all","M0","T1 - T2 Edge Present",0
+"mrpc","CSq","edge",300,"all","M1","T1 - T2 Edge Present",29
+"mrpc","CSq","edge",300,"all","M2","T1 - T2 Edge Present",22
+"mrpc","CSq","edge",300,"all","M3","T1 - T2 Edge Present",6
+"mrpc","CSq","edge",300,"all","M4","T1 - T2 Edge Present",37
+"mrpc","CSq","edge",300,"all","M0","Other",20
+"mrpc","CSq","edge",300,"all","M1","Other",23
+"mrpc","CSq","edge",300,"all","M2","Other",25
+"mrpc","CSq","edge",300,"all","M3","Other",18
+"mrpc","CSq","edge",300,"all","M4","Other",14
+"mrpc","CSq","edge",300,"all","M0","Failed",0
+"mrpc","CSq","edge",300,"all","M1","Failed",0
+"mrpc","CSq","edge",300,"all","M2","Failed",0
+"mrpc","CSq","edge",300,"all","M3","Failed",0
+"mrpc","CSq","edge",300,"all","M4","Failed",0
+"mrpc","CSq","model",300,"small","M0","M0",9
+"mrpc","CSq","model",300,"small","M1","M0",3
+"mrpc","CSq","model",300,"small","M2","M0",2
+"mrpc","CSq","model",300,"small","M3","M0",3
+"mrpc","CSq","model",300,"small","M4","M0",4
+"mrpc","CSq","model",300,"small","M0","M1",0
+"mrpc","CSq","model",300,"small","M1","M1",2
+"mrpc","CSq","model",300,"small","M2","M1",1
+"mrpc","CSq","model",300,"small","M3","M1",0
+"mrpc","CSq","model",300,"small","M4","M1",0
+"mrpc","CSq","model",300,"small","M0","M2",0
+"mrpc","CSq","model",300,"small","M1","M2",0
+"mrpc","CSq","model",300,"small","M2","M2",0
+"mrpc","CSq","model",300,"small","M3","M2",0
+"mrpc","CSq","model",300,"small","M4","M2",0
+"mrpc","CSq","model",300,"small","M0","M3",0
+"mrpc","CSq","model",300,"small","M1","M3",0
+"mrpc","CSq","model",300,"small","M2","M3",0
+"mrpc","CSq","model",300,"small","M3","M3",2
+"mrpc","CSq","model",300,"small","M4","M3",0
+"mrpc","CSq","model",300,"small","M0","M4",0
+"mrpc","CSq","model",300,"small","M1","M4",0
+"mrpc","CSq","model",300,"small","M2","M4",0
+"mrpc","CSq","model",300,"small","M3","M4",0
+"mrpc","CSq","model",300,"small","M4","M4",2
+"mrpc","CSq","model",300,"small","M0","Other",11
+"mrpc","CSq","model",300,"small","M1","Other",15
+"mrpc","CSq","model",300,"small","M2","Other",17
+"mrpc","CSq","model",300,"small","M3","Other",15
+"mrpc","CSq","model",300,"small","M4","Other",14
+"mrpc","CSq","model",300,"small","M0","Failed",0
+"mrpc","CSq","model",300,"small","M1","Failed",0
+"mrpc","CSq","model",300,"small","M2","Failed",0
+"mrpc","CSq","model",300,"small","M3","Failed",0
+"mrpc","CSq","model",300,"small","M4","Failed",0
+"mrpc","CSq","edge",300,"small","M0","T1 - T2 Edge Absent",9
+"mrpc","CSq","edge",300,"small","M1","T1 - T2 Edge Absent",3
+"mrpc","CSq","edge",300,"small","M2","T1 - T2 Edge Absent",2
+"mrpc","CSq","edge",300,"small","M3","T1 - T2 Edge Absent",5
+"mrpc","CSq","edge",300,"small","M4","T1 - T2 Edge Absent",4
+"mrpc","CSq","edge",300,"small","M0","T1 - T2 Edge Present",0
+"mrpc","CSq","edge",300,"small","M1","T1 - T2 Edge Present",2
+"mrpc","CSq","edge",300,"small","M2","T1 - T2 Edge Present",1
+"mrpc","CSq","edge",300,"small","M3","T1 - T2 Edge Present",0
+"mrpc","CSq","edge",300,"small","M4","T1 - T2 Edge Present",2
+"mrpc","CSq","edge",300,"small","M0","Other",11
+"mrpc","CSq","edge",300,"small","M1","Other",15
+"mrpc","CSq","edge",300,"small","M2","Other",17
+"mrpc","CSq","edge",300,"small","M3","Other",15
+"mrpc","CSq","edge",300,"small","M4","Other",14
+"mrpc","CSq","edge",300,"small","M0","Failed",0
+"mrpc","CSq","edge",300,"small","M1","Failed",0
+"mrpc","CSq","edge",300,"small","M2","Failed",0
+"mrpc","CSq","edge",300,"small","M3","Failed",0
+"mrpc","CSq","edge",300,"small","M4","Failed",0
+"mrpc","CSq","model",300,"medium","M0","M0",13
+"mrpc","CSq","model",300,"medium","M1","M0",3
+"mrpc","CSq","model",300,"medium","M2","M0",6
+"mrpc","CSq","model",300,"medium","M3","M0",2
+"mrpc","CSq","model",300,"medium","M4","M0",0
+"mrpc","CSq","model",300,"medium","M0","M1",0
+"mrpc","CSq","model",300,"medium","M1","M1",4
+"mrpc","CSq","model",300,"medium","M2","M1",1
+"mrpc","CSq","model",300,"medium","M3","M1",0
+"mrpc","CSq","model",300,"medium","M4","M1",4
+"mrpc","CSq","model",300,"medium","M0","M2",0
+"mrpc","CSq","model",300,"medium","M1","M2",6
+"mrpc","CSq","model",300,"medium","M2","M2",7
+"mrpc","CSq","model",300,"medium","M3","M2",0
+"mrpc","CSq","model",300,"medium","M4","M2",0
+"mrpc","CSq","model",300,"medium","M0","M3",0
+"mrpc","CSq","model",300,"medium","M1","M3",1
+"mrpc","CSq","model",300,"medium","M2","M3",0
+"mrpc","CSq","model",300,"medium","M3","M3",14
+"mrpc","CSq","model",300,"medium","M4","M3",5
+"mrpc","CSq","model",300,"medium","M0","M4",0
+"mrpc","CSq","model",300,"medium","M1","M4",1
+"mrpc","CSq","model",300,"medium","M2","M4",0
+"mrpc","CSq","model",300,"medium","M3","M4",2
+"mrpc","CSq","model",300,"medium","M4","M4",11
+"mrpc","CSq","model",300,"medium","M0","Other",7
+"mrpc","CSq","model",300,"medium","M1","Other",5
+"mrpc","CSq","model",300,"medium","M2","Other",6
+"mrpc","CSq","model",300,"medium","M3","Other",2
+"mrpc","CSq","model",300,"medium","M4","Other",0
+"mrpc","CSq","model",300,"medium","M0","Failed",0
+"mrpc","CSq","model",300,"medium","M1","Failed",0
+"mrpc","CSq","model",300,"medium","M2","Failed",0
+"mrpc","CSq","model",300,"medium","M3","Failed",0
+"mrpc","CSq","model",300,"medium","M4","Failed",0
+"mrpc","CSq","edge",300,"medium","M0","T1 - T2 Edge Absent",13
+"mrpc","CSq","edge",300,"medium","M1","T1 - T2 Edge Absent",4
+"mrpc","CSq","edge",300,"medium","M2","T1 - T2 Edge Absent",6
+"mrpc","CSq","edge",300,"medium","M3","T1 - T2 Edge Absent",16
+"mrpc","CSq","edge",300,"medium","M4","T1 - T2 Edge Absent",5
+"mrpc","CSq","edge",300,"medium","M0","T1 - T2 Edge Present",0
+"mrpc","CSq","edge",300,"medium","M1","T1 - T2 Edge Present",11
+"mrpc","CSq","edge",300,"medium","M2","T1 - T2 Edge Present",8
+"mrpc","CSq","edge",300,"medium","M3","T1 - T2 Edge Present",2
+"mrpc","CSq","edge",300,"medium","M4","T1 - T2 Edge Present",15
+"mrpc","CSq","edge",300,"medium","M0","Other",7
+"mrpc","CSq","edge",300,"medium","M1","Other",5
+"mrpc","CSq","edge",300,"medium","M2","Other",6
+"mrpc","CSq","edge",300,"medium","M3","Other",2
+"mrpc","CSq","edge",300,"medium","M4","Other",0
+"mrpc","CSq","edge",300,"medium","M0","Failed",0
+"mrpc","CSq","edge",300,"medium","M1","Failed",0
+"mrpc","CSq","edge",300,"medium","M2","Failed",0
+"mrpc","CSq","edge",300,"medium","M3","Failed",0
+"mrpc","CSq","edge",300,"medium","M4","Failed",0
+"mrpc","CSq","model",300,"large","M0","M0",18
+"mrpc","CSq","model",300,"large","M1","M0",1
+"mrpc","CSq","model",300,"large","M2","M0",5
+"mrpc","CSq","model",300,"large","M3","M0",1
+"mrpc","CSq","model",300,"large","M4","M0",0
+"mrpc","CSq","model",300,"large","M0","M1",0
+"mrpc","CSq","model",300,"large","M1","M1",2
+"mrpc","CSq","model",300,"large","M2","M1",0
+"mrpc","CSq","model",300,"large","M3","M1",0
+"mrpc","CSq","model",300,"large","M4","M1",14
+"mrpc","CSq","model",300,"large","M0","M2",0
+"mrpc","CSq","model",300,"large","M1","M2",9
+"mrpc","CSq","model",300,"large","M2","M2",13
+"mrpc","CSq","model",300,"large","M3","M2",0
+"mrpc","CSq","model",300,"large","M4","M2",3
+"mrpc","CSq","model",300,"large","M0","M3",0
+"mrpc","CSq","model",300,"large","M1","M3",0
+"mrpc","CSq","model",300,"large","M2","M3",0
+"mrpc","CSq","model",300,"large","M3","M3",14
+"mrpc","CSq","model",300,"large","M4","M3",0
+"mrpc","CSq","model",300,"large","M0","M4",0
+"mrpc","CSq","model",300,"large","M1","M4",5
+"mrpc","CSq","model",300,"large","M2","M4",0
+"mrpc","CSq","model",300,"large","M3","M4",4
+"mrpc","CSq","model",300,"large","M4","M4",3
+"mrpc","CSq","model",300,"large","M0","Other",2
+"mrpc","CSq","model",300,"large","M1","Other",3
+"mrpc","CSq","model",300,"large","M2","Other",2
+"mrpc","CSq","model",300,"large","M3","Other",1
+"mrpc","CSq","model",300,"large","M4","Other",0
+"mrpc","CSq","model",300,"large","M0","Failed",0
+"mrpc","CSq","model",300,"large","M1","Failed",0
+"mrpc","CSq","model",300,"large","M2","Failed",0
+"mrpc","CSq","model",300,"large","M3","Failed",0
+"mrpc","CSq","model",300,"large","M4","Failed",0
+"mrpc","CSq","edge",300,"large","M0","T1 - T2 Edge Absent",18
+"mrpc","CSq","edge",300,"large","M1","T1 - T2 Edge Absent",1
+"mrpc","CSq","edge",300,"large","M2","T1 - T2 Edge Absent",5
+"mrpc","CSq","edge",300,"large","M3","T1 - T2 Edge Absent",15
+"mrpc","CSq","edge",300,"large","M4","T1 - T2 Edge Absent",0
+"mrpc","CSq","edge",300,"large","M0","T1 - T2 Edge Present",0
+"mrpc","CSq","edge",300,"large","M1","T1 - T2 Edge Present",16
+"mrpc","CSq","edge",300,"large","M2","T1 - T2 Edge Present",13
+"mrpc","CSq","edge",300,"large","M3","T1 - T2 Edge Present",4
+"mrpc","CSq","edge",300,"large","M4","T1 - T2 Edge Present",20
+"mrpc","CSq","edge",300,"large","M0","Other",2
+"mrpc","CSq","edge",300,"large","M1","Other",3
+"mrpc","CSq","edge",300,"large","M2","Other",2
+"mrpc","CSq","edge",300,"large","M3","Other",1
+"mrpc","CSq","edge",300,"large","M4","Other",0
+"mrpc","CSq","edge",300,"large","M0","Failed",0
+"mrpc","CSq","edge",300,"large","M1","Failed",0
+"mrpc","CSq","edge",300,"large","M2","Failed",0
+"mrpc","CSq","edge",300,"large","M3","Failed",0
+"mrpc","CSq","edge",300,"large","M4","Failed",0
 "gmac","gmac","edge",50,"all","M0","T1 - T2 Edge Absent",40
 "gmac","gmac","edge",50,"all","M1","T1 - T2 Edge Absent",25
 "gmac","gmac","edge",50,"all","M2","T1 - T2 Edge Absent",24
@@ -3199,3 +4519,1203 @@
 "mrggi","mrggi","edge",1000,"large","M2","Weak instrument",0
 "mrggi","mrggi","edge",1000,"large","M3","Weak instrument",0
 "mrggi","mrggi","edge",1000,"large","M4","Weak instrument",0
+"mrggi","none","edge.fdr",50,"all","M0","T1 - T2 Edge Absent",18
+"mrggi","none","edge.fdr",50,"all","M1","T1 - T2 Edge Absent",8
+"mrggi","none","edge.fdr",50,"all","M2","T1 - T2 Edge Absent",17
+"mrggi","none","edge.fdr",50,"all","M3","T1 - T2 Edge Absent",3
+"mrggi","none","edge.fdr",50,"all","M4","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",50,"all","M0","T1 - T2 Edge Present",1
+"mrggi","none","edge.fdr",50,"all","M1","T1 - T2 Edge Present",11
+"mrggi","none","edge.fdr",50,"all","M2","T1 - T2 Edge Present",2
+"mrggi","none","edge.fdr",50,"all","M3","T1 - T2 Edge Present",14
+"mrggi","none","edge.fdr",50,"all","M4","T1 - T2 Edge Present",16
+"mrggi","none","edge.fdr",50,"all","M0","Weak instrument",41
+"mrggi","none","edge.fdr",50,"all","M1","Weak instrument",41
+"mrggi","none","edge.fdr",50,"all","M2","Weak instrument",41
+"mrggi","none","edge.fdr",50,"all","M3","Weak instrument",43
+"mrggi","none","edge.fdr",50,"all","M4","Weak instrument",44
+"mrggi","none","edge.fdr",50,"small","M0","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",50,"small","M1","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",50,"small","M2","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",50,"small","M3","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",50,"small","M4","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",50,"small","M0","T1 - T2 Edge Present",0
+"mrggi","none","edge.fdr",50,"small","M1","T1 - T2 Edge Present",0
+"mrggi","none","edge.fdr",50,"small","M2","T1 - T2 Edge Present",0
+"mrggi","none","edge.fdr",50,"small","M3","T1 - T2 Edge Present",0
+"mrggi","none","edge.fdr",50,"small","M4","T1 - T2 Edge Present",0
+"mrggi","none","edge.fdr",50,"small","M0","Weak instrument",20
+"mrggi","none","edge.fdr",50,"small","M1","Weak instrument",20
+"mrggi","none","edge.fdr",50,"small","M2","Weak instrument",20
+"mrggi","none","edge.fdr",50,"small","M3","Weak instrument",20
+"mrggi","none","edge.fdr",50,"small","M4","Weak instrument",20
+"mrggi","none","edge.fdr",50,"medium","M0","T1 - T2 Edge Absent",3
+"mrggi","none","edge.fdr",50,"medium","M1","T1 - T2 Edge Absent",5
+"mrggi","none","edge.fdr",50,"medium","M2","T1 - T2 Edge Absent",7
+"mrggi","none","edge.fdr",50,"medium","M3","T1 - T2 Edge Absent",1
+"mrggi","none","edge.fdr",50,"medium","M4","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",50,"medium","M0","T1 - T2 Edge Present",1
+"mrggi","none","edge.fdr",50,"medium","M1","T1 - T2 Edge Present",1
+"mrggi","none","edge.fdr",50,"medium","M2","T1 - T2 Edge Present",1
+"mrggi","none","edge.fdr",50,"medium","M3","T1 - T2 Edge Present",3
+"mrggi","none","edge.fdr",50,"medium","M4","T1 - T2 Edge Present",4
+"mrggi","none","edge.fdr",50,"medium","M0","Weak instrument",16
+"mrggi","none","edge.fdr",50,"medium","M1","Weak instrument",14
+"mrggi","none","edge.fdr",50,"medium","M2","Weak instrument",12
+"mrggi","none","edge.fdr",50,"medium","M3","Weak instrument",16
+"mrggi","none","edge.fdr",50,"medium","M4","Weak instrument",16
+"mrggi","none","edge.fdr",50,"large","M0","T1 - T2 Edge Absent",15
+"mrggi","none","edge.fdr",50,"large","M1","T1 - T2 Edge Absent",3
+"mrggi","none","edge.fdr",50,"large","M2","T1 - T2 Edge Absent",10
+"mrggi","none","edge.fdr",50,"large","M3","T1 - T2 Edge Absent",2
+"mrggi","none","edge.fdr",50,"large","M4","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",50,"large","M0","T1 - T2 Edge Present",0
+"mrggi","none","edge.fdr",50,"large","M1","T1 - T2 Edge Present",10
+"mrggi","none","edge.fdr",50,"large","M2","T1 - T2 Edge Present",1
+"mrggi","none","edge.fdr",50,"large","M3","T1 - T2 Edge Present",11
+"mrggi","none","edge.fdr",50,"large","M4","T1 - T2 Edge Present",12
+"mrggi","none","edge.fdr",50,"large","M0","Weak instrument",5
+"mrggi","none","edge.fdr",50,"large","M1","Weak instrument",7
+"mrggi","none","edge.fdr",50,"large","M2","Weak instrument",9
+"mrggi","none","edge.fdr",50,"large","M3","Weak instrument",7
+"mrggi","none","edge.fdr",50,"large","M4","Weak instrument",8
+"mrggi","none","edge.fdr",150,"all","M0","T1 - T2 Edge Absent",34
+"mrggi","none","edge.fdr",150,"all","M1","T1 - T2 Edge Absent",6
+"mrggi","none","edge.fdr",150,"all","M2","T1 - T2 Edge Absent",26
+"mrggi","none","edge.fdr",150,"all","M3","T1 - T2 Edge Absent",1
+"mrggi","none","edge.fdr",150,"all","M4","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",150,"all","M0","T1 - T2 Edge Present",2
+"mrggi","none","edge.fdr",150,"all","M1","T1 - T2 Edge Present",20
+"mrggi","none","edge.fdr",150,"all","M2","T1 - T2 Edge Present",0
+"mrggi","none","edge.fdr",150,"all","M3","T1 - T2 Edge Present",34
+"mrggi","none","edge.fdr",150,"all","M4","T1 - T2 Edge Present",35
+"mrggi","none","edge.fdr",150,"all","M0","Weak instrument",24
+"mrggi","none","edge.fdr",150,"all","M1","Weak instrument",34
+"mrggi","none","edge.fdr",150,"all","M2","Weak instrument",34
+"mrggi","none","edge.fdr",150,"all","M3","Weak instrument",25
+"mrggi","none","edge.fdr",150,"all","M4","Weak instrument",25
+"mrggi","none","edge.fdr",150,"small","M0","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",150,"small","M1","T1 - T2 Edge Absent",3
+"mrggi","none","edge.fdr",150,"small","M2","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",150,"small","M3","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",150,"small","M4","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",150,"small","M0","T1 - T2 Edge Present",0
+"mrggi","none","edge.fdr",150,"small","M1","T1 - T2 Edge Present",0
+"mrggi","none","edge.fdr",150,"small","M2","T1 - T2 Edge Present",0
+"mrggi","none","edge.fdr",150,"small","M3","T1 - T2 Edge Present",1
+"mrggi","none","edge.fdr",150,"small","M4","T1 - T2 Edge Present",2
+"mrggi","none","edge.fdr",150,"small","M0","Weak instrument",20
+"mrggi","none","edge.fdr",150,"small","M1","Weak instrument",17
+"mrggi","none","edge.fdr",150,"small","M2","Weak instrument",20
+"mrggi","none","edge.fdr",150,"small","M3","Weak instrument",19
+"mrggi","none","edge.fdr",150,"small","M4","Weak instrument",18
+"mrggi","none","edge.fdr",150,"medium","M0","T1 - T2 Edge Absent",16
+"mrggi","none","edge.fdr",150,"medium","M1","T1 - T2 Edge Absent",3
+"mrggi","none","edge.fdr",150,"medium","M2","T1 - T2 Edge Absent",9
+"mrggi","none","edge.fdr",150,"medium","M3","T1 - T2 Edge Absent",1
+"mrggi","none","edge.fdr",150,"medium","M4","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",150,"medium","M0","T1 - T2 Edge Present",0
+"mrggi","none","edge.fdr",150,"medium","M1","T1 - T2 Edge Present",3
+"mrggi","none","edge.fdr",150,"medium","M2","T1 - T2 Edge Present",0
+"mrggi","none","edge.fdr",150,"medium","M3","T1 - T2 Edge Present",14
+"mrggi","none","edge.fdr",150,"medium","M4","T1 - T2 Edge Present",15
+"mrggi","none","edge.fdr",150,"medium","M0","Weak instrument",4
+"mrggi","none","edge.fdr",150,"medium","M1","Weak instrument",14
+"mrggi","none","edge.fdr",150,"medium","M2","Weak instrument",11
+"mrggi","none","edge.fdr",150,"medium","M3","Weak instrument",5
+"mrggi","none","edge.fdr",150,"medium","M4","Weak instrument",5
+"mrggi","none","edge.fdr",150,"large","M0","T1 - T2 Edge Absent",18
+"mrggi","none","edge.fdr",150,"large","M1","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",150,"large","M2","T1 - T2 Edge Absent",17
+"mrggi","none","edge.fdr",150,"large","M3","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",150,"large","M4","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",150,"large","M0","T1 - T2 Edge Present",2
+"mrggi","none","edge.fdr",150,"large","M1","T1 - T2 Edge Present",17
+"mrggi","none","edge.fdr",150,"large","M2","T1 - T2 Edge Present",0
+"mrggi","none","edge.fdr",150,"large","M3","T1 - T2 Edge Present",19
+"mrggi","none","edge.fdr",150,"large","M4","T1 - T2 Edge Present",18
+"mrggi","none","edge.fdr",150,"large","M0","Weak instrument",0
+"mrggi","none","edge.fdr",150,"large","M1","Weak instrument",3
+"mrggi","none","edge.fdr",150,"large","M2","Weak instrument",3
+"mrggi","none","edge.fdr",150,"large","M3","Weak instrument",1
+"mrggi","none","edge.fdr",150,"large","M4","Weak instrument",2
+"mrggi","none","edge.fdr",300,"all","M0","T1 - T2 Edge Absent",39
+"mrggi","none","edge.fdr",300,"all","M1","T1 - T2 Edge Absent",9
+"mrggi","none","edge.fdr",300,"all","M2","T1 - T2 Edge Absent",34
+"mrggi","none","edge.fdr",300,"all","M3","T1 - T2 Edge Absent",1
+"mrggi","none","edge.fdr",300,"all","M4","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",300,"all","M0","T1 - T2 Edge Present",4
+"mrggi","none","edge.fdr",300,"all","M1","T1 - T2 Edge Present",34
+"mrggi","none","edge.fdr",300,"all","M2","T1 - T2 Edge Present",3
+"mrggi","none","edge.fdr",300,"all","M3","T1 - T2 Edge Present",39
+"mrggi","none","edge.fdr",300,"all","M4","T1 - T2 Edge Present",42
+"mrggi","none","edge.fdr",300,"all","M0","Weak instrument",17
+"mrggi","none","edge.fdr",300,"all","M1","Weak instrument",17
+"mrggi","none","edge.fdr",300,"all","M2","Weak instrument",23
+"mrggi","none","edge.fdr",300,"all","M3","Weak instrument",20
+"mrggi","none","edge.fdr",300,"all","M4","Weak instrument",18
+"mrggi","none","edge.fdr",300,"small","M0","T1 - T2 Edge Absent",9
+"mrggi","none","edge.fdr",300,"small","M1","T1 - T2 Edge Absent",5
+"mrggi","none","edge.fdr",300,"small","M2","T1 - T2 Edge Absent",3
+"mrggi","none","edge.fdr",300,"small","M3","T1 - T2 Edge Absent",1
+"mrggi","none","edge.fdr",300,"small","M4","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",300,"small","M0","T1 - T2 Edge Present",1
+"mrggi","none","edge.fdr",300,"small","M1","T1 - T2 Edge Present",0
+"mrggi","none","edge.fdr",300,"small","M2","T1 - T2 Edge Present",0
+"mrggi","none","edge.fdr",300,"small","M3","T1 - T2 Edge Present",2
+"mrggi","none","edge.fdr",300,"small","M4","T1 - T2 Edge Present",3
+"mrggi","none","edge.fdr",300,"small","M0","Weak instrument",10
+"mrggi","none","edge.fdr",300,"small","M1","Weak instrument",15
+"mrggi","none","edge.fdr",300,"small","M2","Weak instrument",17
+"mrggi","none","edge.fdr",300,"small","M3","Weak instrument",17
+"mrggi","none","edge.fdr",300,"small","M4","Weak instrument",17
+"mrggi","none","edge.fdr",300,"medium","M0","T1 - T2 Edge Absent",11
+"mrggi","none","edge.fdr",300,"medium","M1","T1 - T2 Edge Absent",4
+"mrggi","none","edge.fdr",300,"medium","M2","T1 - T2 Edge Absent",14
+"mrggi","none","edge.fdr",300,"medium","M3","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",300,"medium","M4","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",300,"medium","M0","T1 - T2 Edge Present",3
+"mrggi","none","edge.fdr",300,"medium","M1","T1 - T2 Edge Present",14
+"mrggi","none","edge.fdr",300,"medium","M2","T1 - T2 Edge Present",2
+"mrggi","none","edge.fdr",300,"medium","M3","T1 - T2 Edge Present",18
+"mrggi","none","edge.fdr",300,"medium","M4","T1 - T2 Edge Present",20
+"mrggi","none","edge.fdr",300,"medium","M0","Weak instrument",6
+"mrggi","none","edge.fdr",300,"medium","M1","Weak instrument",2
+"mrggi","none","edge.fdr",300,"medium","M2","Weak instrument",4
+"mrggi","none","edge.fdr",300,"medium","M3","Weak instrument",2
+"mrggi","none","edge.fdr",300,"medium","M4","Weak instrument",0
+"mrggi","none","edge.fdr",300,"large","M0","T1 - T2 Edge Absent",19
+"mrggi","none","edge.fdr",300,"large","M1","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",300,"large","M2","T1 - T2 Edge Absent",17
+"mrggi","none","edge.fdr",300,"large","M3","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",300,"large","M4","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",300,"large","M0","T1 - T2 Edge Present",0
+"mrggi","none","edge.fdr",300,"large","M1","T1 - T2 Edge Present",20
+"mrggi","none","edge.fdr",300,"large","M2","T1 - T2 Edge Present",1
+"mrggi","none","edge.fdr",300,"large","M3","T1 - T2 Edge Present",19
+"mrggi","none","edge.fdr",300,"large","M4","T1 - T2 Edge Present",19
+"mrggi","none","edge.fdr",300,"large","M0","Weak instrument",1
+"mrggi","none","edge.fdr",300,"large","M1","Weak instrument",0
+"mrggi","none","edge.fdr",300,"large","M2","Weak instrument",2
+"mrggi","none","edge.fdr",300,"large","M3","Weak instrument",1
+"mrggi","none","edge.fdr",300,"large","M4","Weak instrument",1
+"mrggi","none","edge.fdr",670,"all","M0","T1 - T2 Edge Absent",44
+"mrggi","none","edge.fdr",670,"all","M1","T1 - T2 Edge Absent",14
+"mrggi","none","edge.fdr",670,"all","M2","T1 - T2 Edge Absent",50
+"mrggi","none","edge.fdr",670,"all","M3","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",670,"all","M4","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",670,"all","M0","T1 - T2 Edge Present",1
+"mrggi","none","edge.fdr",670,"all","M1","T1 - T2 Edge Present",32
+"mrggi","none","edge.fdr",670,"all","M2","T1 - T2 Edge Present",3
+"mrggi","none","edge.fdr",670,"all","M3","T1 - T2 Edge Present",48
+"mrggi","none","edge.fdr",670,"all","M4","T1 - T2 Edge Present",50
+"mrggi","none","edge.fdr",670,"all","M0","Weak instrument",15
+"mrggi","none","edge.fdr",670,"all","M1","Weak instrument",14
+"mrggi","none","edge.fdr",670,"all","M2","Weak instrument",7
+"mrggi","none","edge.fdr",670,"all","M3","Weak instrument",12
+"mrggi","none","edge.fdr",670,"all","M4","Weak instrument",10
+"mrggi","none","edge.fdr",670,"small","M0","T1 - T2 Edge Absent",9
+"mrggi","none","edge.fdr",670,"small","M1","T1 - T2 Edge Absent",7
+"mrggi","none","edge.fdr",670,"small","M2","T1 - T2 Edge Absent",12
+"mrggi","none","edge.fdr",670,"small","M3","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",670,"small","M4","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",670,"small","M0","T1 - T2 Edge Present",0
+"mrggi","none","edge.fdr",670,"small","M1","T1 - T2 Edge Present",1
+"mrggi","none","edge.fdr",670,"small","M2","T1 - T2 Edge Present",1
+"mrggi","none","edge.fdr",670,"small","M3","T1 - T2 Edge Present",10
+"mrggi","none","edge.fdr",670,"small","M4","T1 - T2 Edge Present",11
+"mrggi","none","edge.fdr",670,"small","M0","Weak instrument",11
+"mrggi","none","edge.fdr",670,"small","M1","Weak instrument",12
+"mrggi","none","edge.fdr",670,"small","M2","Weak instrument",7
+"mrggi","none","edge.fdr",670,"small","M3","Weak instrument",10
+"mrggi","none","edge.fdr",670,"small","M4","Weak instrument",9
+"mrggi","none","edge.fdr",670,"medium","M0","T1 - T2 Edge Absent",16
+"mrggi","none","edge.fdr",670,"medium","M1","T1 - T2 Edge Absent",7
+"mrggi","none","edge.fdr",670,"medium","M2","T1 - T2 Edge Absent",20
+"mrggi","none","edge.fdr",670,"medium","M3","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",670,"medium","M4","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",670,"medium","M0","T1 - T2 Edge Present",1
+"mrggi","none","edge.fdr",670,"medium","M1","T1 - T2 Edge Present",11
+"mrggi","none","edge.fdr",670,"medium","M2","T1 - T2 Edge Present",0
+"mrggi","none","edge.fdr",670,"medium","M3","T1 - T2 Edge Present",18
+"mrggi","none","edge.fdr",670,"medium","M4","T1 - T2 Edge Present",19
+"mrggi","none","edge.fdr",670,"medium","M0","Weak instrument",3
+"mrggi","none","edge.fdr",670,"medium","M1","Weak instrument",2
+"mrggi","none","edge.fdr",670,"medium","M2","Weak instrument",0
+"mrggi","none","edge.fdr",670,"medium","M3","Weak instrument",2
+"mrggi","none","edge.fdr",670,"medium","M4","Weak instrument",1
+"mrggi","none","edge.fdr",670,"large","M0","T1 - T2 Edge Absent",19
+"mrggi","none","edge.fdr",670,"large","M1","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",670,"large","M2","T1 - T2 Edge Absent",18
+"mrggi","none","edge.fdr",670,"large","M3","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",670,"large","M4","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",670,"large","M0","T1 - T2 Edge Present",0
+"mrggi","none","edge.fdr",670,"large","M1","T1 - T2 Edge Present",20
+"mrggi","none","edge.fdr",670,"large","M2","T1 - T2 Edge Present",2
+"mrggi","none","edge.fdr",670,"large","M3","T1 - T2 Edge Present",20
+"mrggi","none","edge.fdr",670,"large","M4","T1 - T2 Edge Present",20
+"mrggi","none","edge.fdr",670,"large","M0","Weak instrument",1
+"mrggi","none","edge.fdr",670,"large","M1","Weak instrument",0
+"mrggi","none","edge.fdr",670,"large","M2","Weak instrument",0
+"mrggi","none","edge.fdr",670,"large","M3","Weak instrument",0
+"mrggi","none","edge.fdr",670,"large","M4","Weak instrument",0
+"mrggi","none","edge.fdr",1000,"all","M0","T1 - T2 Edge Absent",50
+"mrggi","none","edge.fdr",1000,"all","M1","T1 - T2 Edge Absent",10
+"mrggi","none","edge.fdr",1000,"all","M2","T1 - T2 Edge Absent",49
+"mrggi","none","edge.fdr",1000,"all","M3","T1 - T2 Edge Absent",2
+"mrggi","none","edge.fdr",1000,"all","M4","T1 - T2 Edge Absent",1
+"mrggi","none","edge.fdr",1000,"all","M0","T1 - T2 Edge Present",2
+"mrggi","none","edge.fdr",1000,"all","M1","T1 - T2 Edge Present",40
+"mrggi","none","edge.fdr",1000,"all","M2","T1 - T2 Edge Present",1
+"mrggi","none","edge.fdr",1000,"all","M3","T1 - T2 Edge Present",51
+"mrggi","none","edge.fdr",1000,"all","M4","T1 - T2 Edge Present",48
+"mrggi","none","edge.fdr",1000,"all","M0","Weak instrument",8
+"mrggi","none","edge.fdr",1000,"all","M1","Weak instrument",10
+"mrggi","none","edge.fdr",1000,"all","M2","Weak instrument",10
+"mrggi","none","edge.fdr",1000,"all","M3","Weak instrument",7
+"mrggi","none","edge.fdr",1000,"all","M4","Weak instrument",11
+"mrggi","none","edge.fdr",1000,"small","M0","T1 - T2 Edge Absent",11
+"mrggi","none","edge.fdr",1000,"small","M1","T1 - T2 Edge Absent",8
+"mrggi","none","edge.fdr",1000,"small","M2","T1 - T2 Edge Absent",10
+"mrggi","none","edge.fdr",1000,"small","M3","T1 - T2 Edge Absent",2
+"mrggi","none","edge.fdr",1000,"small","M4","T1 - T2 Edge Absent",1
+"mrggi","none","edge.fdr",1000,"small","M0","T1 - T2 Edge Present",1
+"mrggi","none","edge.fdr",1000,"small","M1","T1 - T2 Edge Present",3
+"mrggi","none","edge.fdr",1000,"small","M2","T1 - T2 Edge Present",0
+"mrggi","none","edge.fdr",1000,"small","M3","T1 - T2 Edge Present",13
+"mrggi","none","edge.fdr",1000,"small","M4","T1 - T2 Edge Present",9
+"mrggi","none","edge.fdr",1000,"small","M0","Weak instrument",8
+"mrggi","none","edge.fdr",1000,"small","M1","Weak instrument",9
+"mrggi","none","edge.fdr",1000,"small","M2","Weak instrument",10
+"mrggi","none","edge.fdr",1000,"small","M3","Weak instrument",5
+"mrggi","none","edge.fdr",1000,"small","M4","Weak instrument",10
+"mrggi","none","edge.fdr",1000,"medium","M0","T1 - T2 Edge Absent",20
+"mrggi","none","edge.fdr",1000,"medium","M1","T1 - T2 Edge Absent",2
+"mrggi","none","edge.fdr",1000,"medium","M2","T1 - T2 Edge Absent",19
+"mrggi","none","edge.fdr",1000,"medium","M3","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",1000,"medium","M4","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",1000,"medium","M0","T1 - T2 Edge Present",0
+"mrggi","none","edge.fdr",1000,"medium","M1","T1 - T2 Edge Present",17
+"mrggi","none","edge.fdr",1000,"medium","M2","T1 - T2 Edge Present",1
+"mrggi","none","edge.fdr",1000,"medium","M3","T1 - T2 Edge Present",18
+"mrggi","none","edge.fdr",1000,"medium","M4","T1 - T2 Edge Present",19
+"mrggi","none","edge.fdr",1000,"medium","M0","Weak instrument",0
+"mrggi","none","edge.fdr",1000,"medium","M1","Weak instrument",1
+"mrggi","none","edge.fdr",1000,"medium","M2","Weak instrument",0
+"mrggi","none","edge.fdr",1000,"medium","M3","Weak instrument",2
+"mrggi","none","edge.fdr",1000,"medium","M4","Weak instrument",1
+"mrggi","none","edge.fdr",1000,"large","M0","T1 - T2 Edge Absent",19
+"mrggi","none","edge.fdr",1000,"large","M1","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",1000,"large","M2","T1 - T2 Edge Absent",20
+"mrggi","none","edge.fdr",1000,"large","M3","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",1000,"large","M4","T1 - T2 Edge Absent",0
+"mrggi","none","edge.fdr",1000,"large","M0","T1 - T2 Edge Present",1
+"mrggi","none","edge.fdr",1000,"large","M1","T1 - T2 Edge Present",20
+"mrggi","none","edge.fdr",1000,"large","M2","T1 - T2 Edge Present",0
+"mrggi","none","edge.fdr",1000,"large","M3","T1 - T2 Edge Present",20
+"mrggi","none","edge.fdr",1000,"large","M4","T1 - T2 Edge Present",20
+"mrggi","none","edge.fdr",1000,"large","M0","Weak instrument",0
+"mrggi","none","edge.fdr",1000,"large","M1","Weak instrument",0
+"mrggi","none","edge.fdr",1000,"large","M2","Weak instrument",0
+"mrggi","none","edge.fdr",1000,"large","M3","Weak instrument",0
+"mrggi","none","edge.fdr",1000,"large","M4","Weak instrument",0
+"mrggi","truth","edge.fdr",50,"all","M0","T1 - T2 Edge Absent",18
+"mrggi","truth","edge.fdr",50,"all","M1","T1 - T2 Edge Absent",12
+"mrggi","truth","edge.fdr",50,"all","M2","T1 - T2 Edge Absent",19
+"mrggi","truth","edge.fdr",50,"all","M3","T1 - T2 Edge Absent",4
+"mrggi","truth","edge.fdr",50,"all","M4","T1 - T2 Edge Absent",3
+"mrggi","truth","edge.fdr",50,"all","M0","T1 - T2 Edge Present",1
+"mrggi","truth","edge.fdr",50,"all","M1","T1 - T2 Edge Present",7
+"mrggi","truth","edge.fdr",50,"all","M2","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",50,"all","M3","T1 - T2 Edge Present",13
+"mrggi","truth","edge.fdr",50,"all","M4","T1 - T2 Edge Present",13
+"mrggi","truth","edge.fdr",50,"all","M0","Weak instrument",41
+"mrggi","truth","edge.fdr",50,"all","M1","Weak instrument",41
+"mrggi","truth","edge.fdr",50,"all","M2","Weak instrument",41
+"mrggi","truth","edge.fdr",50,"all","M3","Weak instrument",43
+"mrggi","truth","edge.fdr",50,"all","M4","Weak instrument",44
+"mrggi","truth","edge.fdr",50,"small","M0","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",50,"small","M1","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",50,"small","M2","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",50,"small","M3","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",50,"small","M4","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",50,"small","M0","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",50,"small","M1","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",50,"small","M2","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",50,"small","M3","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",50,"small","M4","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",50,"small","M0","Weak instrument",20
+"mrggi","truth","edge.fdr",50,"small","M1","Weak instrument",20
+"mrggi","truth","edge.fdr",50,"small","M2","Weak instrument",20
+"mrggi","truth","edge.fdr",50,"small","M3","Weak instrument",20
+"mrggi","truth","edge.fdr",50,"small","M4","Weak instrument",20
+"mrggi","truth","edge.fdr",50,"medium","M0","T1 - T2 Edge Absent",3
+"mrggi","truth","edge.fdr",50,"medium","M1","T1 - T2 Edge Absent",5
+"mrggi","truth","edge.fdr",50,"medium","M2","T1 - T2 Edge Absent",8
+"mrggi","truth","edge.fdr",50,"medium","M3","T1 - T2 Edge Absent",2
+"mrggi","truth","edge.fdr",50,"medium","M4","T1 - T2 Edge Absent",3
+"mrggi","truth","edge.fdr",50,"medium","M0","T1 - T2 Edge Present",1
+"mrggi","truth","edge.fdr",50,"medium","M1","T1 - T2 Edge Present",1
+"mrggi","truth","edge.fdr",50,"medium","M2","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",50,"medium","M3","T1 - T2 Edge Present",2
+"mrggi","truth","edge.fdr",50,"medium","M4","T1 - T2 Edge Present",1
+"mrggi","truth","edge.fdr",50,"medium","M0","Weak instrument",16
+"mrggi","truth","edge.fdr",50,"medium","M1","Weak instrument",14
+"mrggi","truth","edge.fdr",50,"medium","M2","Weak instrument",12
+"mrggi","truth","edge.fdr",50,"medium","M3","Weak instrument",16
+"mrggi","truth","edge.fdr",50,"medium","M4","Weak instrument",16
+"mrggi","truth","edge.fdr",50,"large","M0","T1 - T2 Edge Absent",15
+"mrggi","truth","edge.fdr",50,"large","M1","T1 - T2 Edge Absent",7
+"mrggi","truth","edge.fdr",50,"large","M2","T1 - T2 Edge Absent",11
+"mrggi","truth","edge.fdr",50,"large","M3","T1 - T2 Edge Absent",2
+"mrggi","truth","edge.fdr",50,"large","M4","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",50,"large","M0","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",50,"large","M1","T1 - T2 Edge Present",6
+"mrggi","truth","edge.fdr",50,"large","M2","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",50,"large","M3","T1 - T2 Edge Present",11
+"mrggi","truth","edge.fdr",50,"large","M4","T1 - T2 Edge Present",12
+"mrggi","truth","edge.fdr",50,"large","M0","Weak instrument",5
+"mrggi","truth","edge.fdr",50,"large","M1","Weak instrument",7
+"mrggi","truth","edge.fdr",50,"large","M2","Weak instrument",9
+"mrggi","truth","edge.fdr",50,"large","M3","Weak instrument",7
+"mrggi","truth","edge.fdr",50,"large","M4","Weak instrument",8
+"mrggi","truth","edge.fdr",150,"all","M0","T1 - T2 Edge Absent",36
+"mrggi","truth","edge.fdr",150,"all","M1","T1 - T2 Edge Absent",9
+"mrggi","truth","edge.fdr",150,"all","M2","T1 - T2 Edge Absent",26
+"mrggi","truth","edge.fdr",150,"all","M3","T1 - T2 Edge Absent",3
+"mrggi","truth","edge.fdr",150,"all","M4","T1 - T2 Edge Absent",1
+"mrggi","truth","edge.fdr",150,"all","M0","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",150,"all","M1","T1 - T2 Edge Present",17
+"mrggi","truth","edge.fdr",150,"all","M2","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",150,"all","M3","T1 - T2 Edge Present",32
+"mrggi","truth","edge.fdr",150,"all","M4","T1 - T2 Edge Present",34
+"mrggi","truth","edge.fdr",150,"all","M0","Weak instrument",24
+"mrggi","truth","edge.fdr",150,"all","M1","Weak instrument",34
+"mrggi","truth","edge.fdr",150,"all","M2","Weak instrument",34
+"mrggi","truth","edge.fdr",150,"all","M3","Weak instrument",25
+"mrggi","truth","edge.fdr",150,"all","M4","Weak instrument",25
+"mrggi","truth","edge.fdr",150,"small","M0","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",150,"small","M1","T1 - T2 Edge Absent",3
+"mrggi","truth","edge.fdr",150,"small","M2","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",150,"small","M3","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",150,"small","M4","T1 - T2 Edge Absent",1
+"mrggi","truth","edge.fdr",150,"small","M0","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",150,"small","M1","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",150,"small","M2","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",150,"small","M3","T1 - T2 Edge Present",1
+"mrggi","truth","edge.fdr",150,"small","M4","T1 - T2 Edge Present",1
+"mrggi","truth","edge.fdr",150,"small","M0","Weak instrument",20
+"mrggi","truth","edge.fdr",150,"small","M1","Weak instrument",17
+"mrggi","truth","edge.fdr",150,"small","M2","Weak instrument",20
+"mrggi","truth","edge.fdr",150,"small","M3","Weak instrument",19
+"mrggi","truth","edge.fdr",150,"small","M4","Weak instrument",18
+"mrggi","truth","edge.fdr",150,"medium","M0","T1 - T2 Edge Absent",16
+"mrggi","truth","edge.fdr",150,"medium","M1","T1 - T2 Edge Absent",5
+"mrggi","truth","edge.fdr",150,"medium","M2","T1 - T2 Edge Absent",9
+"mrggi","truth","edge.fdr",150,"medium","M3","T1 - T2 Edge Absent",3
+"mrggi","truth","edge.fdr",150,"medium","M4","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",150,"medium","M0","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",150,"medium","M1","T1 - T2 Edge Present",1
+"mrggi","truth","edge.fdr",150,"medium","M2","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",150,"medium","M3","T1 - T2 Edge Present",12
+"mrggi","truth","edge.fdr",150,"medium","M4","T1 - T2 Edge Present",15
+"mrggi","truth","edge.fdr",150,"medium","M0","Weak instrument",4
+"mrggi","truth","edge.fdr",150,"medium","M1","Weak instrument",14
+"mrggi","truth","edge.fdr",150,"medium","M2","Weak instrument",11
+"mrggi","truth","edge.fdr",150,"medium","M3","Weak instrument",5
+"mrggi","truth","edge.fdr",150,"medium","M4","Weak instrument",5
+"mrggi","truth","edge.fdr",150,"large","M0","T1 - T2 Edge Absent",20
+"mrggi","truth","edge.fdr",150,"large","M1","T1 - T2 Edge Absent",1
+"mrggi","truth","edge.fdr",150,"large","M2","T1 - T2 Edge Absent",17
+"mrggi","truth","edge.fdr",150,"large","M3","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",150,"large","M4","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",150,"large","M0","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",150,"large","M1","T1 - T2 Edge Present",16
+"mrggi","truth","edge.fdr",150,"large","M2","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",150,"large","M3","T1 - T2 Edge Present",19
+"mrggi","truth","edge.fdr",150,"large","M4","T1 - T2 Edge Present",18
+"mrggi","truth","edge.fdr",150,"large","M0","Weak instrument",0
+"mrggi","truth","edge.fdr",150,"large","M1","Weak instrument",3
+"mrggi","truth","edge.fdr",150,"large","M2","Weak instrument",3
+"mrggi","truth","edge.fdr",150,"large","M3","Weak instrument",1
+"mrggi","truth","edge.fdr",150,"large","M4","Weak instrument",2
+"mrggi","truth","edge.fdr",300,"all","M0","T1 - T2 Edge Absent",43
+"mrggi","truth","edge.fdr",300,"all","M1","T1 - T2 Edge Absent",21
+"mrggi","truth","edge.fdr",300,"all","M2","T1 - T2 Edge Absent",37
+"mrggi","truth","edge.fdr",300,"all","M3","T1 - T2 Edge Absent",3
+"mrggi","truth","edge.fdr",300,"all","M4","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",300,"all","M0","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",300,"all","M1","T1 - T2 Edge Present",22
+"mrggi","truth","edge.fdr",300,"all","M2","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",300,"all","M3","T1 - T2 Edge Present",37
+"mrggi","truth","edge.fdr",300,"all","M4","T1 - T2 Edge Present",42
+"mrggi","truth","edge.fdr",300,"all","M0","Weak instrument",17
+"mrggi","truth","edge.fdr",300,"all","M1","Weak instrument",17
+"mrggi","truth","edge.fdr",300,"all","M2","Weak instrument",23
+"mrggi","truth","edge.fdr",300,"all","M3","Weak instrument",20
+"mrggi","truth","edge.fdr",300,"all","M4","Weak instrument",18
+"mrggi","truth","edge.fdr",300,"small","M0","T1 - T2 Edge Absent",10
+"mrggi","truth","edge.fdr",300,"small","M1","T1 - T2 Edge Absent",5
+"mrggi","truth","edge.fdr",300,"small","M2","T1 - T2 Edge Absent",3
+"mrggi","truth","edge.fdr",300,"small","M3","T1 - T2 Edge Absent",1
+"mrggi","truth","edge.fdr",300,"small","M4","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",300,"small","M0","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",300,"small","M1","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",300,"small","M2","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",300,"small","M3","T1 - T2 Edge Present",2
+"mrggi","truth","edge.fdr",300,"small","M4","T1 - T2 Edge Present",3
+"mrggi","truth","edge.fdr",300,"small","M0","Weak instrument",10
+"mrggi","truth","edge.fdr",300,"small","M1","Weak instrument",15
+"mrggi","truth","edge.fdr",300,"small","M2","Weak instrument",17
+"mrggi","truth","edge.fdr",300,"small","M3","Weak instrument",17
+"mrggi","truth","edge.fdr",300,"small","M4","Weak instrument",17
+"mrggi","truth","edge.fdr",300,"medium","M0","T1 - T2 Edge Absent",14
+"mrggi","truth","edge.fdr",300,"medium","M1","T1 - T2 Edge Absent",11
+"mrggi","truth","edge.fdr",300,"medium","M2","T1 - T2 Edge Absent",16
+"mrggi","truth","edge.fdr",300,"medium","M3","T1 - T2 Edge Absent",1
+"mrggi","truth","edge.fdr",300,"medium","M4","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",300,"medium","M0","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",300,"medium","M1","T1 - T2 Edge Present",7
+"mrggi","truth","edge.fdr",300,"medium","M2","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",300,"medium","M3","T1 - T2 Edge Present",17
+"mrggi","truth","edge.fdr",300,"medium","M4","T1 - T2 Edge Present",20
+"mrggi","truth","edge.fdr",300,"medium","M0","Weak instrument",6
+"mrggi","truth","edge.fdr",300,"medium","M1","Weak instrument",2
+"mrggi","truth","edge.fdr",300,"medium","M2","Weak instrument",4
+"mrggi","truth","edge.fdr",300,"medium","M3","Weak instrument",2
+"mrggi","truth","edge.fdr",300,"medium","M4","Weak instrument",0
+"mrggi","truth","edge.fdr",300,"large","M0","T1 - T2 Edge Absent",19
+"mrggi","truth","edge.fdr",300,"large","M1","T1 - T2 Edge Absent",5
+"mrggi","truth","edge.fdr",300,"large","M2","T1 - T2 Edge Absent",18
+"mrggi","truth","edge.fdr",300,"large","M3","T1 - T2 Edge Absent",1
+"mrggi","truth","edge.fdr",300,"large","M4","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",300,"large","M0","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",300,"large","M1","T1 - T2 Edge Present",15
+"mrggi","truth","edge.fdr",300,"large","M2","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",300,"large","M3","T1 - T2 Edge Present",18
+"mrggi","truth","edge.fdr",300,"large","M4","T1 - T2 Edge Present",19
+"mrggi","truth","edge.fdr",300,"large","M0","Weak instrument",1
+"mrggi","truth","edge.fdr",300,"large","M1","Weak instrument",0
+"mrggi","truth","edge.fdr",300,"large","M2","Weak instrument",2
+"mrggi","truth","edge.fdr",300,"large","M3","Weak instrument",1
+"mrggi","truth","edge.fdr",300,"large","M4","Weak instrument",1
+"mrggi","truth","edge.fdr",670,"all","M0","T1 - T2 Edge Absent",45
+"mrggi","truth","edge.fdr",670,"all","M1","T1 - T2 Edge Absent",21
+"mrggi","truth","edge.fdr",670,"all","M2","T1 - T2 Edge Absent",53
+"mrggi","truth","edge.fdr",670,"all","M3","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",670,"all","M4","T1 - T2 Edge Absent",1
+"mrggi","truth","edge.fdr",670,"all","M0","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",670,"all","M1","T1 - T2 Edge Present",25
+"mrggi","truth","edge.fdr",670,"all","M2","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",670,"all","M3","T1 - T2 Edge Present",48
+"mrggi","truth","edge.fdr",670,"all","M4","T1 - T2 Edge Present",49
+"mrggi","truth","edge.fdr",670,"all","M0","Weak instrument",15
+"mrggi","truth","edge.fdr",670,"all","M1","Weak instrument",14
+"mrggi","truth","edge.fdr",670,"all","M2","Weak instrument",7
+"mrggi","truth","edge.fdr",670,"all","M3","Weak instrument",12
+"mrggi","truth","edge.fdr",670,"all","M4","Weak instrument",10
+"mrggi","truth","edge.fdr",670,"small","M0","T1 - T2 Edge Absent",9
+"mrggi","truth","edge.fdr",670,"small","M1","T1 - T2 Edge Absent",8
+"mrggi","truth","edge.fdr",670,"small","M2","T1 - T2 Edge Absent",13
+"mrggi","truth","edge.fdr",670,"small","M3","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",670,"small","M4","T1 - T2 Edge Absent",1
+"mrggi","truth","edge.fdr",670,"small","M0","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",670,"small","M1","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",670,"small","M2","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",670,"small","M3","T1 - T2 Edge Present",10
+"mrggi","truth","edge.fdr",670,"small","M4","T1 - T2 Edge Present",10
+"mrggi","truth","edge.fdr",670,"small","M0","Weak instrument",11
+"mrggi","truth","edge.fdr",670,"small","M1","Weak instrument",12
+"mrggi","truth","edge.fdr",670,"small","M2","Weak instrument",7
+"mrggi","truth","edge.fdr",670,"small","M3","Weak instrument",10
+"mrggi","truth","edge.fdr",670,"small","M4","Weak instrument",9
+"mrggi","truth","edge.fdr",670,"medium","M0","T1 - T2 Edge Absent",17
+"mrggi","truth","edge.fdr",670,"medium","M1","T1 - T2 Edge Absent",12
+"mrggi","truth","edge.fdr",670,"medium","M2","T1 - T2 Edge Absent",20
+"mrggi","truth","edge.fdr",670,"medium","M3","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",670,"medium","M4","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",670,"medium","M0","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",670,"medium","M1","T1 - T2 Edge Present",6
+"mrggi","truth","edge.fdr",670,"medium","M2","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",670,"medium","M3","T1 - T2 Edge Present",18
+"mrggi","truth","edge.fdr",670,"medium","M4","T1 - T2 Edge Present",19
+"mrggi","truth","edge.fdr",670,"medium","M0","Weak instrument",3
+"mrggi","truth","edge.fdr",670,"medium","M1","Weak instrument",2
+"mrggi","truth","edge.fdr",670,"medium","M2","Weak instrument",0
+"mrggi","truth","edge.fdr",670,"medium","M3","Weak instrument",2
+"mrggi","truth","edge.fdr",670,"medium","M4","Weak instrument",1
+"mrggi","truth","edge.fdr",670,"large","M0","T1 - T2 Edge Absent",19
+"mrggi","truth","edge.fdr",670,"large","M1","T1 - T2 Edge Absent",1
+"mrggi","truth","edge.fdr",670,"large","M2","T1 - T2 Edge Absent",20
+"mrggi","truth","edge.fdr",670,"large","M3","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",670,"large","M4","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",670,"large","M0","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",670,"large","M1","T1 - T2 Edge Present",19
+"mrggi","truth","edge.fdr",670,"large","M2","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",670,"large","M3","T1 - T2 Edge Present",20
+"mrggi","truth","edge.fdr",670,"large","M4","T1 - T2 Edge Present",20
+"mrggi","truth","edge.fdr",670,"large","M0","Weak instrument",1
+"mrggi","truth","edge.fdr",670,"large","M1","Weak instrument",0
+"mrggi","truth","edge.fdr",670,"large","M2","Weak instrument",0
+"mrggi","truth","edge.fdr",670,"large","M3","Weak instrument",0
+"mrggi","truth","edge.fdr",670,"large","M4","Weak instrument",0
+"mrggi","truth","edge.fdr",1000,"all","M0","T1 - T2 Edge Absent",52
+"mrggi","truth","edge.fdr",1000,"all","M1","T1 - T2 Edge Absent",18
+"mrggi","truth","edge.fdr",1000,"all","M2","T1 - T2 Edge Absent",50
+"mrggi","truth","edge.fdr",1000,"all","M3","T1 - T2 Edge Absent",7
+"mrggi","truth","edge.fdr",1000,"all","M4","T1 - T2 Edge Absent",1
+"mrggi","truth","edge.fdr",1000,"all","M0","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",1000,"all","M1","T1 - T2 Edge Present",32
+"mrggi","truth","edge.fdr",1000,"all","M2","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",1000,"all","M3","T1 - T2 Edge Present",46
+"mrggi","truth","edge.fdr",1000,"all","M4","T1 - T2 Edge Present",48
+"mrggi","truth","edge.fdr",1000,"all","M0","Weak instrument",8
+"mrggi","truth","edge.fdr",1000,"all","M1","Weak instrument",10
+"mrggi","truth","edge.fdr",1000,"all","M2","Weak instrument",10
+"mrggi","truth","edge.fdr",1000,"all","M3","Weak instrument",7
+"mrggi","truth","edge.fdr",1000,"all","M4","Weak instrument",11
+"mrggi","truth","edge.fdr",1000,"small","M0","T1 - T2 Edge Absent",12
+"mrggi","truth","edge.fdr",1000,"small","M1","T1 - T2 Edge Absent",11
+"mrggi","truth","edge.fdr",1000,"small","M2","T1 - T2 Edge Absent",10
+"mrggi","truth","edge.fdr",1000,"small","M3","T1 - T2 Edge Absent",6
+"mrggi","truth","edge.fdr",1000,"small","M4","T1 - T2 Edge Absent",1
+"mrggi","truth","edge.fdr",1000,"small","M0","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",1000,"small","M1","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",1000,"small","M2","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",1000,"small","M3","T1 - T2 Edge Present",9
+"mrggi","truth","edge.fdr",1000,"small","M4","T1 - T2 Edge Present",9
+"mrggi","truth","edge.fdr",1000,"small","M0","Weak instrument",8
+"mrggi","truth","edge.fdr",1000,"small","M1","Weak instrument",9
+"mrggi","truth","edge.fdr",1000,"small","M2","Weak instrument",10
+"mrggi","truth","edge.fdr",1000,"small","M3","Weak instrument",5
+"mrggi","truth","edge.fdr",1000,"small","M4","Weak instrument",10
+"mrggi","truth","edge.fdr",1000,"medium","M0","T1 - T2 Edge Absent",20
+"mrggi","truth","edge.fdr",1000,"medium","M1","T1 - T2 Edge Absent",6
+"mrggi","truth","edge.fdr",1000,"medium","M2","T1 - T2 Edge Absent",20
+"mrggi","truth","edge.fdr",1000,"medium","M3","T1 - T2 Edge Absent",1
+"mrggi","truth","edge.fdr",1000,"medium","M4","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",1000,"medium","M0","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",1000,"medium","M1","T1 - T2 Edge Present",13
+"mrggi","truth","edge.fdr",1000,"medium","M2","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",1000,"medium","M3","T1 - T2 Edge Present",17
+"mrggi","truth","edge.fdr",1000,"medium","M4","T1 - T2 Edge Present",19
+"mrggi","truth","edge.fdr",1000,"medium","M0","Weak instrument",0
+"mrggi","truth","edge.fdr",1000,"medium","M1","Weak instrument",1
+"mrggi","truth","edge.fdr",1000,"medium","M2","Weak instrument",0
+"mrggi","truth","edge.fdr",1000,"medium","M3","Weak instrument",2
+"mrggi","truth","edge.fdr",1000,"medium","M4","Weak instrument",1
+"mrggi","truth","edge.fdr",1000,"large","M0","T1 - T2 Edge Absent",20
+"mrggi","truth","edge.fdr",1000,"large","M1","T1 - T2 Edge Absent",1
+"mrggi","truth","edge.fdr",1000,"large","M2","T1 - T2 Edge Absent",20
+"mrggi","truth","edge.fdr",1000,"large","M3","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",1000,"large","M4","T1 - T2 Edge Absent",0
+"mrggi","truth","edge.fdr",1000,"large","M0","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",1000,"large","M1","T1 - T2 Edge Present",19
+"mrggi","truth","edge.fdr",1000,"large","M2","T1 - T2 Edge Present",0
+"mrggi","truth","edge.fdr",1000,"large","M3","T1 - T2 Edge Present",20
+"mrggi","truth","edge.fdr",1000,"large","M4","T1 - T2 Edge Present",20
+"mrggi","truth","edge.fdr",1000,"large","M0","Weak instrument",0
+"mrggi","truth","edge.fdr",1000,"large","M1","Weak instrument",0
+"mrggi","truth","edge.fdr",1000,"large","M2","Weak instrument",0
+"mrggi","truth","edge.fdr",1000,"large","M3","Weak instrument",0
+"mrggi","truth","edge.fdr",1000,"large","M4","Weak instrument",0
+"mrggi","CSq","edge.fdr",50,"all","M0","T1 - T2 Edge Absent",18
+"mrggi","CSq","edge.fdr",50,"all","M1","T1 - T2 Edge Absent",8
+"mrggi","CSq","edge.fdr",50,"all","M2","T1 - T2 Edge Absent",17
+"mrggi","CSq","edge.fdr",50,"all","M3","T1 - T2 Edge Absent",3
+"mrggi","CSq","edge.fdr",50,"all","M4","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",50,"all","M0","T1 - T2 Edge Present",1
+"mrggi","CSq","edge.fdr",50,"all","M1","T1 - T2 Edge Present",11
+"mrggi","CSq","edge.fdr",50,"all","M2","T1 - T2 Edge Present",2
+"mrggi","CSq","edge.fdr",50,"all","M3","T1 - T2 Edge Present",14
+"mrggi","CSq","edge.fdr",50,"all","M4","T1 - T2 Edge Present",16
+"mrggi","CSq","edge.fdr",50,"all","M0","Weak instrument",41
+"mrggi","CSq","edge.fdr",50,"all","M1","Weak instrument",41
+"mrggi","CSq","edge.fdr",50,"all","M2","Weak instrument",41
+"mrggi","CSq","edge.fdr",50,"all","M3","Weak instrument",43
+"mrggi","CSq","edge.fdr",50,"all","M4","Weak instrument",44
+"mrggi","CSq","edge.fdr",50,"small","M0","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",50,"small","M1","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",50,"small","M2","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",50,"small","M3","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",50,"small","M4","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",50,"small","M0","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",50,"small","M1","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",50,"small","M2","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",50,"small","M3","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",50,"small","M4","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",50,"small","M0","Weak instrument",20
+"mrggi","CSq","edge.fdr",50,"small","M1","Weak instrument",20
+"mrggi","CSq","edge.fdr",50,"small","M2","Weak instrument",20
+"mrggi","CSq","edge.fdr",50,"small","M3","Weak instrument",20
+"mrggi","CSq","edge.fdr",50,"small","M4","Weak instrument",20
+"mrggi","CSq","edge.fdr",50,"medium","M0","T1 - T2 Edge Absent",3
+"mrggi","CSq","edge.fdr",50,"medium","M1","T1 - T2 Edge Absent",5
+"mrggi","CSq","edge.fdr",50,"medium","M2","T1 - T2 Edge Absent",7
+"mrggi","CSq","edge.fdr",50,"medium","M3","T1 - T2 Edge Absent",1
+"mrggi","CSq","edge.fdr",50,"medium","M4","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",50,"medium","M0","T1 - T2 Edge Present",1
+"mrggi","CSq","edge.fdr",50,"medium","M1","T1 - T2 Edge Present",1
+"mrggi","CSq","edge.fdr",50,"medium","M2","T1 - T2 Edge Present",1
+"mrggi","CSq","edge.fdr",50,"medium","M3","T1 - T2 Edge Present",3
+"mrggi","CSq","edge.fdr",50,"medium","M4","T1 - T2 Edge Present",4
+"mrggi","CSq","edge.fdr",50,"medium","M0","Weak instrument",16
+"mrggi","CSq","edge.fdr",50,"medium","M1","Weak instrument",14
+"mrggi","CSq","edge.fdr",50,"medium","M2","Weak instrument",12
+"mrggi","CSq","edge.fdr",50,"medium","M3","Weak instrument",16
+"mrggi","CSq","edge.fdr",50,"medium","M4","Weak instrument",16
+"mrggi","CSq","edge.fdr",50,"large","M0","T1 - T2 Edge Absent",15
+"mrggi","CSq","edge.fdr",50,"large","M1","T1 - T2 Edge Absent",3
+"mrggi","CSq","edge.fdr",50,"large","M2","T1 - T2 Edge Absent",10
+"mrggi","CSq","edge.fdr",50,"large","M3","T1 - T2 Edge Absent",2
+"mrggi","CSq","edge.fdr",50,"large","M4","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",50,"large","M0","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",50,"large","M1","T1 - T2 Edge Present",10
+"mrggi","CSq","edge.fdr",50,"large","M2","T1 - T2 Edge Present",1
+"mrggi","CSq","edge.fdr",50,"large","M3","T1 - T2 Edge Present",11
+"mrggi","CSq","edge.fdr",50,"large","M4","T1 - T2 Edge Present",12
+"mrggi","CSq","edge.fdr",50,"large","M0","Weak instrument",5
+"mrggi","CSq","edge.fdr",50,"large","M1","Weak instrument",7
+"mrggi","CSq","edge.fdr",50,"large","M2","Weak instrument",9
+"mrggi","CSq","edge.fdr",50,"large","M3","Weak instrument",7
+"mrggi","CSq","edge.fdr",50,"large","M4","Weak instrument",8
+"mrggi","CSq","edge.fdr",150,"all","M0","T1 - T2 Edge Absent",34
+"mrggi","CSq","edge.fdr",150,"all","M1","T1 - T2 Edge Absent",8
+"mrggi","CSq","edge.fdr",150,"all","M2","T1 - T2 Edge Absent",26
+"mrggi","CSq","edge.fdr",150,"all","M3","T1 - T2 Edge Absent",1
+"mrggi","CSq","edge.fdr",150,"all","M4","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",150,"all","M0","T1 - T2 Edge Present",2
+"mrggi","CSq","edge.fdr",150,"all","M1","T1 - T2 Edge Present",18
+"mrggi","CSq","edge.fdr",150,"all","M2","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",150,"all","M3","T1 - T2 Edge Present",34
+"mrggi","CSq","edge.fdr",150,"all","M4","T1 - T2 Edge Present",35
+"mrggi","CSq","edge.fdr",150,"all","M0","Weak instrument",24
+"mrggi","CSq","edge.fdr",150,"all","M1","Weak instrument",34
+"mrggi","CSq","edge.fdr",150,"all","M2","Weak instrument",34
+"mrggi","CSq","edge.fdr",150,"all","M3","Weak instrument",25
+"mrggi","CSq","edge.fdr",150,"all","M4","Weak instrument",25
+"mrggi","CSq","edge.fdr",150,"small","M0","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",150,"small","M1","T1 - T2 Edge Absent",3
+"mrggi","CSq","edge.fdr",150,"small","M2","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",150,"small","M3","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",150,"small","M4","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",150,"small","M0","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",150,"small","M1","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",150,"small","M2","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",150,"small","M3","T1 - T2 Edge Present",1
+"mrggi","CSq","edge.fdr",150,"small","M4","T1 - T2 Edge Present",2
+"mrggi","CSq","edge.fdr",150,"small","M0","Weak instrument",20
+"mrggi","CSq","edge.fdr",150,"small","M1","Weak instrument",17
+"mrggi","CSq","edge.fdr",150,"small","M2","Weak instrument",20
+"mrggi","CSq","edge.fdr",150,"small","M3","Weak instrument",19
+"mrggi","CSq","edge.fdr",150,"small","M4","Weak instrument",18
+"mrggi","CSq","edge.fdr",150,"medium","M0","T1 - T2 Edge Absent",16
+"mrggi","CSq","edge.fdr",150,"medium","M1","T1 - T2 Edge Absent",5
+"mrggi","CSq","edge.fdr",150,"medium","M2","T1 - T2 Edge Absent",9
+"mrggi","CSq","edge.fdr",150,"medium","M3","T1 - T2 Edge Absent",1
+"mrggi","CSq","edge.fdr",150,"medium","M4","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",150,"medium","M0","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",150,"medium","M1","T1 - T2 Edge Present",1
+"mrggi","CSq","edge.fdr",150,"medium","M2","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",150,"medium","M3","T1 - T2 Edge Present",14
+"mrggi","CSq","edge.fdr",150,"medium","M4","T1 - T2 Edge Present",15
+"mrggi","CSq","edge.fdr",150,"medium","M0","Weak instrument",4
+"mrggi","CSq","edge.fdr",150,"medium","M1","Weak instrument",14
+"mrggi","CSq","edge.fdr",150,"medium","M2","Weak instrument",11
+"mrggi","CSq","edge.fdr",150,"medium","M3","Weak instrument",5
+"mrggi","CSq","edge.fdr",150,"medium","M4","Weak instrument",5
+"mrggi","CSq","edge.fdr",150,"large","M0","T1 - T2 Edge Absent",18
+"mrggi","CSq","edge.fdr",150,"large","M1","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",150,"large","M2","T1 - T2 Edge Absent",17
+"mrggi","CSq","edge.fdr",150,"large","M3","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",150,"large","M4","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",150,"large","M0","T1 - T2 Edge Present",2
+"mrggi","CSq","edge.fdr",150,"large","M1","T1 - T2 Edge Present",17
+"mrggi","CSq","edge.fdr",150,"large","M2","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",150,"large","M3","T1 - T2 Edge Present",19
+"mrggi","CSq","edge.fdr",150,"large","M4","T1 - T2 Edge Present",18
+"mrggi","CSq","edge.fdr",150,"large","M0","Weak instrument",0
+"mrggi","CSq","edge.fdr",150,"large","M1","Weak instrument",3
+"mrggi","CSq","edge.fdr",150,"large","M2","Weak instrument",3
+"mrggi","CSq","edge.fdr",150,"large","M3","Weak instrument",1
+"mrggi","CSq","edge.fdr",150,"large","M4","Weak instrument",2
+"mrggi","CSq","edge.fdr",300,"all","M0","T1 - T2 Edge Absent",43
+"mrggi","CSq","edge.fdr",300,"all","M1","T1 - T2 Edge Absent",16
+"mrggi","CSq","edge.fdr",300,"all","M2","T1 - T2 Edge Absent",35
+"mrggi","CSq","edge.fdr",300,"all","M3","T1 - T2 Edge Absent",3
+"mrggi","CSq","edge.fdr",300,"all","M4","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",300,"all","M0","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",300,"all","M1","T1 - T2 Edge Present",27
+"mrggi","CSq","edge.fdr",300,"all","M2","T1 - T2 Edge Present",2
+"mrggi","CSq","edge.fdr",300,"all","M3","T1 - T2 Edge Present",37
+"mrggi","CSq","edge.fdr",300,"all","M4","T1 - T2 Edge Present",42
+"mrggi","CSq","edge.fdr",300,"all","M0","Weak instrument",17
+"mrggi","CSq","edge.fdr",300,"all","M1","Weak instrument",17
+"mrggi","CSq","edge.fdr",300,"all","M2","Weak instrument",23
+"mrggi","CSq","edge.fdr",300,"all","M3","Weak instrument",20
+"mrggi","CSq","edge.fdr",300,"all","M4","Weak instrument",18
+"mrggi","CSq","edge.fdr",300,"small","M0","T1 - T2 Edge Absent",10
+"mrggi","CSq","edge.fdr",300,"small","M1","T1 - T2 Edge Absent",5
+"mrggi","CSq","edge.fdr",300,"small","M2","T1 - T2 Edge Absent",3
+"mrggi","CSq","edge.fdr",300,"small","M3","T1 - T2 Edge Absent",1
+"mrggi","CSq","edge.fdr",300,"small","M4","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",300,"small","M0","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",300,"small","M1","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",300,"small","M2","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",300,"small","M3","T1 - T2 Edge Present",2
+"mrggi","CSq","edge.fdr",300,"small","M4","T1 - T2 Edge Present",3
+"mrggi","CSq","edge.fdr",300,"small","M0","Weak instrument",10
+"mrggi","CSq","edge.fdr",300,"small","M1","Weak instrument",15
+"mrggi","CSq","edge.fdr",300,"small","M2","Weak instrument",17
+"mrggi","CSq","edge.fdr",300,"small","M3","Weak instrument",17
+"mrggi","CSq","edge.fdr",300,"small","M4","Weak instrument",17
+"mrggi","CSq","edge.fdr",300,"medium","M0","T1 - T2 Edge Absent",14
+"mrggi","CSq","edge.fdr",300,"medium","M1","T1 - T2 Edge Absent",11
+"mrggi","CSq","edge.fdr",300,"medium","M2","T1 - T2 Edge Absent",14
+"mrggi","CSq","edge.fdr",300,"medium","M3","T1 - T2 Edge Absent",1
+"mrggi","CSq","edge.fdr",300,"medium","M4","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",300,"medium","M0","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",300,"medium","M1","T1 - T2 Edge Present",7
+"mrggi","CSq","edge.fdr",300,"medium","M2","T1 - T2 Edge Present",2
+"mrggi","CSq","edge.fdr",300,"medium","M3","T1 - T2 Edge Present",17
+"mrggi","CSq","edge.fdr",300,"medium","M4","T1 - T2 Edge Present",20
+"mrggi","CSq","edge.fdr",300,"medium","M0","Weak instrument",6
+"mrggi","CSq","edge.fdr",300,"medium","M1","Weak instrument",2
+"mrggi","CSq","edge.fdr",300,"medium","M2","Weak instrument",4
+"mrggi","CSq","edge.fdr",300,"medium","M3","Weak instrument",2
+"mrggi","CSq","edge.fdr",300,"medium","M4","Weak instrument",0
+"mrggi","CSq","edge.fdr",300,"large","M0","T1 - T2 Edge Absent",19
+"mrggi","CSq","edge.fdr",300,"large","M1","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",300,"large","M2","T1 - T2 Edge Absent",18
+"mrggi","CSq","edge.fdr",300,"large","M3","T1 - T2 Edge Absent",1
+"mrggi","CSq","edge.fdr",300,"large","M4","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",300,"large","M0","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",300,"large","M1","T1 - T2 Edge Present",20
+"mrggi","CSq","edge.fdr",300,"large","M2","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",300,"large","M3","T1 - T2 Edge Present",18
+"mrggi","CSq","edge.fdr",300,"large","M4","T1 - T2 Edge Present",19
+"mrggi","CSq","edge.fdr",300,"large","M0","Weak instrument",1
+"mrggi","CSq","edge.fdr",300,"large","M1","Weak instrument",0
+"mrggi","CSq","edge.fdr",300,"large","M2","Weak instrument",2
+"mrggi","CSq","edge.fdr",300,"large","M3","Weak instrument",1
+"mrggi","CSq","edge.fdr",300,"large","M4","Weak instrument",1
+"mrggi","CSq","edge.fdr",670,"all","M0","T1 - T2 Edge Absent",45
+"mrggi","CSq","edge.fdr",670,"all","M1","T1 - T2 Edge Absent",21
+"mrggi","CSq","edge.fdr",670,"all","M2","T1 - T2 Edge Absent",53
+"mrggi","CSq","edge.fdr",670,"all","M3","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",670,"all","M4","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",670,"all","M0","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",670,"all","M1","T1 - T2 Edge Present",25
+"mrggi","CSq","edge.fdr",670,"all","M2","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",670,"all","M3","T1 - T2 Edge Present",48
+"mrggi","CSq","edge.fdr",670,"all","M4","T1 - T2 Edge Present",50
+"mrggi","CSq","edge.fdr",670,"all","M0","Weak instrument",15
+"mrggi","CSq","edge.fdr",670,"all","M1","Weak instrument",14
+"mrggi","CSq","edge.fdr",670,"all","M2","Weak instrument",7
+"mrggi","CSq","edge.fdr",670,"all","M3","Weak instrument",12
+"mrggi","CSq","edge.fdr",670,"all","M4","Weak instrument",10
+"mrggi","CSq","edge.fdr",670,"small","M0","T1 - T2 Edge Absent",9
+"mrggi","CSq","edge.fdr",670,"small","M1","T1 - T2 Edge Absent",8
+"mrggi","CSq","edge.fdr",670,"small","M2","T1 - T2 Edge Absent",13
+"mrggi","CSq","edge.fdr",670,"small","M3","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",670,"small","M4","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",670,"small","M0","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",670,"small","M1","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",670,"small","M2","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",670,"small","M3","T1 - T2 Edge Present",10
+"mrggi","CSq","edge.fdr",670,"small","M4","T1 - T2 Edge Present",11
+"mrggi","CSq","edge.fdr",670,"small","M0","Weak instrument",11
+"mrggi","CSq","edge.fdr",670,"small","M1","Weak instrument",12
+"mrggi","CSq","edge.fdr",670,"small","M2","Weak instrument",7
+"mrggi","CSq","edge.fdr",670,"small","M3","Weak instrument",10
+"mrggi","CSq","edge.fdr",670,"small","M4","Weak instrument",9
+"mrggi","CSq","edge.fdr",670,"medium","M0","T1 - T2 Edge Absent",17
+"mrggi","CSq","edge.fdr",670,"medium","M1","T1 - T2 Edge Absent",12
+"mrggi","CSq","edge.fdr",670,"medium","M2","T1 - T2 Edge Absent",20
+"mrggi","CSq","edge.fdr",670,"medium","M3","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",670,"medium","M4","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",670,"medium","M0","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",670,"medium","M1","T1 - T2 Edge Present",6
+"mrggi","CSq","edge.fdr",670,"medium","M2","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",670,"medium","M3","T1 - T2 Edge Present",18
+"mrggi","CSq","edge.fdr",670,"medium","M4","T1 - T2 Edge Present",19
+"mrggi","CSq","edge.fdr",670,"medium","M0","Weak instrument",3
+"mrggi","CSq","edge.fdr",670,"medium","M1","Weak instrument",2
+"mrggi","CSq","edge.fdr",670,"medium","M2","Weak instrument",0
+"mrggi","CSq","edge.fdr",670,"medium","M3","Weak instrument",2
+"mrggi","CSq","edge.fdr",670,"medium","M4","Weak instrument",1
+"mrggi","CSq","edge.fdr",670,"large","M0","T1 - T2 Edge Absent",19
+"mrggi","CSq","edge.fdr",670,"large","M1","T1 - T2 Edge Absent",1
+"mrggi","CSq","edge.fdr",670,"large","M2","T1 - T2 Edge Absent",20
+"mrggi","CSq","edge.fdr",670,"large","M3","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",670,"large","M4","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",670,"large","M0","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",670,"large","M1","T1 - T2 Edge Present",19
+"mrggi","CSq","edge.fdr",670,"large","M2","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",670,"large","M3","T1 - T2 Edge Present",20
+"mrggi","CSq","edge.fdr",670,"large","M4","T1 - T2 Edge Present",20
+"mrggi","CSq","edge.fdr",670,"large","M0","Weak instrument",1
+"mrggi","CSq","edge.fdr",670,"large","M1","Weak instrument",0
+"mrggi","CSq","edge.fdr",670,"large","M2","Weak instrument",0
+"mrggi","CSq","edge.fdr",670,"large","M3","Weak instrument",0
+"mrggi","CSq","edge.fdr",670,"large","M4","Weak instrument",0
+"mrggi","CSq","edge.fdr",1000,"all","M0","T1 - T2 Edge Absent",52
+"mrggi","CSq","edge.fdr",1000,"all","M1","T1 - T2 Edge Absent",18
+"mrggi","CSq","edge.fdr",1000,"all","M2","T1 - T2 Edge Absent",50
+"mrggi","CSq","edge.fdr",1000,"all","M3","T1 - T2 Edge Absent",6
+"mrggi","CSq","edge.fdr",1000,"all","M4","T1 - T2 Edge Absent",1
+"mrggi","CSq","edge.fdr",1000,"all","M0","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",1000,"all","M1","T1 - T2 Edge Present",32
+"mrggi","CSq","edge.fdr",1000,"all","M2","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",1000,"all","M3","T1 - T2 Edge Present",47
+"mrggi","CSq","edge.fdr",1000,"all","M4","T1 - T2 Edge Present",48
+"mrggi","CSq","edge.fdr",1000,"all","M0","Weak instrument",8
+"mrggi","CSq","edge.fdr",1000,"all","M1","Weak instrument",10
+"mrggi","CSq","edge.fdr",1000,"all","M2","Weak instrument",10
+"mrggi","CSq","edge.fdr",1000,"all","M3","Weak instrument",7
+"mrggi","CSq","edge.fdr",1000,"all","M4","Weak instrument",11
+"mrggi","CSq","edge.fdr",1000,"small","M0","T1 - T2 Edge Absent",12
+"mrggi","CSq","edge.fdr",1000,"small","M1","T1 - T2 Edge Absent",11
+"mrggi","CSq","edge.fdr",1000,"small","M2","T1 - T2 Edge Absent",10
+"mrggi","CSq","edge.fdr",1000,"small","M3","T1 - T2 Edge Absent",5
+"mrggi","CSq","edge.fdr",1000,"small","M4","T1 - T2 Edge Absent",1
+"mrggi","CSq","edge.fdr",1000,"small","M0","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",1000,"small","M1","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",1000,"small","M2","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",1000,"small","M3","T1 - T2 Edge Present",10
+"mrggi","CSq","edge.fdr",1000,"small","M4","T1 - T2 Edge Present",9
+"mrggi","CSq","edge.fdr",1000,"small","M0","Weak instrument",8
+"mrggi","CSq","edge.fdr",1000,"small","M1","Weak instrument",9
+"mrggi","CSq","edge.fdr",1000,"small","M2","Weak instrument",10
+"mrggi","CSq","edge.fdr",1000,"small","M3","Weak instrument",5
+"mrggi","CSq","edge.fdr",1000,"small","M4","Weak instrument",10
+"mrggi","CSq","edge.fdr",1000,"medium","M0","T1 - T2 Edge Absent",20
+"mrggi","CSq","edge.fdr",1000,"medium","M1","T1 - T2 Edge Absent",6
+"mrggi","CSq","edge.fdr",1000,"medium","M2","T1 - T2 Edge Absent",20
+"mrggi","CSq","edge.fdr",1000,"medium","M3","T1 - T2 Edge Absent",1
+"mrggi","CSq","edge.fdr",1000,"medium","M4","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",1000,"medium","M0","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",1000,"medium","M1","T1 - T2 Edge Present",13
+"mrggi","CSq","edge.fdr",1000,"medium","M2","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",1000,"medium","M3","T1 - T2 Edge Present",17
+"mrggi","CSq","edge.fdr",1000,"medium","M4","T1 - T2 Edge Present",19
+"mrggi","CSq","edge.fdr",1000,"medium","M0","Weak instrument",0
+"mrggi","CSq","edge.fdr",1000,"medium","M1","Weak instrument",1
+"mrggi","CSq","edge.fdr",1000,"medium","M2","Weak instrument",0
+"mrggi","CSq","edge.fdr",1000,"medium","M3","Weak instrument",2
+"mrggi","CSq","edge.fdr",1000,"medium","M4","Weak instrument",1
+"mrggi","CSq","edge.fdr",1000,"large","M0","T1 - T2 Edge Absent",20
+"mrggi","CSq","edge.fdr",1000,"large","M1","T1 - T2 Edge Absent",1
+"mrggi","CSq","edge.fdr",1000,"large","M2","T1 - T2 Edge Absent",20
+"mrggi","CSq","edge.fdr",1000,"large","M3","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",1000,"large","M4","T1 - T2 Edge Absent",0
+"mrggi","CSq","edge.fdr",1000,"large","M0","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",1000,"large","M1","T1 - T2 Edge Present",19
+"mrggi","CSq","edge.fdr",1000,"large","M2","T1 - T2 Edge Present",0
+"mrggi","CSq","edge.fdr",1000,"large","M3","T1 - T2 Edge Present",20
+"mrggi","CSq","edge.fdr",1000,"large","M4","T1 - T2 Edge Present",20
+"mrggi","CSq","edge.fdr",1000,"large","M0","Weak instrument",0
+"mrggi","CSq","edge.fdr",1000,"large","M1","Weak instrument",0
+"mrggi","CSq","edge.fdr",1000,"large","M2","Weak instrument",0
+"mrggi","CSq","edge.fdr",1000,"large","M3","Weak instrument",0
+"mrggi","CSq","edge.fdr",1000,"large","M4","Weak instrument",0
+"mrggi","CSa","edge.fdr",50,"all","M0","T1 - T2 Edge Absent",19
+"mrggi","CSa","edge.fdr",50,"all","M1","T1 - T2 Edge Absent",17
+"mrggi","CSa","edge.fdr",50,"all","M2","T1 - T2 Edge Absent",19
+"mrggi","CSa","edge.fdr",50,"all","M3","T1 - T2 Edge Absent",6
+"mrggi","CSa","edge.fdr",50,"all","M4","T1 - T2 Edge Absent",4
+"mrggi","CSa","edge.fdr",50,"all","M0","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",50,"all","M1","T1 - T2 Edge Present",2
+"mrggi","CSa","edge.fdr",50,"all","M2","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",50,"all","M3","T1 - T2 Edge Present",11
+"mrggi","CSa","edge.fdr",50,"all","M4","T1 - T2 Edge Present",12
+"mrggi","CSa","edge.fdr",50,"all","M0","Weak instrument",41
+"mrggi","CSa","edge.fdr",50,"all","M1","Weak instrument",41
+"mrggi","CSa","edge.fdr",50,"all","M2","Weak instrument",41
+"mrggi","CSa","edge.fdr",50,"all","M3","Weak instrument",43
+"mrggi","CSa","edge.fdr",50,"all","M4","Weak instrument",44
+"mrggi","CSa","edge.fdr",50,"small","M0","T1 - T2 Edge Absent",0
+"mrggi","CSa","edge.fdr",50,"small","M1","T1 - T2 Edge Absent",0
+"mrggi","CSa","edge.fdr",50,"small","M2","T1 - T2 Edge Absent",0
+"mrggi","CSa","edge.fdr",50,"small","M3","T1 - T2 Edge Absent",0
+"mrggi","CSa","edge.fdr",50,"small","M4","T1 - T2 Edge Absent",0
+"mrggi","CSa","edge.fdr",50,"small","M0","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",50,"small","M1","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",50,"small","M2","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",50,"small","M3","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",50,"small","M4","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",50,"small","M0","Weak instrument",20
+"mrggi","CSa","edge.fdr",50,"small","M1","Weak instrument",20
+"mrggi","CSa","edge.fdr",50,"small","M2","Weak instrument",20
+"mrggi","CSa","edge.fdr",50,"small","M3","Weak instrument",20
+"mrggi","CSa","edge.fdr",50,"small","M4","Weak instrument",20
+"mrggi","CSa","edge.fdr",50,"medium","M0","T1 - T2 Edge Absent",4
+"mrggi","CSa","edge.fdr",50,"medium","M1","T1 - T2 Edge Absent",6
+"mrggi","CSa","edge.fdr",50,"medium","M2","T1 - T2 Edge Absent",8
+"mrggi","CSa","edge.fdr",50,"medium","M3","T1 - T2 Edge Absent",3
+"mrggi","CSa","edge.fdr",50,"medium","M4","T1 - T2 Edge Absent",3
+"mrggi","CSa","edge.fdr",50,"medium","M0","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",50,"medium","M1","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",50,"medium","M2","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",50,"medium","M3","T1 - T2 Edge Present",1
+"mrggi","CSa","edge.fdr",50,"medium","M4","T1 - T2 Edge Present",1
+"mrggi","CSa","edge.fdr",50,"medium","M0","Weak instrument",16
+"mrggi","CSa","edge.fdr",50,"medium","M1","Weak instrument",14
+"mrggi","CSa","edge.fdr",50,"medium","M2","Weak instrument",12
+"mrggi","CSa","edge.fdr",50,"medium","M3","Weak instrument",16
+"mrggi","CSa","edge.fdr",50,"medium","M4","Weak instrument",16
+"mrggi","CSa","edge.fdr",50,"large","M0","T1 - T2 Edge Absent",15
+"mrggi","CSa","edge.fdr",50,"large","M1","T1 - T2 Edge Absent",11
+"mrggi","CSa","edge.fdr",50,"large","M2","T1 - T2 Edge Absent",11
+"mrggi","CSa","edge.fdr",50,"large","M3","T1 - T2 Edge Absent",3
+"mrggi","CSa","edge.fdr",50,"large","M4","T1 - T2 Edge Absent",1
+"mrggi","CSa","edge.fdr",50,"large","M0","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",50,"large","M1","T1 - T2 Edge Present",2
+"mrggi","CSa","edge.fdr",50,"large","M2","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",50,"large","M3","T1 - T2 Edge Present",10
+"mrggi","CSa","edge.fdr",50,"large","M4","T1 - T2 Edge Present",11
+"mrggi","CSa","edge.fdr",50,"large","M0","Weak instrument",5
+"mrggi","CSa","edge.fdr",50,"large","M1","Weak instrument",7
+"mrggi","CSa","edge.fdr",50,"large","M2","Weak instrument",9
+"mrggi","CSa","edge.fdr",50,"large","M3","Weak instrument",7
+"mrggi","CSa","edge.fdr",50,"large","M4","Weak instrument",8
+"mrggi","CSa","edge.fdr",150,"all","M0","T1 - T2 Edge Absent",36
+"mrggi","CSa","edge.fdr",150,"all","M1","T1 - T2 Edge Absent",10
+"mrggi","CSa","edge.fdr",150,"all","M2","T1 - T2 Edge Absent",26
+"mrggi","CSa","edge.fdr",150,"all","M3","T1 - T2 Edge Absent",4
+"mrggi","CSa","edge.fdr",150,"all","M4","T1 - T2 Edge Absent",2
+"mrggi","CSa","edge.fdr",150,"all","M0","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",150,"all","M1","T1 - T2 Edge Present",16
+"mrggi","CSa","edge.fdr",150,"all","M2","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",150,"all","M3","T1 - T2 Edge Present",31
+"mrggi","CSa","edge.fdr",150,"all","M4","T1 - T2 Edge Present",33
+"mrggi","CSa","edge.fdr",150,"all","M0","Weak instrument",24
+"mrggi","CSa","edge.fdr",150,"all","M1","Weak instrument",34
+"mrggi","CSa","edge.fdr",150,"all","M2","Weak instrument",34
+"mrggi","CSa","edge.fdr",150,"all","M3","Weak instrument",25
+"mrggi","CSa","edge.fdr",150,"all","M4","Weak instrument",25
+"mrggi","CSa","edge.fdr",150,"small","M0","T1 - T2 Edge Absent",0
+"mrggi","CSa","edge.fdr",150,"small","M1","T1 - T2 Edge Absent",3
+"mrggi","CSa","edge.fdr",150,"small","M2","T1 - T2 Edge Absent",0
+"mrggi","CSa","edge.fdr",150,"small","M3","T1 - T2 Edge Absent",0
+"mrggi","CSa","edge.fdr",150,"small","M4","T1 - T2 Edge Absent",2
+"mrggi","CSa","edge.fdr",150,"small","M0","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",150,"small","M1","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",150,"small","M2","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",150,"small","M3","T1 - T2 Edge Present",1
+"mrggi","CSa","edge.fdr",150,"small","M4","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",150,"small","M0","Weak instrument",20
+"mrggi","CSa","edge.fdr",150,"small","M1","Weak instrument",17
+"mrggi","CSa","edge.fdr",150,"small","M2","Weak instrument",20
+"mrggi","CSa","edge.fdr",150,"small","M3","Weak instrument",19
+"mrggi","CSa","edge.fdr",150,"small","M4","Weak instrument",18
+"mrggi","CSa","edge.fdr",150,"medium","M0","T1 - T2 Edge Absent",16
+"mrggi","CSa","edge.fdr",150,"medium","M1","T1 - T2 Edge Absent",6
+"mrggi","CSa","edge.fdr",150,"medium","M2","T1 - T2 Edge Absent",9
+"mrggi","CSa","edge.fdr",150,"medium","M3","T1 - T2 Edge Absent",4
+"mrggi","CSa","edge.fdr",150,"medium","M4","T1 - T2 Edge Absent",0
+"mrggi","CSa","edge.fdr",150,"medium","M0","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",150,"medium","M1","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",150,"medium","M2","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",150,"medium","M3","T1 - T2 Edge Present",11
+"mrggi","CSa","edge.fdr",150,"medium","M4","T1 - T2 Edge Present",15
+"mrggi","CSa","edge.fdr",150,"medium","M0","Weak instrument",4
+"mrggi","CSa","edge.fdr",150,"medium","M1","Weak instrument",14
+"mrggi","CSa","edge.fdr",150,"medium","M2","Weak instrument",11
+"mrggi","CSa","edge.fdr",150,"medium","M3","Weak instrument",5
+"mrggi","CSa","edge.fdr",150,"medium","M4","Weak instrument",5
+"mrggi","CSa","edge.fdr",150,"large","M0","T1 - T2 Edge Absent",20
+"mrggi","CSa","edge.fdr",150,"large","M1","T1 - T2 Edge Absent",1
+"mrggi","CSa","edge.fdr",150,"large","M2","T1 - T2 Edge Absent",17
+"mrggi","CSa","edge.fdr",150,"large","M3","T1 - T2 Edge Absent",0
+"mrggi","CSa","edge.fdr",150,"large","M4","T1 - T2 Edge Absent",0
+"mrggi","CSa","edge.fdr",150,"large","M0","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",150,"large","M1","T1 - T2 Edge Present",16
+"mrggi","CSa","edge.fdr",150,"large","M2","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",150,"large","M3","T1 - T2 Edge Present",19
+"mrggi","CSa","edge.fdr",150,"large","M4","T1 - T2 Edge Present",18
+"mrggi","CSa","edge.fdr",150,"large","M0","Weak instrument",0
+"mrggi","CSa","edge.fdr",150,"large","M1","Weak instrument",3
+"mrggi","CSa","edge.fdr",150,"large","M2","Weak instrument",3
+"mrggi","CSa","edge.fdr",150,"large","M3","Weak instrument",1
+"mrggi","CSa","edge.fdr",150,"large","M4","Weak instrument",2
+"mrggi","CSa","edge.fdr",300,"all","M0","T1 - T2 Edge Absent",43
+"mrggi","CSa","edge.fdr",300,"all","M1","T1 - T2 Edge Absent",23
+"mrggi","CSa","edge.fdr",300,"all","M2","T1 - T2 Edge Absent",37
+"mrggi","CSa","edge.fdr",300,"all","M3","T1 - T2 Edge Absent",3
+"mrggi","CSa","edge.fdr",300,"all","M4","T1 - T2 Edge Absent",1
+"mrggi","CSa","edge.fdr",300,"all","M0","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",300,"all","M1","T1 - T2 Edge Present",20
+"mrggi","CSa","edge.fdr",300,"all","M2","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",300,"all","M3","T1 - T2 Edge Present",37
+"mrggi","CSa","edge.fdr",300,"all","M4","T1 - T2 Edge Present",41
+"mrggi","CSa","edge.fdr",300,"all","M0","Weak instrument",17
+"mrggi","CSa","edge.fdr",300,"all","M1","Weak instrument",17
+"mrggi","CSa","edge.fdr",300,"all","M2","Weak instrument",23
+"mrggi","CSa","edge.fdr",300,"all","M3","Weak instrument",20
+"mrggi","CSa","edge.fdr",300,"all","M4","Weak instrument",18
+"mrggi","CSa","edge.fdr",300,"small","M0","T1 - T2 Edge Absent",10
+"mrggi","CSa","edge.fdr",300,"small","M1","T1 - T2 Edge Absent",5
+"mrggi","CSa","edge.fdr",300,"small","M2","T1 - T2 Edge Absent",3
+"mrggi","CSa","edge.fdr",300,"small","M3","T1 - T2 Edge Absent",1
+"mrggi","CSa","edge.fdr",300,"small","M4","T1 - T2 Edge Absent",1
+"mrggi","CSa","edge.fdr",300,"small","M0","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",300,"small","M1","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",300,"small","M2","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",300,"small","M3","T1 - T2 Edge Present",2
+"mrggi","CSa","edge.fdr",300,"small","M4","T1 - T2 Edge Present",2
+"mrggi","CSa","edge.fdr",300,"small","M0","Weak instrument",10
+"mrggi","CSa","edge.fdr",300,"small","M1","Weak instrument",15
+"mrggi","CSa","edge.fdr",300,"small","M2","Weak instrument",17
+"mrggi","CSa","edge.fdr",300,"small","M3","Weak instrument",17
+"mrggi","CSa","edge.fdr",300,"small","M4","Weak instrument",17
+"mrggi","CSa","edge.fdr",300,"medium","M0","T1 - T2 Edge Absent",14
+"mrggi","CSa","edge.fdr",300,"medium","M1","T1 - T2 Edge Absent",13
+"mrggi","CSa","edge.fdr",300,"medium","M2","T1 - T2 Edge Absent",16
+"mrggi","CSa","edge.fdr",300,"medium","M3","T1 - T2 Edge Absent",1
+"mrggi","CSa","edge.fdr",300,"medium","M4","T1 - T2 Edge Absent",0
+"mrggi","CSa","edge.fdr",300,"medium","M0","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",300,"medium","M1","T1 - T2 Edge Present",5
+"mrggi","CSa","edge.fdr",300,"medium","M2","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",300,"medium","M3","T1 - T2 Edge Present",17
+"mrggi","CSa","edge.fdr",300,"medium","M4","T1 - T2 Edge Present",20
+"mrggi","CSa","edge.fdr",300,"medium","M0","Weak instrument",6
+"mrggi","CSa","edge.fdr",300,"medium","M1","Weak instrument",2
+"mrggi","CSa","edge.fdr",300,"medium","M2","Weak instrument",4
+"mrggi","CSa","edge.fdr",300,"medium","M3","Weak instrument",2
+"mrggi","CSa","edge.fdr",300,"medium","M4","Weak instrument",0
+"mrggi","CSa","edge.fdr",300,"large","M0","T1 - T2 Edge Absent",19
+"mrggi","CSa","edge.fdr",300,"large","M1","T1 - T2 Edge Absent",5
+"mrggi","CSa","edge.fdr",300,"large","M2","T1 - T2 Edge Absent",18
+"mrggi","CSa","edge.fdr",300,"large","M3","T1 - T2 Edge Absent",1
+"mrggi","CSa","edge.fdr",300,"large","M4","T1 - T2 Edge Absent",0
+"mrggi","CSa","edge.fdr",300,"large","M0","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",300,"large","M1","T1 - T2 Edge Present",15
+"mrggi","CSa","edge.fdr",300,"large","M2","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",300,"large","M3","T1 - T2 Edge Present",18
+"mrggi","CSa","edge.fdr",300,"large","M4","T1 - T2 Edge Present",19
+"mrggi","CSa","edge.fdr",300,"large","M0","Weak instrument",1
+"mrggi","CSa","edge.fdr",300,"large","M1","Weak instrument",0
+"mrggi","CSa","edge.fdr",300,"large","M2","Weak instrument",2
+"mrggi","CSa","edge.fdr",300,"large","M3","Weak instrument",1
+"mrggi","CSa","edge.fdr",300,"large","M4","Weak instrument",1
+"mrggi","CSa","edge.fdr",670,"all","M0","T1 - T2 Edge Absent",45
+"mrggi","CSa","edge.fdr",670,"all","M1","T1 - T2 Edge Absent",21
+"mrggi","CSa","edge.fdr",670,"all","M2","T1 - T2 Edge Absent",53
+"mrggi","CSa","edge.fdr",670,"all","M3","T1 - T2 Edge Absent",1
+"mrggi","CSa","edge.fdr",670,"all","M4","T1 - T2 Edge Absent",1
+"mrggi","CSa","edge.fdr",670,"all","M0","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",670,"all","M1","T1 - T2 Edge Present",25
+"mrggi","CSa","edge.fdr",670,"all","M2","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",670,"all","M3","T1 - T2 Edge Present",47
+"mrggi","CSa","edge.fdr",670,"all","M4","T1 - T2 Edge Present",49
+"mrggi","CSa","edge.fdr",670,"all","M0","Weak instrument",15
+"mrggi","CSa","edge.fdr",670,"all","M1","Weak instrument",14
+"mrggi","CSa","edge.fdr",670,"all","M2","Weak instrument",7
+"mrggi","CSa","edge.fdr",670,"all","M3","Weak instrument",12
+"mrggi","CSa","edge.fdr",670,"all","M4","Weak instrument",10
+"mrggi","CSa","edge.fdr",670,"small","M0","T1 - T2 Edge Absent",9
+"mrggi","CSa","edge.fdr",670,"small","M1","T1 - T2 Edge Absent",8
+"mrggi","CSa","edge.fdr",670,"small","M2","T1 - T2 Edge Absent",13
+"mrggi","CSa","edge.fdr",670,"small","M3","T1 - T2 Edge Absent",1
+"mrggi","CSa","edge.fdr",670,"small","M4","T1 - T2 Edge Absent",1
+"mrggi","CSa","edge.fdr",670,"small","M0","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",670,"small","M1","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",670,"small","M2","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",670,"small","M3","T1 - T2 Edge Present",9
+"mrggi","CSa","edge.fdr",670,"small","M4","T1 - T2 Edge Present",10
+"mrggi","CSa","edge.fdr",670,"small","M0","Weak instrument",11
+"mrggi","CSa","edge.fdr",670,"small","M1","Weak instrument",12
+"mrggi","CSa","edge.fdr",670,"small","M2","Weak instrument",7
+"mrggi","CSa","edge.fdr",670,"small","M3","Weak instrument",10
+"mrggi","CSa","edge.fdr",670,"small","M4","Weak instrument",9
+"mrggi","CSa","edge.fdr",670,"medium","M0","T1 - T2 Edge Absent",17
+"mrggi","CSa","edge.fdr",670,"medium","M1","T1 - T2 Edge Absent",12
+"mrggi","CSa","edge.fdr",670,"medium","M2","T1 - T2 Edge Absent",20
+"mrggi","CSa","edge.fdr",670,"medium","M3","T1 - T2 Edge Absent",0
+"mrggi","CSa","edge.fdr",670,"medium","M4","T1 - T2 Edge Absent",0
+"mrggi","CSa","edge.fdr",670,"medium","M0","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",670,"medium","M1","T1 - T2 Edge Present",6
+"mrggi","CSa","edge.fdr",670,"medium","M2","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",670,"medium","M3","T1 - T2 Edge Present",18
+"mrggi","CSa","edge.fdr",670,"medium","M4","T1 - T2 Edge Present",19
+"mrggi","CSa","edge.fdr",670,"medium","M0","Weak instrument",3
+"mrggi","CSa","edge.fdr",670,"medium","M1","Weak instrument",2
+"mrggi","CSa","edge.fdr",670,"medium","M2","Weak instrument",0
+"mrggi","CSa","edge.fdr",670,"medium","M3","Weak instrument",2
+"mrggi","CSa","edge.fdr",670,"medium","M4","Weak instrument",1
+"mrggi","CSa","edge.fdr",670,"large","M0","T1 - T2 Edge Absent",19
+"mrggi","CSa","edge.fdr",670,"large","M1","T1 - T2 Edge Absent",1
+"mrggi","CSa","edge.fdr",670,"large","M2","T1 - T2 Edge Absent",20
+"mrggi","CSa","edge.fdr",670,"large","M3","T1 - T2 Edge Absent",0
+"mrggi","CSa","edge.fdr",670,"large","M4","T1 - T2 Edge Absent",0
+"mrggi","CSa","edge.fdr",670,"large","M0","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",670,"large","M1","T1 - T2 Edge Present",19
+"mrggi","CSa","edge.fdr",670,"large","M2","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",670,"large","M3","T1 - T2 Edge Present",20
+"mrggi","CSa","edge.fdr",670,"large","M4","T1 - T2 Edge Present",20
+"mrggi","CSa","edge.fdr",670,"large","M0","Weak instrument",1
+"mrggi","CSa","edge.fdr",670,"large","M1","Weak instrument",0
+"mrggi","CSa","edge.fdr",670,"large","M2","Weak instrument",0
+"mrggi","CSa","edge.fdr",670,"large","M3","Weak instrument",0
+"mrggi","CSa","edge.fdr",670,"large","M4","Weak instrument",0
+"mrggi","CSa","edge.fdr",1000,"all","M0","T1 - T2 Edge Absent",52
+"mrggi","CSa","edge.fdr",1000,"all","M1","T1 - T2 Edge Absent",21
+"mrggi","CSa","edge.fdr",1000,"all","M2","T1 - T2 Edge Absent",50
+"mrggi","CSa","edge.fdr",1000,"all","M3","T1 - T2 Edge Absent",7
+"mrggi","CSa","edge.fdr",1000,"all","M4","T1 - T2 Edge Absent",1
+"mrggi","CSa","edge.fdr",1000,"all","M0","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",1000,"all","M1","T1 - T2 Edge Present",29
+"mrggi","CSa","edge.fdr",1000,"all","M2","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",1000,"all","M3","T1 - T2 Edge Present",46
+"mrggi","CSa","edge.fdr",1000,"all","M4","T1 - T2 Edge Present",48
+"mrggi","CSa","edge.fdr",1000,"all","M0","Weak instrument",8
+"mrggi","CSa","edge.fdr",1000,"all","M1","Weak instrument",10
+"mrggi","CSa","edge.fdr",1000,"all","M2","Weak instrument",10
+"mrggi","CSa","edge.fdr",1000,"all","M3","Weak instrument",7
+"mrggi","CSa","edge.fdr",1000,"all","M4","Weak instrument",11
+"mrggi","CSa","edge.fdr",1000,"small","M0","T1 - T2 Edge Absent",12
+"mrggi","CSa","edge.fdr",1000,"small","M1","T1 - T2 Edge Absent",11
+"mrggi","CSa","edge.fdr",1000,"small","M2","T1 - T2 Edge Absent",10
+"mrggi","CSa","edge.fdr",1000,"small","M3","T1 - T2 Edge Absent",6
+"mrggi","CSa","edge.fdr",1000,"small","M4","T1 - T2 Edge Absent",1
+"mrggi","CSa","edge.fdr",1000,"small","M0","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",1000,"small","M1","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",1000,"small","M2","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",1000,"small","M3","T1 - T2 Edge Present",9
+"mrggi","CSa","edge.fdr",1000,"small","M4","T1 - T2 Edge Present",9
+"mrggi","CSa","edge.fdr",1000,"small","M0","Weak instrument",8
+"mrggi","CSa","edge.fdr",1000,"small","M1","Weak instrument",9
+"mrggi","CSa","edge.fdr",1000,"small","M2","Weak instrument",10
+"mrggi","CSa","edge.fdr",1000,"small","M3","Weak instrument",5
+"mrggi","CSa","edge.fdr",1000,"small","M4","Weak instrument",10
+"mrggi","CSa","edge.fdr",1000,"medium","M0","T1 - T2 Edge Absent",20
+"mrggi","CSa","edge.fdr",1000,"medium","M1","T1 - T2 Edge Absent",9
+"mrggi","CSa","edge.fdr",1000,"medium","M2","T1 - T2 Edge Absent",20
+"mrggi","CSa","edge.fdr",1000,"medium","M3","T1 - T2 Edge Absent",1
+"mrggi","CSa","edge.fdr",1000,"medium","M4","T1 - T2 Edge Absent",0
+"mrggi","CSa","edge.fdr",1000,"medium","M0","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",1000,"medium","M1","T1 - T2 Edge Present",10
+"mrggi","CSa","edge.fdr",1000,"medium","M2","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",1000,"medium","M3","T1 - T2 Edge Present",17
+"mrggi","CSa","edge.fdr",1000,"medium","M4","T1 - T2 Edge Present",19
+"mrggi","CSa","edge.fdr",1000,"medium","M0","Weak instrument",0
+"mrggi","CSa","edge.fdr",1000,"medium","M1","Weak instrument",1
+"mrggi","CSa","edge.fdr",1000,"medium","M2","Weak instrument",0
+"mrggi","CSa","edge.fdr",1000,"medium","M3","Weak instrument",2
+"mrggi","CSa","edge.fdr",1000,"medium","M4","Weak instrument",1
+"mrggi","CSa","edge.fdr",1000,"large","M0","T1 - T2 Edge Absent",20
+"mrggi","CSa","edge.fdr",1000,"large","M1","T1 - T2 Edge Absent",1
+"mrggi","CSa","edge.fdr",1000,"large","M2","T1 - T2 Edge Absent",20
+"mrggi","CSa","edge.fdr",1000,"large","M3","T1 - T2 Edge Absent",0
+"mrggi","CSa","edge.fdr",1000,"large","M4","T1 - T2 Edge Absent",0
+"mrggi","CSa","edge.fdr",1000,"large","M0","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",1000,"large","M1","T1 - T2 Edge Present",19
+"mrggi","CSa","edge.fdr",1000,"large","M2","T1 - T2 Edge Present",0
+"mrggi","CSa","edge.fdr",1000,"large","M3","T1 - T2 Edge Present",20
+"mrggi","CSa","edge.fdr",1000,"large","M4","T1 - T2 Edge Present",20
+"mrggi","CSa","edge.fdr",1000,"large","M0","Weak instrument",0
+"mrggi","CSa","edge.fdr",1000,"large","M1","Weak instrument",0
+"mrggi","CSa","edge.fdr",1000,"large","M2","Weak instrument",0
+"mrggi","CSa","edge.fdr",1000,"large","M3","Weak instrument",0
+"mrggi","CSa","edge.fdr",1000,"large","M4","Weak instrument",0

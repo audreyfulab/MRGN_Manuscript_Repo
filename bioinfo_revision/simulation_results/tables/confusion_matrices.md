@@ -14,7 +14,7 @@ The diagonal is the coarse-correct count. Read the three arms against each other
 
 ### MRGN -- truth arm
 
-True confounders -- the oracle arm. This is the ceiling MRGN could reach if confounder selection were perfect, not an attainable result.
+True confounders -- the oracle arm. This is the ceiling the method could reach if confounder selection were perfect, not an attainable result.
 
 #### n = 50
 
@@ -249,6 +249,116 @@ Accuracy: **54.0%** (162 of 300).
 
 Accuracy: **55.7%** (167 of 300).
 
+## MRPC
+
+MRPC names a trio topology, so it is scored on the same six-way call as MRGN and against the same eight adjacency matrices. Read the arms against MRGN's: same trios, same confounder sets, same right answers.
+
+**`Failed` is a real column here and it is a result, not a gap in the data.** Each MRPC fit is capped at `mrpc.timeout` seconds and returns no model when it expires. At the previous 120 s cap that was 182 of 300 trios at n = 670 and 224 of 300 at n = 1000 in the CS-q arm alone; the cap is now 180 s. Timed-out trios count against accuracy, exactly as MRGN's `Other` and MR-GGI's `Weak instrument` do -- a fit that never returned is a model that was not identified. MRPC's accuracy *on the trios it finishes* is not its accuracy on this design, and the two should never be quoted interchangeably.
+
+### MRPC -- truth arm
+
+True confounders -- the oracle arm. This is the ceiling the method could reach if confounder selection were perfect, not an attainable result.
+
+#### n = 50
+
+| inferred \ true | M0 | M1 | M2 | M3 | M4 | Total | Precision |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| M0 | 15 | 3 | 9 | 10 | 3 | 40 | 0.3750 |
+| M1 | 0 | 3 | 2 | 0 | 3 | 8 | 0.3750 |
+| M2 | 0 | 1 | 3 | 0 | 0 | 4 | 0.7500 |
+| M3 | 0 | 0 | 0 | 4 | 0 | 4 | 1.0000 |
+| M4 | 0 | 0 | 0 | 0 | 0 | 0 |  |
+| Other | 45 | 53 | 46 | 46 | 54 | 244 |  |
+| Failed | 0 | 0 | 0 | 0 | 0 | 0 |  |
+| **Total** | **60** | **60** | **60** | **60** | **60** | **300** |  |
+| **Recall** | **0.2500** | **0.0500** | **0.0500** | **0.0667** | **0.0000** |  | **0.0833** |
+
+Accuracy: **8.3%** (25 of 300). Timed out: 0 (0.0%).
+
+#### n = 150
+
+| inferred \ true | M0 | M1 | M2 | M3 | M4 | Total | Precision |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| M0 | 29 | 3 | 4 | 8 | 0 | 44 | 0.6591 |
+| M1 | 0 | 11 | 0 | 0 | 19 | 30 | 0.3667 |
+| M2 | 0 | 1 | 18 | 0 | 2 | 21 | 0.8571 |
+| M3 | 0 | 0 | 0 | 24 | 0 | 24 | 1.0000 |
+| M4 | 0 | 0 | 0 | 0 | 1 | 1 | 1.0000 |
+| Other | 31 | 45 | 38 | 28 | 38 | 180 |  |
+| Failed | 0 | 0 | 0 | 0 | 0 | 0 |  |
+| **Total** | **60** | **60** | **60** | **60** | **60** | **300** |  |
+| **Recall** | **0.4833** | **0.1833** | **0.3000** | **0.4000** | **0.0167** |  | **0.2767** |
+
+Accuracy: **27.7%** (83 of 300). Timed out: 0 (0.0%).
+
+#### n = 300
+
+| inferred \ true | M0 | M1 | M2 | M3 | M4 | Total | Precision |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| M0 | 27 | 2 | 3 | 1 | 3 | 36 | 0.7500 |
+| M1 | 0 | 4 | 0 | 0 | 18 | 22 | 0.1818 |
+| M2 | 0 | 12 | 14 | 0 | 0 | 26 | 0.5385 |
+| M3 | 0 | 1 | 0 | 24 | 1 | 26 | 0.9231 |
+| M4 | 0 | 2 | 0 | 0 | 7 | 9 | 0.7778 |
+| Other | 19 | 17 | 16 | 15 | 11 | 78 |  |
+| Failed | 14 | 22 | 27 | 20 | 20 | 103 |  |
+| **Total** | **60** | **60** | **60** | **60** | **60** | **300** |  |
+| **Recall** | **0.4500** | **0.0667** | **0.2333** | **0.4000** | **0.1167** |  | **0.2533** |
+
+Accuracy: **25.3%** (76 of 300). Timed out: 103 (34.3%).
+
+### MRPC -- CSq arm
+
+CS-q confounder selection.
+
+#### n = 50
+
+| inferred \ true | M0 | M1 | M2 | M3 | M4 | Total | Precision |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| M0 | 14 | 4 | 7 | 8 | 6 | 39 | 0.3590 |
+| M1 | 0 | 13 | 5 | 0 | 12 | 30 | 0.4333 |
+| M2 | 0 | 0 | 6 | 0 | 1 | 7 | 0.8571 |
+| M3 | 0 | 0 | 0 | 10 | 0 | 10 | 1.0000 |
+| M4 | 0 | 0 | 0 | 0 | 0 | 0 |  |
+| Other | 46 | 43 | 42 | 42 | 41 | 214 |  |
+| Failed | 0 | 0 | 0 | 0 | 0 | 0 |  |
+| **Total** | **60** | **60** | **60** | **60** | **60** | **300** |  |
+| **Recall** | **0.2333** | **0.2167** | **0.1000** | **0.1667** | **0.0000** |  | **0.1433** |
+
+Accuracy: **14.3%** (43 of 300). Timed out: 0 (0.0%).
+
+#### n = 150
+
+| inferred \ true | M0 | M1 | M2 | M3 | M4 | Total | Precision |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| M0 | 36 | 4 | 5 | 6 | 2 | 53 | 0.6792 |
+| M1 | 0 | 16 | 0 | 0 | 21 | 37 | 0.4324 |
+| M2 | 0 | 5 | 18 | 0 | 6 | 29 | 0.6207 |
+| M3 | 0 | 0 | 0 | 29 | 3 | 32 | 0.9062 |
+| M4 | 0 | 0 | 0 | 3 | 8 | 11 | 0.7273 |
+| Other | 24 | 35 | 37 | 22 | 20 | 138 |  |
+| Failed | 0 | 0 | 0 | 0 | 0 | 0 |  |
+| **Total** | **60** | **60** | **60** | **60** | **60** | **300** |  |
+| **Recall** | **0.6000** | **0.2667** | **0.3000** | **0.4833** | **0.1333** |  | **0.3567** |
+
+Accuracy: **35.7%** (107 of 300). Timed out: 0 (0.0%).
+
+#### n = 300
+
+| inferred \ true | M0 | M1 | M2 | M3 | M4 | Total | Precision |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| M0 | 40 | 7 | 13 | 6 | 4 | 70 | 0.5714 |
+| M1 | 0 | 8 | 2 | 0 | 18 | 28 | 0.2857 |
+| M2 | 0 | 15 | 20 | 0 | 3 | 38 | 0.5263 |
+| M3 | 0 | 1 | 0 | 30 | 5 | 36 | 0.8333 |
+| M4 | 0 | 6 | 0 | 6 | 16 | 28 | 0.5714 |
+| Other | 20 | 23 | 25 | 18 | 14 | 100 |  |
+| Failed | 0 | 0 | 0 | 0 | 0 | 0 |  |
+| **Total** | **60** | **60** | **60** | **60** | **60** | **300** |  |
+| **Recall** | **0.6667** | **0.1333** | **0.3333** | **0.5000** | **0.2667** |  | **0.3800** |
+
+Accuracy: **38.0%** (114 of 300). Timed out: 0 (0.0%).
+
 ## GMAC
 
 GMAC is scored on the **T1-T2 edge**, not on the trio topology. Its statistic is the Wald test on the mediator coefficient in `outcome ~ mediator + treatment + confounders`, and that regression is symmetric in T1 and T2 -- under `V1 -> T1 -> T2` the reverse coefficient is nonzero too, so the trans test fires whenever the cis one does. GMAC has no mechanism for orienting the edge: across all 1,500 trios `Cis Mediated` and `Trans Mediated` were picked 2 and 3 times.
@@ -397,7 +507,7 @@ Two of the three get a third row, for different reasons, and the distinction mat
 
 ### MRGN edge -- truth arm
 
-True confounders -- the oracle arm. This is the ceiling MRGN could reach if confounder selection were perfect, not an attainable result.
+True confounders -- the oracle arm. This is the ceiling the method could reach if confounder selection were perfect, not an attainable result.
 
 #### n = 50
 
@@ -589,7 +699,9 @@ Edge accuracy: **67.7%** (203 of 300). No edge call: 11.0%.
 
 ### Summary
 
-Also written as `tables/edge_comparison.csv`. `MRGN truth` is the oracle arm and not an attainable result; the arms to read against GMAC are `MRGN CSq` and `MRGN CSa`, which select their confounders as GMAC does. MR-GGI selects no confounders at all -- the instrument is what is supposed to handle confounding, which is the method's premise -- so it has a single row rather than an arm per selection rule.
+Also written as `tables/edge_comparison.csv`. `MRGN truth`, `MRPC truth` and `GMAC truth` are oracle arms and not attainable results; they are the ceiling each method would reach with perfect confounder selection. The arms to compare against each other are the selected ones -- `MRGN CSq`, `MRPC CSq` and `GMAC` -- which choose their confounders from the same pool.
+
+MR-GGI has a single row rather than an arm per covariate set. Its estimator is pairwise, so the covariates carried through `y` cannot move the T1-T2 estimate or its raw p-value -- the edge call here is identical in all four arms, and `confusion_mrggi.R` asserts it. What the arms do change is MRggi's own multiplicity correction, reported separately at the `edge.fdr` level in `confusion_counts_long.csv`; it is left out of this table because neither GMAC nor MRGN is corrected and the comparison would not be like for like.
 
 #### Edge accuracy
 
@@ -600,6 +712,8 @@ Trios whose T1-T2 edge status was called correctly. MRGN's `Other` and MR-GGI's 
 | MRGN truth | 0.227 | 0.670 | 0.813 | 0.870 | 0.900 |
 | MRGN CSq | 0.237 | 0.380 | 0.507 | 0.617 | 0.667 |
 | MRGN CSa | 0.000 | 0.157 | 0.547 | 0.677 | 0.677 |
+| MRPC truth | 0.137 | 0.377 | 0.363 | -- | -- |
+| MRPC CSq | 0.230 | 0.483 | 0.547 | -- | -- |
 | GMAC | 0.633 | 0.660 | 0.623 | 0.663 | 0.687 |
 | MR-GGI | 0.167 | 0.300 | 0.397 | 0.430 | 0.470 |
 
@@ -612,6 +726,8 @@ Of the `M1`/`M2`/`M4` trios, the share found to have an edge.
 | MRGN truth | 0.156 | 0.622 | 0.806 | 0.878 | 0.917 |
 | MRGN CSq | 0.194 | 0.439 | 0.622 | 0.789 | 0.844 |
 | MRGN CSa | 0.000 | 0.106 | 0.578 | 0.800 | 0.817 |
+| MRPC truth | 0.067 | 0.289 | 0.317 | -- | -- |
+| MRPC CSq | 0.206 | 0.411 | 0.489 | -- | -- |
 | GMAC | 0.606 | 0.817 | 0.828 | 0.911 | 0.933 |
 | MR-GGI | 0.161 | 0.306 | 0.439 | 0.472 | 0.494 |
 
@@ -624,6 +740,8 @@ Of the `M0`/`M3` trios, the share correctly found to have none. This is where th
 | MRGN truth | 0.333 | 0.742 | 0.825 | 0.858 | 0.875 |
 | MRGN CSq | 0.300 | 0.292 | 0.333 | 0.358 | 0.400 |
 | MRGN CSa | 0.000 | 0.233 | 0.500 | 0.492 | 0.467 |
+| MRPC truth | 0.242 | 0.508 | 0.433 | -- | -- |
+| MRPC CSq | 0.267 | 0.592 | 0.633 | -- | -- |
 | GMAC | 0.675 | 0.425 | 0.317 | 0.292 | 0.317 |
 | MR-GGI | 0.175 | 0.292 | 0.333 | 0.367 | 0.433 |
 
@@ -636,6 +754,8 @@ Share of trios left without an edge call: MRGN's `Other`, MR-GGI's `Weak instrum
 | MRGN truth | 0.693 | 0.283 | 0.147 | 0.093 | 0.067 |
 | MRGN CSq | 0.657 | 0.423 | 0.250 | 0.133 | 0.080 |
 | MRGN CSa | 1.000 | 0.817 | 0.370 | 0.123 | 0.110 |
+| MRPC truth | 0.813 | 0.600 | 0.603 | -- | -- |
+| MRPC CSq | 0.713 | 0.460 | 0.333 | -- | -- |
 | GMAC | 0.000 | 0.000 | 0.000 | 0.000 | 0.000 |
 | MR-GGI | 0.700 | 0.473 | 0.317 | 0.193 | 0.153 |
 

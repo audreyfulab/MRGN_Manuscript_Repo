@@ -15,8 +15,10 @@
 #   truth   the true confounders -- the oracle arm, the ceiling MRPC could reach if
 #           selection were perfect. This is the arm to read against MRGN's truth arm.
 #   CSq     the CS-q selection
-#   CSa     the CS-alpha selection. Off by default: 82-106 covariates is more than MRPC can
-#           fit, and it times out on ~79% of trios at n = 150 and worse above.
+# CS-alpha is NOT an MRPC arm and is not listed here. 82-106 covariates is more than MRPC
+# can run a PC algorithm over at any n in this study, so the fit is excluded outright rather
+# than attempted and timed out -- see mrpc.arms in inference_config.R. The mrpc.CSa.* columns
+# still exist and are always NA, with the reason in mrpc.CSa.error.
 #
 # An arm that was not attempted has no model column values at all and is skipped here with a
 # note, rather than tabulated as 300 failures -- "not run" and "ran and did not finish" are
@@ -52,7 +54,7 @@
 
 source("bioinfo_revision/simulation_results/results_scripts/confusion_utils.R")
 
-MRPC.ARMS <- c("truth", "CSq", "CSa")
+MRPC.ARMS <- c("truth", "CSq")
 
 
 # ---------------------------------------------------------------------------------------

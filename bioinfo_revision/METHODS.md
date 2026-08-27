@@ -491,7 +491,7 @@ these inferences per trio:
 | MRGN | CS-α selected |
 | MRPC | the true ones |
 | MRPC | CS-q selected |
-| MRPC | CS-α selected — off by default, does not finish |
+| MRPC | CS-α selected — **excluded**; never fitted, see below |
 | GMAC | whatever GMAC selects for itself |
 | GMAC | the true ones |
 | MR-GGI | none — the bare trio |
@@ -502,11 +502,12 @@ these inferences per trio:
 **Table 10. The inferences run on every trio.** The rows differ *only* in which
 covariates the method is handed, which is what makes the comparison isolate the
 cost of confounder **selection** from the cost of the inference method itself.
-The truth rows are the ceiling: the method given exactly the trio's own `U`
+The truth rows are intended as the ceiling: the method given exactly the trio's own `U`
 block, with `W` and `Z` withheld — an intermediate and a collider are covariates
 a method should reject (Table 3), so including them would not be a baseline but a
 mistake. Each row becomes one prefixed block of columns in the master results
-table (`mrgn.truth.*`, `mrgn.CSq.*`, `mrpc.CSa.*`, …).
+table (`mrgn.truth.*`, `mrgn.CSq.*`, `mrpc.CSq.*`, …). For MRPC that ceiling
+reading does not hold — see Table 12c.
 
 **Every method now has a truth arm.** GMAC previously had none, on the reasoning
 that it selects internally and cannot be handed a fixed set; that is true of its
@@ -542,6 +543,50 @@ a column that is 80% `NA`. Everything at or above ~20 confounders hit the wall;
 everything below finished in seconds. The truth arm's median is 25–29
 confounders, so at n = 670 it sits on the wrong side of that split — whereas at
 n ≤ 300 the CS-q arm saw no timeouts at all.
+
+**For MRPC the truth arm is not a ceiling — it is a handicap.** Read across the
+two arms at n ≤ 300, where both were attempted in full:
+
+| arm | n | model acc. | edge acc. | no call | timed out |
+| --- | --- | --- | --- | --- | --- |
+| `truth` | 50 | 8.3% | 13.7% | 81.3% | 0 |
+| `CSq` | 50 | **14.3%** | **23.0%** | 71.3% | 0 |
+| `truth` | 150 | 27.7% | 37.7% | 60.0% | 0 |
+| `CSq` | 150 | **35.7%** | **48.3%** | 46.0% | 0 |
+| `truth` | 300 | 25.3% | 36.3% | 60.3% | 103 |
+| `CSq` | 300 | **38.0%** | **54.7%** | 33.3% | 0 |
+
+**Table 12c. CS-q beats the oracle arm at every sample size**, on both model and
+edge accuracy. That inverts the reading Table 10 invites, and it is not a
+selection result — it is a dimensionality result.
+
+The mechanism is the node count, not the quality of the covariates. The truth arm
+hands MRPC a median of 25, 27 and 29 true confounders at n = 50, 150 and 300
+(IQR 13–36, 15–41, 14–40); CS-q selects a median of 0, 1 and 5. MRPC runs a PC
+algorithm over the trio plus whatever it is given, so the truth arm asks for
+conditional-independence tests over some 25 extra nodes on the same
+observations. At n = 50 the comparison is starkest: CS-q's median selection is
+**empty**, so adjusting for nothing at all beats adjusting for the 25 true
+confounders.
+
+The signature is in the no-call rate rather than in wrong calls. The truth arm
+fails to return a fitted topology for 81.3%, 60.0% and 60.3% of trios against
+CS-q's 71.3%, 46.0% and 33.3%, and at n = 300 it spends 103 of 300 trios timing
+out where CS-q times out on none. MRPC is not orienting these edges incorrectly
+— it is not returning them.
+
+**This is why the truth-vs-CS-q gap cannot be read for MRPC the way §5 reads it
+for MRGN.** For MRGN, extra covariates cost residual degrees of freedom, which is
+cheap and bounded, so its truth arm really is a ceiling and the gap to CS-q is
+the price of selection. For MRPC, "more covariates" means a larger graph, and the
+cost grows with the node count whether or not those covariates are the right
+ones. The MRPC gap is dominated by dimension, so the oracle arm belongs in the
+tables as a diagnostic of that cost, not as an attainable ceiling.
+
+It is also the same mechanism that excludes CS-α from MRPC altogether (Table 10).
+CS-α's median selection is 82, 97 and 102 covariates — the far end of a trend
+already visible between CS-q's 0–5 and truth's 25–29. The exclusion is the
+continuation of this curve rather than a separate failure mode.
 
 Worth recording separately: **the cap is enforced.** The worst overrun was 180.7 s
 against 180 s (1.00×), so `withTimeout()` does bound the fit and the arm cannot

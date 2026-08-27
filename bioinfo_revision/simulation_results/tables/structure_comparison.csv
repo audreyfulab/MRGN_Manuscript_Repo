@@ -1,0 +1,13 @@
+"structure","structure_label","arm","n","model_accuracy","edge_accuracy","edge_present_recall","edge_absent_recall","no_edge_call","selected_intermediate","selected_common_child"
+"u_only","Confounders only","truth",300,0.7433,0.8967,0.8778,0.925,0.0833,NA,NA
+"u_only","Confounders only","CSq",300,0.6167,0.8033,0.85,0.7333,0.1,0,0
+"u_only","Confounders only","CSa",300,0.6433,0.8067,0.8,0.8167,0.1267,0,0
+"u_w","Confounders + 1 intermediate","truth",300,0.7633,0.8933,0.8833,0.9083,0.0633,NA,NA
+"u_w","Confounders + 1 intermediate","CSq",300,0.67,0.84,0.8833,0.775,0.0733,0.8633,0
+"u_w","Confounders + 1 intermediate","CSa",300,0.67,0.8367,0.85,0.8167,0.1033,0.9467,0
+"u_z","Confounders + 1 common child","truth",300,0.76,0.9,0.8833,0.925,0.0833,NA,NA
+"u_z","Confounders + 1 common child","CSq",300,0.4867,0.6067,0.7778,0.35,0.12,0,0.6567
+"u_z","Confounders + 1 common child","CSa",300,0.53,0.6567,0.7722,0.4833,0.1367,0,0.6567
+"u_w_z","Confounders + intermediate + common child","truth",300,0.7533,0.87,0.8778,0.8583,0.0933,NA,NA
+"u_w_z","Confounders + intermediate + common child","CSq",300,0.5133,0.6167,0.7889,0.3583,0.1333,0.8133,0.68
+"u_w_z","Confounders + intermediate + common child","CSa",300,0.54,0.6767,0.8,0.4917,0.1233,0.8933,0.68

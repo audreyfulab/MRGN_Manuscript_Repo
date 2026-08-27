@@ -206,3 +206,8 @@ Simulation/data/many_conf_data/alpha_01_selected_confs_results/MRGN_many_conf_li
 .Rhistory
 bioinfo_revision/simulation/simulated_data/simulated_trios.RData
 bioinfo_revision/simulation/simulated_data/simulated_trios_precalibration.RData
+bioinfo_revision/simulation_results/data/selection_group_n1000.RData
+bioinfo_revision/simulation_results/data/selection_group_n150.RData
+bioinfo_revision/simulation_results/data/selection_group_n300.RData
+bioinfo_revision/simulation_results/data/selection_group_n50.RData
+bioinfo_revision/simulation_results/data/selection_group_n670.RData

@@ -466,13 +466,13 @@ Three settings need their rationale recorded, because each looks like a choice a
 | --- | --- | --- |
 | MRGN | `truth`, `CSq`, `CSa`, **`CSi`** | oracle set / CS-q / CS-α / CS-i |
 | MRPC | `truth`, `CSq` | as above; `truth` attempted only at n ≤ 300, `CSa` disabled |
-| GMAC | `gmac`, `gmac.truth` | GMAC's own selection / the oracle set |
-| MR-GGI | `none`, `truth`, `CSq`, `CSa` | bare trio / oracle set / CS-q / CS-α |
+| GMAC | `gmac` only | GMAC's own selection. A `gmac.truth` oracle arm is coded but has no results — see below |
+| MR-GGI | `none`, `truth`, `CSq`, `CSa`, **`CSi`** | bare trio / oracle set / CS-q / CS-α / CS-i |
 
 **Table 9. Which covariate set each method sees.** The rows within a method differ *only*
 in the covariates handed to it, which is what makes the comparison isolate selection from
 inference. Every arm writes its own prefixed block of columns (`mrgn.truth.*`,
-`mrpc.CSq.*`, `gmac.truth.*`, `mrggi.CSa.*`, …), and a disabled or skipped arm still emits
+`mrpc.CSq.*`, `mrggi.CSa.*`, …), and a disabled or skipped arm still emits
 its columns with the reason in `<method>.<arm>.error` — so *not attempted* stays distinct
 from *attempted and did not finish*, and the results schema does not change with the
 configuration.
@@ -484,10 +484,19 @@ Two arm-level caveats:
   arms are uninformative: MRPC's cost is bimodal in the confounder count, and above roughly
   20 confounders essentially every fit reaches the cap. The recipe for re-measuring and
   raising either threshold is documented in `inference_config.R:46-120`.
-- **CS-i is scored for MRGN only.** The selection itself exists for every method — it is in
-  all five `selection_group_n*.RData` caches — and `mrpc.arms` / `mrggi.arms` list `CSi`,
-  so a future run picks it up. But only `apply_mrgn_csi.R` has been run, so
-  `mrpc.CSi.*`, `mrggi.CSi.*` and `gmac.CSi.*` do not exist in the results. Every scoring
+- **GMAC's oracle arm is coded but has no results.** `run.gmac.group()` builds a
+  `gmac.truth.*` block by calling `apply.gmac()` against that trio's true `U` columns
+  (`inference_utils.R`, the `gmac.truth` block), so the arm exists in the pipeline. It has
+  never been run: the code was added on 2026-08-26, while every `gmac_group_n*.RData`
+  checkpoint dates from 2026-08-23 and `inference_gmac.RData` is only a re-combine of them.
+  There is therefore **no `gmac.truth.*` column in the results**, and GMAC appears in the
+  tables with its own selection alone. Re-running `apply_gmac.R` with
+  `--rerun-inference 1` would produce it; nothing else needs to change.
+- **CS-i is scored for MRGN and MR-GGI.** The selection itself exists for every method — it
+  is in all five `selection_group_n*.RData` caches. MR-GGI picked it up when the stage was
+  re-run on 2026-08-27, so `mrggi.CSi.*` is fully populated across all 1,500 trios. `MRPC`
+  lists `CSi` in `mrpc.arms` but has not been re-run since, so `mrpc.CSi.*` and
+  `gmac.CSi.*` do not exist in the results. Every scoring
   script filters arms on column presence, so they report what is there rather than failing
   or inventing an empty arm. `apply_mrpc_csi.R`, `apply_mrggi_csi.R` and `apply_gmac_csi.R`
   are written and partially checkpointed (n ≤ 300 for MRPC and MR-GGI, n ≤ 150 for GMAC)
@@ -505,14 +514,19 @@ Two arm-level caveats:
   call and no column the tables or figures read — the bootstrap is a second, separate label
   set that nothing in the scoring stage currently consumes — and it is the difference
   between about a minute and about six hours for the arm.
-- **MR-GGI's four arms are not confounder adjustments and must not be read as such.**
-  `MRggi()` has no covariate argument; the arms differ in which covariates ride along as
-  extra columns of `y`, and the estimator is strictly pairwise, so `B.T1T2` and `p.T1T2`
-  are *identical* in all four. What the covariates change is the multiplicity correction
+- **MR-GGI's five arms are not a confounder adjustment OF THE EDGE, and must not be read as
+  one.** `MRggi()` has no covariate argument; the arms differ in which covariates ride along
+  as extra columns of `y`, and the estimator is strictly pairwise, so `B.T1T2` and `p.T1T2`
+  are *identical* in all five. What the covariates change is the multiplicity correction
   across each gene's pairs. MR-GGI therefore writes two edge calls: `edge`, from the raw p
   — arm-invariant, and the column comparable with MRGN and GMAC — and `edge.fdr`, from the
-  adjusted p, which is the only column that varies by arm. `confusion_mrggi.R:142-157`
-  asserts the invariance rather than assuming it. See
+  adjusted p, which is the only edge column that varies by arm. `confusion_mrggi.R` asserts
+  the invariance rather than assuming it.
+
+  **Its MODEL call is a different matter and IS adjusted.** `mrggi.<arm>.model` feeds
+  `MRGN::class.vec()` two pairwise TSLS indicators, which no covariate set can move, plus
+  two conditional regressions that ARE adjusted for that arm's covariates — exactly as
+  MRGN's are. So the model call varies by arm while the raw-p edge call does not. See
   [`../MRGGI_METHODS.md`](../MRGGI_METHODS.md) for the full derivation, the trio adaptation
   and its limitations.
 - **MR-GGI's correlation screen is set to `cor.thr = 0.1`, and it removes a quarter of the
@@ -556,8 +570,9 @@ the selection scoring, and one prefixed block per method arm. Selection is score
 
 MRGN and MRPC additionally carry `correct` (exact label match) and `correct.coarse`
 (`M0.1` and `M0.2` both collapse to `M0`). GMAC and MR-GGI carry **no** correctness flag —
-GMAC reports a mediation call and MR-GGI an edge call, neither of which is a model label,
-so scoring them is a cross-tab decision left to the scoring stage.
+GMAC reports a mediation call, which is not a model label, so scoring it is a cross-tab
+decision left to the scoring stage. MR-GGI reports an edge call and, since 2026-08-27, a
+model label as well — see Table 10.
 
 > **"Recall" means two different things in this study.** *Selection recall* is the fraction
 > of a trio's true confounders that a selection rule returns (§4). *Model recall* and *edge
@@ -571,11 +586,33 @@ so scoring them is a cross-tab decision left to the scoring stage.
 | `model` | which of the five topologies is this? | `M0`–`M4`, plus `Other` (and `Failed` for MRPC) |
 | `edge` | is there a `T1`–`T2` edge? | `Edge Absent`, `Edge Present`, plus a no-call row |
 
-**Table 10. The two levels every method is scored at.** MRGN and MRPC have both; GMAC and
-MR-GGI have only the edge level, because neither names a model. The edge level exists so
-all four methods face **identical rows, columns and right answers** and can be read off
-each other directly. Columns are always the five generating models (`TRUTH.LEVELS`); only
-the row set differs by method.
+**Table 10. The two levels every method is scored at.** MRGN, MRPC and MR-GGI have both;
+**GMAC has only the edge level**, because a mediation call is not a model label. The edge
+level exists so all four methods face **identical rows, columns and right answers** and can
+be read off each other directly. Columns are always the five generating models
+(`TRUTH.LEVELS`); only the row set differs by method.
+
+**MR-GGI's model level is reported because it fails, and the failure is the result.**
+`mrggi.<arm>.model` comes from `MRGN::class.vec()`, fed MR-GGI's two pairwise TSLS
+estimates plus the instrument-gene and marginal tests. With a **single** instrument the
+Wald-ratio p-value reduces to the instrument→outcome t-statistic, so those two "causal"
+indicators are not independent of the two marginals: `b12` is really the `V1 → T2` test and
+`b22` the `V1 → T1` test, measured identical to them on **100%** of trios. The six-vector
+therefore carries four distinct tests, not six, and three of the five models become
+unreachable:
+
+| model | needs | why it cannot be formed |
+| --- | --- | --- |
+| **M0** | `b22 = 0` | `b22` proxies `V1 → T1`, which exists in every model; it fires on 92% of all trios |
+| **M3** | `b22 = 0` | same |
+| **M2** | `b12 ≠ 0` | `b12` proxies `V1 → T2`, and M2 is `V1 → T1 ← T2`, where the two are marginally independent |
+
+Measured recall at n = 1000, CS-q arm: **M0 0.017, M2 0.000, M3 0.000** against M1 0.667 and
+M4 0.750. M1 and M4 are recovered because their signatures coincide with what the degenerate
+tests emit, not because their structure is identified. Read the MR-GGI model rows as a
+measurement of an identification limit -- one instrument identifies one edge -- rather than
+as a competitive score. Full derivation in [`../MRGGI_METHODS.md`](../MRGGI_METHODS.md)
+§5.2.
 
 The right answer at the edge level is a property of the simulation, not of a method
 (`EDGE.CORRECT`, `confusion_utils.R:195-196`): `M0` and `M3` have no `T1`–`T2` edge; `M1`,

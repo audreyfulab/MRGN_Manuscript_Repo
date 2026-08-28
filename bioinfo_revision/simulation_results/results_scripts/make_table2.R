@@ -55,8 +55,8 @@ COLUMNS <- list(
     # covariate arms move only the FDR-adjusted edge call, so an arm-specific column here
     # would differ from its neighbours in the correction applied rather than in the method.
     # The per-arm edge.fdr figures are in INFERENCE_PERFORMANCE.md.
-    list(method = "mrggi", arm = "mrggi", model.level = "model", edge.level = "edge",
-         label = "MR-GGI", oracle = FALSE))
+    list(method = "mrggi", arm = "CSq",   model.level = "model", edge.level = "edge.fdr",
+         label = "MR-GGI (CS-q)", oracle = FALSE))
 
 MODEL.ROWS <- c(M0 = "Null Model (**M0**)",
                 M1 = "Mediation (**M1**)",

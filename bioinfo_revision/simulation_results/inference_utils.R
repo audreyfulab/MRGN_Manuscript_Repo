@@ -1744,36 +1744,46 @@ mrggi.arm.covars <- function(arm, dat, sel, i, K_n, index) {
 # (MRGN_v8.pdf Table 1) -- so a marginal b21 would collapse them back together and cap this
 # at four reachable models.
 #
-# ARM-INVARIANT, so it is computed once per trio rather than once per arm. b12 and b22 are
-# pairwise TSLS estimates that covariates in `y` cannot move -- the same property that makes
-# the raw-p `edge` call identical across arms -- and the four regression tests condition on
-# the trio alone. Hence `mrggi.model`, not `mrggi.<arm>.model`.
-mrggi.model.call <- function(trio, alpha = mrggi.alpha) {
+# WHAT IS AND IS NOT ARM-INVARIANT HERE, because the two halves differ:
+#
+#   b12, b22          ARM-INVARIANT and unavoidably so. .TSLS() sees only y1, y2, X1, X2,
+#                     so covariates riding along in `y` cannot move the T1-T2 estimate.
+#                     Measured: B and p identical with 0 and with 6 covariates; only the
+#                     FDR moved (0.359 -> 1.000), which is the multiplicity family, not the
+#                     estimate. Computed once per trio and passed in via `pairwise`.
+#
+#   b11, b21          ARM-SPECIFIC. These are regressions of a gene on V1 and the other
+#                     gene, and they are conditioned on that arm's covariate set -- exactly
+#                     as MRGN's b11/b21 are. An earlier version conditioned on the trio
+#                     alone, which made the whole vector arm-invariant and, worse, scored
+#                     MR-GGI's model call UNADJUSTED for confounding against MRGN's adjusted
+#                     one. That is not the comparison the table appears to make, and it
+#                     penalises MR-GGI precisely on M0 and M3 where confounding bites.
+#
+#   V1:T1, V1:T2      ARM-INVARIANT by definition. A marginal test has no conditioning set
+#                     (MRGN_v8.pdf Table 1), so covariates do not enter it.
+#
+# So the model call now varies by arm, and is written as mrggi.<arm>.model.
+mrggi.model.call <- function(trio, covars = NULL, alpha = mrggi.alpha, pairwise = NULL) {
     v  <- trio[[1]]; t1 <- trio[[2]]; t2 <- trio[[3]]
-    V1 <- as.matrix(trio[, 1, drop = FALSE])
-    zeros <- matrix(0, nrow(trio), 1)
 
-    # one MRggi call on a two-gene matrix; `nm` fixes which gene is the instrumented exposure
-    ggi <- function(a, b, nm) {
-        y <- as.matrix(data.frame(a, b)); colnames(y) <- nm
-        X <- list(V1, zeros); names(X) <- nm
-        r <- suppressMessages(MRggi::MRggi(y = y, X = X, cor.thr = 0))
-        hit <- which(r$g1 == nm[1] & r$g2 == nm[2])
-        if (length(hit) != 1) {
-            stop("mrggi.model.call(): MRggi returned ", length(hit), " rows for ",
-                 paste(nm, collapse = "-"))
-        }
-        list(B = r$Bg1g2[hit], p = r$pval_Bg1g2[hit])
-    }
-    fwd <- ggi(t1, t2, c("T1", "T2"))     # b12
-    rev <- ggi(t2, t1, c("T2", "T1"))     # b22
+    if (is.null(pairwise)) pairwise <- mrggi.model.pairwise(trio)
+    fwd <- pairwise$fwd
+    rev <- pairwise$rev
+
+    # The arm's covariates enter here and nowhere else. A constant or aliased column would
+    # make the coefficient NA, which is scored as "no edge" below rather than propagated.
+    C <- if (is.null(covars) || ncol(as.data.frame(covars)) == 0) NULL
+         else as.matrix(as.data.frame(covars))
 
     pv <- function(fit, term) {
         cf <- summary(fit)$coefficients
         if (!term %in% rownames(cf)) NA_real_ else cf[term, 4]
     }
-    p.b11 <- pv(stats::lm(t1 ~ v + t2), "v")
-    p.b21 <- pv(stats::lm(t2 ~ v + t1), "v")
+    p.b11 <- if (is.null(C)) pv(stats::lm(t1 ~ v + t2), "v")
+             else            pv(stats::lm(t1 ~ v + t2 + C), "v")
+    p.b21 <- if (is.null(C)) pv(stats::lm(t2 ~ v + t1), "v")
+             else            pv(stats::lm(t2 ~ v + t1 + C), "v")
     p.m1  <- suppressWarnings(stats::cor.test(v, t1)$p.value)
     p.m2  <- suppressWarnings(stats::cor.test(v, t2)$p.value)
 
@@ -1791,40 +1801,73 @@ mrggi.model.call <- function(trio, alpha = mrggi.alpha) {
 
     list(model = as.character(MRGN::class.vec(ind)),
          indicators = ind, p.values = ps, n.tests.failed = n.na,
-         B.T1T2 = fwd$B, p.T1T2 = fwd$p, B.T2T1 = rev$B, p.T2T1 = rev$p,
+         B.T2T1 = rev$B, p.T2T1 = rev$p,
          p.b11 = p.b11, p.b21 = p.b21, p.marg.V1T1 = p.m1, p.marg.V1T2 = p.m2,
-         F.T1 = F.T1, weak.instrument = !is.na(F.T1) && F.T1 < mrggi.min.F)
+         n.covars.adjusted = if (is.null(C)) 0L else ncol(C))
 }
 
+# The two pairwise TSLS estimates, which no covariate set can change. Split out so the arm
+# loop computes them once per trio instead of once per arm.
+mrggi.model.pairwise <- function(trio) {
+    V1 <- as.matrix(trio[, 1, drop = FALSE])
+    zeros <- matrix(0, nrow(trio), 1)
+    ggi <- function(a, b, nm) {
+        y <- as.matrix(data.frame(a, b)); colnames(y) <- nm
+        X <- list(V1, zeros); names(X) <- nm
+        r <- suppressMessages(MRggi::MRggi(y = y, X = X, cor.thr = 0))
+        hit <- which(r$g1 == nm[1] & r$g2 == nm[2])
+        if (length(hit) != 1) {
+            stop("mrggi.model.pairwise(): MRggi returned ", length(hit), " rows for ",
+                 paste(nm, collapse = "-"))
+        }
+        list(B = r$Bg1g2[hit], p = r$pval_Bg1g2[hit])
+    }
+    # cor.thr is deliberately 0 here, not mrggi.cor.thr: this is the model call, and a trio
+    # screened out of the EDGE analysis still has a model to infer from its other five tests.
+    list(fwd = ggi(trio[[2]], trio[[3]], c("T1", "T2")),
+         rev = ggi(trio[[3]], trio[[2]], c("T2", "T1")))
+}
+
+# Every name here is prefixed `model.` except `model` itself, because these sit alongside
+# mrggi.fields() under the same mrggi.<arm>. prefix and the two blocks would otherwise
+# collide on B.T1T2, F.T1 and weak.instrument.
 mrggi.model.fields <- function(res, error) {
     if (is.null(res)) {
-        return(list(model = NA_character_, b11 = NA_real_, b12 = NA_real_, b21 = NA_real_,
-                    b22 = NA_real_, marg.V1T1 = NA_real_, marg.V1T2 = NA_real_,
-                    p.b11 = NA_real_, p.b12 = NA_real_, p.b21 = NA_real_, p.b22 = NA_real_,
-                    p.marg.V1T1 = NA_real_, p.marg.V1T2 = NA_real_,
-                    B.T1T2 = NA_real_, B.T2T1 = NA_real_, F.T1 = NA_real_,
-                    weak.instrument = NA, n.tests.failed = NA_integer_,
-                    model.error = error))
+        return(list(model = NA_character_,
+                    model.b11 = NA_real_, model.b12 = NA_real_, model.b21 = NA_real_,
+                    model.b22 = NA_real_, model.marg.V1T1 = NA_real_,
+                    model.marg.V1T2 = NA_real_,
+                    model.p.b11 = NA_real_, model.p.b12 = NA_real_,
+                    model.p.b21 = NA_real_, model.p.b22 = NA_real_,
+                    model.p.marg.V1T1 = NA_real_, model.p.marg.V1T2 = NA_real_,
+                    model.B.T2T1 = NA_real_, model.n.covars.adjusted = NA_integer_,
+                    model.n.tests.failed = NA_integer_, model.error = error))
     }
     list(model = res$model,
-         b11 = unname(res$indicators[["b11"]]), b12 = unname(res$indicators[["b12"]]),
-         b21 = unname(res$indicators[["b21"]]), b22 = unname(res$indicators[["b22"]]),
-         marg.V1T1 = unname(res$indicators[["V1:T1"]]),
-         marg.V1T2 = unname(res$indicators[["V1:T2"]]),
-         p.b11 = res$p.b11, p.b12 = res$p.T1T2, p.b21 = res$p.b21, p.b22 = res$p.T2T1,
-         p.marg.V1T1 = res$p.marg.V1T1, p.marg.V1T2 = res$p.marg.V1T2,
-         B.T1T2 = res$B.T1T2, B.T2T1 = res$B.T2T1, F.T1 = res$F.T1,
-         weak.instrument = res$weak.instrument, n.tests.failed = res$n.tests.failed,
+         model.b11 = unname(res$indicators[["b11"]]),
+         model.b12 = unname(res$indicators[["b12"]]),
+         model.b21 = unname(res$indicators[["b21"]]),
+         model.b22 = unname(res$indicators[["b22"]]),
+         model.marg.V1T1 = unname(res$indicators[["V1:T1"]]),
+         model.marg.V1T2 = unname(res$indicators[["V1:T2"]]),
+         model.p.b11 = res$p.b11, model.p.b12 = res$p.values[2],
+         model.p.b21 = res$p.b21, model.p.b22 = res$p.T2T1,
+         model.p.marg.V1T1 = res$p.marg.V1T1, model.p.marg.V1T2 = res$p.marg.V1T2,
+         model.B.T2T1 = res$B.T2T1,
+         model.n.covars.adjusted = res$n.covars.adjusted,
+         model.n.tests.failed = res$n.tests.failed,
          model.error = error)
 }
 
 
 mrggi.run.arms <- function(task, arms = mrggi.arms) {
-    # The model call first, once: it is arm-invariant (see mrggi.model.call), so it is
-    # prefixed `mrggi.` rather than `mrggi.<arm>.` and computed outside the arm loop.
-    mc <- safely(suppressMessages(mrggi.model.call(task$trio)))
-    fields <- prefixed(mrggi.model.fields(mc$value, mc$error), "mrggi")
+    # The two pairwise TSLS estimates are the same for every arm, so they are computed once
+    # here and handed to each arm's model call. Everything else in the model vector -- the
+    # two conditional regressions -- is adjusted for that arm's covariates, so the model
+    # call itself is arm-specific.
+    pw <- safely(suppressMessages(mrggi.model.pairwise(task$trio)))
 
+    fields <- list()
     for (arm in arms) {
         t0 <- Sys.time()
         r <- safely(suppressMessages(
@@ -1832,7 +1875,13 @@ mrggi.run.arms <- function(task, arms = mrggi.arms) {
         if (!is.null(r$value)) {
             r$value$time.seconds <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
         }
-        fields <- c(fields, prefixed(mrggi.fields(r$value, r$error), paste0("mrggi.", arm)))
+        mc <- if (is.null(pw$value)) list(value = NULL, error = pw$error) else
+            safely(suppressMessages(
+                mrggi.model.call(task$trio, covars = task$covars[[arm]],
+                                 pairwise = pw$value)))
+        fields <- c(fields,
+                    prefixed(mrggi.fields(r$value, r$error), paste0("mrggi.", arm)),
+                    prefixed(mrggi.model.fields(mc$value, mc$error), paste0("mrggi.", arm)))
     }
     fields
 }

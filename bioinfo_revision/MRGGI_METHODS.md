@@ -333,10 +333,30 @@ exactly the `V1:T2` test already in the vector, and M2 and M4 differ *only* in t
 (`MRGN_v8.pdf` Table 1). A marginal `b21` would collapse them together and cap this at four
 reachable labels.
 
-**The label is arm-invariant**, so it is computed once per trio and written as
-`mrggi.model`, not `mrggi.<arm>.model`. `b12` and `b22` are pairwise TSLS estimates that
-covariates in `y` cannot move — the property behind the arm-invariant raw-p `edge` call of
-§4 — and the four regression tests condition on the trio alone.
+**Half the vector is arm-invariant and half is not**, and the split matters:
+
+| indicators | arm-specific? | why |
+| --- | --- | --- |
+| `b12`, `b22` | **no** | pairwise TSLS estimates; `.TSLS()` sees only `y1, y2, X1, X2`, so covariates riding along in `y` cannot move them. Measured: `B` and `p` identical with 0 and with 6 covariates; only the FDR moved. |
+| `b11`, `b21` | **yes** | regressions of a gene on `V1` and the other gene, **adjusted for that arm's covariate set** — exactly as MRGN's `b11`/`b21` are. |
+| `V1:T1`, `V1:T2` | **no** | a marginal test has no conditioning set (`MRGN_v8.pdf` Table 1). |
+
+So the label is written per arm as `mrggi.<arm>.model`. An earlier version conditioned
+`b11`/`b21` on the trio alone, which made the whole vector arm-invariant and — the real
+problem — scored MR-GGI's classifier **unadjusted for confounding** against MRGN's
+**adjusted** one in the same table. That is not the comparison it appears to be, and it
+penalises MR-GGI precisely on M0 and M3, where confounding does the damage. With the
+adjustment in place the arms order as they should at n = 1000:
+
+| arm | covariates adjusted for | model accuracy |
+| --- | --- | --- |
+| `truth` | 26.5 | **20.1%** |
+| `CSq` | 9.6 | 17.8% |
+| `none` | 0 | 15.9% |
+| `CSa` | 98.6 | 14.7% |
+
+**Table 5b.** The oracle best, CS-q behind it, no adjustment worse, and 98 covariates worse
+still. 103–239 of 1,500 calls change between arms.
 
 ### 5.2 Measured: the causal tests are not independent of the marginals
 
@@ -352,33 +372,65 @@ call's p-value *is* the `V1 → T1` test. Measured over 100 trios at n = 1000, l
 | `b12` = `V1:T2` marginal | **100%** |
 | `b22` = `V1:T1` marginal | **100%** |
 
-`b22`'s p-values have zero variance across those trios: `V1 → T1` is strong in all five
-models, so the reverse test is maximally significant everywhere. The six-vector therefore
-carries four distinct tests, not six, with the two MR estimates duplicating the two
-marginals.
+`b22` fires on **92% of all trios regardless of the truth**: `V1 → T1` is strong in every
+generating model by construction, so a test that is really the `V1 → T1` test is maximally
+significant everywhere. The six-vector therefore carries **four** distinct tests, not six,
+with the two MR estimates duplicating the two marginals.
 
-The consequence, on the same trios — first-stage `F` median 232, **no** weak instruments, so
-this is MR-GGI's best case:
+### Which indicator fires, and what each model needs
 
-| true | M1.1 | M1.2 | M4 | Other |
-| --- | --- | --- | --- | --- |
-| model0 | 0 | 0 | 1 | **19** |
-| model1 | 14 | 0 | 6 | 0 |
-| model2 | 0 | 0 | 0 | **20** |
-| model3 | 0 | 0 | **20** | 0 |
-| model4 | 0 | 7 | 13 | 0 |
+Firing rate per indicator by true model, CS-q arm at n = 1000, against what
+`MRGN_v8.pdf` Table 1 requires for that model:
 
-**Table 6. MR-GGI's model call at n = 1000, large effect.** M0 and M2 are never recovered:
-a spuriously significant `b22` on every trio breaks the pattern `class.vec()` needs for
-either, and both fall through to `Other`. model3 goes to **M4 in 20 of 20** — the §6.3
-pleiotropy result arriving in the model call, where a real `V1 → T2` path plus a spurious
-`T1 → T2` edge is exactly M4's signature.
+| true | `b11` | `b12` | `b21` | `b22` | `V1:T1` | `V1:T2` | Table 1 requires |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| M0 | 0.95 | 0.05 | 0.05 | **0.93** | 0.93 | 0.05 | `b11` only — needs `b22 = 0` |
+| M1 | 0.95 | 0.67 | 0.03 | 0.93 | 0.93 | 0.67 | `b11`, `b12`, `b22` |
+| M2 | 0.93 | **0.02** | 0.67 | 0.90 | 0.90 | 0.02 | all four, `rVT2 = 0` — needs `b12 ≠ 0` |
+| M3 | 0.92 | 0.88 | 0.93 | **0.93** | 0.93 | 0.88 | `b11`, `b21` — needs `b22 = 0` |
+| M4 | 0.78 | 0.92 | 0.95 | 0.90 | 0.90 | 0.92 | all four, `rVT2 ≠ 0` |
+
+**Table 6. The three failures are deterministic, not noisy**, and each has a one-line cause:
+
+- **M0 and M3 need `b22 = 0`.** `b22` is really the `V1 → T1` test, and that edge exists in
+  every model, so it fires at 0.93 on both. The pattern `class.vec()` needs can never be
+  formed and both fall through to `Other`.
+- **M2 needs `b12 ≠ 0`.** `b12` is really the `V1 → T2` test, and M2 is `V1 → T1 ← T2`,
+  where `V1` and `T2` are marginally independent — so it fires at 0.02. M2 needs precisely
+  the association `b12` cannot see, while M0 and M3 need the absence of the one `b22`
+  always sees.
+
+**M1 and M4 are recovered because their signatures coincide with what the degenerate tests
+emit**, not because their structure is identified. M1 wants `b11, b12, b22` on and `b21`
+off (observed 0.95 / 0.67 / 0.93 / 0.03); M4 wants all four with `rVT2 ≠ 0` (0.78 / 0.92 /
+0.95 / 0.90). Both amount to "does `V1` associate with `T2`", which is the only question a
+single instrument can answer.
+
+The scored consequence, same arm and sample size — first-stage `F` median 72, 15.3% weak
+instruments:
+
+| true \ inferred | M0 | M1 | M2 | M3 | M4 | Other | recall |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| M0 | 1 | 1 | 0 | 0 | 2 | **56** | **0.017** |
+| M1 | 1 | 40 | 0 | 0 | 0 | 19 | 0.667 |
+| M2 | 2 | 0 | 0 | 0 | 1 | **57** | **0.000** |
+| M3 | 0 | 1 | 0 | 0 | **51** | 8 | **0.000** |
+| M4 | 1 | 8 | 0 | 0 | 45 | 6 | 0.750 |
+
+**Table 7. MR-GGI's model call, CS-q arm, n = 1000.** M2 is never predicted at all, so its
+precision is undefined rather than zero. **M3 goes to M4 in 51 of 60** — the §6.3 pleiotropy
+result arriving in the model call: M3 has a genuine direct `V1 → T2` path, so the "causal"
+`b12` fires on a trio with no T1–T2 edge, and `b11 + b12 + b21 + b22` all on with
+`rVT2 ≠ 0` is exactly M4's signature.
 
 **This is a property of single-instrument MR, not of the implementation.** One instrument
-identifies one edge. The swap fixed the numerical collapse of Table 4 but could not create a
-gene–gene test independent of the instrument–gene associations, because with one instrument
-there is none to create. The columns are kept because "MR-GGI cannot classify trios" is a
-finding, and one better supported by a scored table than by an assertion.
+identifies one edge; `class.vec()` needs four independent edge tests and MR-GGI can supply
+two distinct ones. The swapped call of §5.1 fixed the numerical collapse of Table 4 but
+could not manufacture a gene–gene test independent of the instrument–gene associations,
+because with one instrument there is none to manufacture. Near-zero recall on M0, M2 and M3
+is the correct result here — it would be suspicious if it were anything else. The columns
+are kept because "MR-GGI cannot classify trios" is a finding, and one better supported by a
+scored table than by an assertion.
 
 ---
 

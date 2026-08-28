@@ -19,16 +19,16 @@ The `T1 − T2 edge` row scores the **edge-present** class: recall is the share 
 
 ## Table 2a. All available trios
 
-|  |  MRGN (True Confs.)<br>Recall | MRGN (True Confs.)<br>Prec. | MRGN (CS-q)<br>Recall | MRGN (CS-q)<br>Prec. | MRGN (CS-α)<br>Recall | MRGN (CS-α)<br>Prec. | MRPC (CS-q)<br>Recall | MRPC (CS-q)<br>Prec. | GMAC<br>Recall | GMAC<br>Prec. | MR-GGI<br>Recall | MR-GGI<br>Prec. |
+|  |  MRGN (True Confs.)<br>Recall | MRGN (True Confs.)<br>Prec. | MRGN (CS-q)<br>Recall | MRGN (CS-q)<br>Prec. | MRGN (CS-α)<br>Recall | MRGN (CS-α)<br>Prec. | MRPC (CS-q)<br>Recall | MRPC (CS-q)<br>Prec. | GMAC<br>Recall | GMAC<br>Prec. | MR-GGI (CS-q)<br>Recall | MR-GGI (CS-q)<br>Prec. |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Null Model (**M0**) | 0.713 | 0.751 | 0.360 | 0.537 | 0.357 | **0.656** | **0.500** | 0.556 | -- | -- | 0.000 | 0.000 |
-| Mediation (**M1**) | 0.667 | 0.529 | **0.520** | 0.354 | 0.423 | 0.398 | 0.206 | 0.389 | -- | -- | 0.380 | **0.504** |
+| Null Model (**M0**) | 0.713 | 0.751 | 0.360 | 0.537 | 0.357 | **0.656** | **0.500** | 0.556 | -- | -- | 0.027 | 0.333 |
+| Mediation (**M1**) | 0.667 | 0.529 | **0.520** | 0.354 | 0.423 | 0.398 | 0.206 | 0.389 | -- | -- | 0.440 | **0.534** |
 | V-structure (**M2**) | 0.397 | 0.937 | **0.343** | 0.920 | 0.253 | **0.950** | 0.244 | 0.595 | -- | -- | 0.000 | -- |
-| Cond. Indep. (**M3**) | 0.640 | 0.932 | 0.273 | 0.845 | 0.253 | **0.950** | **0.383** | 0.885 | -- | -- | 0.003 | 0.500 |
-| Fully Connect. (**M4**) | 0.370 | 0.933 | 0.287 | 0.462 | 0.240 | 0.545 | 0.133 | **0.615** | -- | -- | **0.410** | 0.337 |
-| **T1 − T2 edge** | 0.676 | 0.974 | 0.578 | 0.704 | 0.460 | 0.780 | 0.369 | **0.957** | **0.819** | 0.674 | 0.369 | 0.730 |
+| Cond. Indep. (**M3**) | 0.640 | 0.932 | 0.273 | 0.845 | 0.253 | **0.950** | **0.383** | 0.885 | -- | -- | 0.010 | 0.600 |
+| Fully Connect. (**M4**) | 0.370 | 0.933 | 0.287 | 0.462 | 0.240 | 0.545 | 0.133 | **0.615** | -- | -- | **0.413** | 0.369 |
+| **T1 − T2 edge** | 0.676 | 0.974 | 0.578 | 0.704 | 0.460 | 0.780 | 0.369 | **0.957** | **0.819** | 0.674 | 0.340 | 0.725 |
 
-**Trios per column:** MRGN (True Confs.) 1500; MRGN (CS-q) 1500; MRGN (CS-α) 1500; MRPC (CS-q) 900; GMAC 1500; MR-GGI 1500.
+**Trios per column:** MRGN (True Confs.) 1500; MRGN (CS-q) 1500; MRGN (CS-α) 1500; MRPC (CS-q) 900; GMAC 1500; MR-GGI (CS-q) 1500.
 
 **MRPC is scored on 900 trios against the others' 1,500.** Its n = 670 and n = 1000 groups were not run -- MRPC times out on 61% and 75% of trios there even in its cheap arm, at ~10 h per group (`inference_config.R`). Its column is therefore not strictly comparable to its neighbours here; Table 2b removes that difference.
 
@@ -36,16 +36,16 @@ The `T1 − T2 edge` row scores the **edge-present** class: recall is the share 
 
 ## Table 2b. Matched — all four methods on the same 900 trios (n ≤ 300)
 
-|  |  MRGN (True Confs.)<br>Recall | MRGN (True Confs.)<br>Prec. | MRGN (CS-q)<br>Recall | MRGN (CS-q)<br>Prec. | MRGN (CS-α)<br>Recall | MRGN (CS-α)<br>Prec. | MRPC (CS-q)<br>Recall | MRPC (CS-q)<br>Prec. | GMAC<br>Recall | GMAC<br>Prec. | MR-GGI<br>Recall | MR-GGI<br>Prec. |
+|  |  MRGN (True Confs.)<br>Recall | MRGN (True Confs.)<br>Prec. | MRGN (CS-q)<br>Recall | MRGN (CS-q)<br>Prec. | MRGN (CS-α)<br>Recall | MRGN (CS-α)<br>Prec. | MRPC (CS-q)<br>Recall | MRPC (CS-q)<br>Prec. | GMAC<br>Recall | GMAC<br>Prec. | MR-GGI (CS-q)<br>Recall | MR-GGI (CS-q)<br>Prec. |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Null Model (**M0**) | 0.622 | 0.651 | 0.322 | 0.468 | 0.261 | **0.603** | **0.500** | 0.556 | -- | -- | 0.000 | 0.000 |
-| Mediation (**M1**) | 0.511 | 0.447 | **0.372** | 0.284 | 0.211 | 0.342 | 0.206 | 0.389 | -- | -- | 0.311 | **0.403** |
+| Null Model (**M0**) | 0.622 | 0.651 | 0.322 | 0.468 | 0.261 | **0.603** | **0.500** | 0.556 | -- | -- | 0.017 | 0.231 |
+| Mediation (**M1**) | 0.511 | 0.447 | **0.372** | 0.284 | 0.211 | 0.342 | 0.206 | 0.389 | -- | -- | 0.350 | **0.417** |
 | V-structure (**M2**) | 0.261 | 0.959 | 0.178 | 0.842 | 0.072 | **1.000** | **0.244** | 0.595 | -- | -- | 0.000 | -- |
-| Cond. Indep. (**M3**) | 0.511 | 0.893 | 0.244 | 0.830 | 0.133 | **1.000** | **0.383** | 0.885 | -- | -- | 0.006 | 0.500 |
-| Fully Connect. (**M4**) | 0.161 | 0.879 | 0.078 | 0.280 | 0.039 | 0.389 | 0.133 | **0.615** | -- | -- | **0.233** | 0.263 |
-| **T1 − T2 edge** | 0.528 | 0.990 | 0.419 | 0.698 | 0.228 | 0.866 | 0.369 | **0.957** | **0.750** | 0.681 | 0.302 | 0.728 |
+| Cond. Indep. (**M3**) | 0.511 | 0.893 | 0.244 | 0.830 | 0.133 | **1.000** | **0.383** | 0.885 | -- | -- | 0.017 | 0.750 |
+| Fully Connect. (**M4**) | 0.161 | 0.879 | 0.078 | 0.280 | 0.039 | 0.389 | 0.133 | **0.615** | -- | -- | **0.211** | 0.271 |
+| **T1 − T2 edge** | 0.528 | 0.990 | 0.419 | 0.698 | 0.228 | 0.866 | 0.369 | **0.957** | **0.750** | 0.681 | 0.283 | 0.725 |
 
-**Trios per column:** MRGN (True Confs.) 900; MRGN (CS-q) 900; MRGN (CS-α) 900; MRPC (CS-q) 900; GMAC 900; MR-GGI 900.
+**Trios per column:** MRGN (True Confs.) 900; MRGN (CS-q) 900; MRGN (CS-α) 900; MRPC (CS-q) 900; GMAC 900; MR-GGI (CS-q) 900.
 
 Every column is now scored on identical trios, so differences between columns are differences between methods. Note this is the harder end of the sample-size range for all four -- confounder selection has no power at n = 50 -- so the absolute levels are below Table 2a for every method that lost groups.
 

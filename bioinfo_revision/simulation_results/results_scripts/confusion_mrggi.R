@@ -187,34 +187,38 @@ build.mrggi.confusion <- function(results = load.method("mrggi")) {
         }
     }
 
-    # ---- level 1b: the model call, tabulated ONCE ----
-    # mrggi.model is arm-invariant by construction (see mrggi.model.call() in
-    # inference_utils.R) so it carries no arm prefix and is reported under "mrggi", like the
-    # raw-p edge above. Scored against the same M-labels MRGN uses, because it comes from
-    # MRGN::class.vec() and returns exactly that label set.
+    # ---- level 1b: the model call, PER ARM ----
+    # mrggi.<arm>.model. The two TSLS indicators (b12, b22) are arm-invariant and nothing can
+    # change that, but the two conditional tests (b11, b21) are adjusted for the arm's
+    # covariate set, exactly as MRGN's are -- so the model call varies by arm and each one is
+    # tabulated. Scored against MRGN's label set, because it comes from MRGN::class.vec().
     #
-    # IT IS REPORTED BECAUSE IT FAILS, not because it works. MR-GGI's two causal tests are
-    # not independent of the instrument-gene marginals -- with a single instrument the
-    # Wald-ratio p reduces to the instrument->outcome t-test -- so the six-vector
-    # class.vec() receives carries four distinct tests, not six, and M0 and M2 are
-    # unreachable. See MRGGI_METHODS.md section 5.2.
-    if ("mrggi.model" %in% names(results)) {
-        cat("\n  --- model call (arm-invariant; see MRGGI_METHODS.md 5.2) ---\n")
-        for (size in SAMPLE.SIZES) {
-            rows <- results[results$sample.size == size, , drop = FALSE]
-            if (nrow(rows) == 0) next
-            m <- confusion(rows$truth.model, rows$mrggi.model, MRGN.LEVELS)
-            long[[length(long) + 1]] <-
-                confusion.long(m, "mrggi", "mrggi", size, "all", "model")
-            correct <- sum(diag(m[, TRUTH.LEVELS, drop = FALSE]))
-            cat(sprintf("  n=%-4d  %4d trios | model accuracy %5.1f%% | %4.1f%% Other\n",
-                        size, sum(m), 100 * correct / sum(m),
-                        100 * sum(m[, "Other"]) / sum(m)))
-            for (eff in EFFECT.SIZES) {
-                sub <- rows[rows$effect_size == eff, , drop = FALSE]
-                me <- confusion(sub$truth.model, sub$mrggi.model, MRGN.LEVELS)
+    # IT IS REPORTED BECAUSE IT FAILS, not because it works. With a single instrument the
+    # Wald-ratio p-value reduces to the instrument->outcome t-test, so b12 and b22 are not
+    # independent of the two marginals: the six-vector carries four distinct tests, and M0
+    # and M2 are unreachable at any sample size. See MRGGI_METHODS.md section 5.2.
+    model.arms <- arms[vapply(arms, function(a)
+        paste0("mrggi.", a, ".model") %in% names(results), logical(1))]
+    if (length(model.arms)) {
+        cat("\n  --- model call, by arm (see MRGGI_METHODS.md 5.2) ---\n")
+        for (arm in model.arms) {
+            model.col <- paste0("mrggi.", arm, ".model")
+            for (size in SAMPLE.SIZES) {
+                rows <- results[results$sample.size == size, , drop = FALSE]
+                if (nrow(rows) == 0) next
+                m <- confusion(rows$truth.model, rows[[model.col]], MRGN.LEVELS)
                 long[[length(long) + 1]] <-
-                    confusion.long(me, "mrggi", "mrggi", size, eff, "model")
+                    confusion.long(m, "mrggi", arm, size, "all", "model")
+                correct <- sum(diag(m[, TRUTH.LEVELS, drop = FALSE]))
+                cat(sprintf("  %-5s n=%-4d  %4d trios | model accuracy %5.1f%% | %4.1f%% Other\n",
+                            arm, size, sum(m), 100 * correct / sum(m),
+                            100 * sum(m[, "Other"]) / sum(m)))
+                for (eff in EFFECT.SIZES) {
+                    sub <- rows[rows$effect_size == eff, , drop = FALSE]
+                    me <- confusion(sub$truth.model, sub[[model.col]], MRGN.LEVELS)
+                    long[[length(long) + 1]] <-
+                        confusion.long(me, "mrggi", arm, size, eff, "model")
+                }
             }
         }
     }

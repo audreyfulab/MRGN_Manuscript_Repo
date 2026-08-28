@@ -280,6 +280,22 @@ paste("Machine-readable form: `table2_inference_summary.csv`. Full matrices behi
       "cell: `INFERENCE_PERFORMANCE.md` §4 and `tables/confusion_counts_long.csv`."),
 "")
 
+# Navigation. Built from the headings just assembled, so it cannot drift out of step
+# with the body -- see with.contents() in confusion_utils.R.
+lines <- with.primer(lines, what = c(
+paste("The headline comparison: all four methods, every generating model, recall and",
+      "precision side by side. This rebuilds the layout of **Table 2** of the manuscript on",
+      "the revised simulation, with MR-GGI added as a fourth method."),
+"",
+paste("Two tables rather than one, because MRPC was not run at the two largest sample",
+      "sizes. Table 2a gives each method every trio it has; Table 2b restricts all four to",
+      "the same 900 trios so the columns are strictly comparable. Read 2b when comparing",
+      "methods to each other.")),
+terms = c("trio", "models", "coarse", "levels", "recall", "precision", "arms", "cs",
+          "oracle", "nocall", "methods"))
+
+lines <- with.contents(lines)
+
 writeLines(lines, OUT.MD, useBytes = TRUE)
 utils::write.csv(rbind(csv.rows(cells.all, "all"), csv.rows(cells.matched, "matched")),
                  OUT.CSV, row.names = FALSE)

@@ -290,7 +290,9 @@ paste("**The mechanism is node count, not covariate quality.** The truth arm han
       "conditional-independence tests over ~25 extra nodes on the same observations."),
 "",
 paste("**The signature is the no-call rate, not wrong calls.** The truth arm fails to return",
-      "a fitted topology roughly twice as often as CS-q, and at n = 300 it additionally",
+      "a fitted topology about 1.4x as often as CS-q on average -- 1.1x at n = 50, 1.3x at",
+      "n = 150 and 1.8x at n = 300, so the gap widens with sample size -- and at n = 300 it",
+      "additionally",
       "spends 103 of 300 trios timing out where CS-q times out on none. MRPC is not",
       "orienting these edges incorrectly -- it is not returning them."),
 "",
@@ -367,13 +369,17 @@ md.table(span.table()),
 "",
 paste("**Table I1. How much accuracy each axis moves, by arm.** `span` is the best group",
       "minus the worst within that view. **The effect treatment is the larger axis for",
-      "MRPC and MR-GGI in every arm**, and for MRPC's CS-q edge it is more than twice the",
-      "sample-size span (65.7 against 31.7 points). Only MRGN's `truth` and `CS-α` arms",
-      "are flatter in the treatment than in n."),
+      "MRPC in every arm**, and for MRPC's CS-q edge it is more than twice the sample-size",
+      "span (65.7 against 31.7 points). MR-GGI splits: its edge rows follow MRPC, but all",
+      "five of its model-level arms move more with sample size than with the treatment.",
+      "Read the `larger axis` column rather than any summary of it -- MRGN's `truth`,",
+      "`CS-α` and `CS-i` arms are flatter in the treatment than in n at the model level,",
+      "and `CS-i` reverses between its two levels."),
 "",
 paste("**GMAC is the extreme case, and in the direction least expected.** It is nearly",
-      "insensitive to sample size -- 6.3 points from n = 50 to n = 1000, a 20-fold increase",
-      "in data -- while moving 26.6 points across the effect treatments. Reporting GMAC by",
+      "insensitive to sample size -- 5.3 points from n = 50 to n = 1000, a 20-fold increase",
+      "in data, and only 6.3 points between its best and worst groups anywhere on that axis",
+      "-- while moving 26.6 points across the effect treatments. Reporting GMAC by",
       "sample size alone would show a method that barely responds to anything; the effect",
       "view shows where its variance actually lives."),
 "",
@@ -397,6 +403,26 @@ appendix("mrpc",  "MRPC"),
 appendix("gmac",  "GMAC"),
 appendix("mrggi", "MR-GGI"),
 "")
+
+# Navigation. Built from the headings just assembled, so it cannot drift out of step
+# with the body -- see with.contents() in confusion_utils.R.
+lines <- with.primer(lines, what = c(
+paste("How well do the four methods recover the causal structure of a simulated trio? Each",
+      "trio was generated under a known model, so every call can be marked right or wrong.",
+      "This is the full record behind the headline table in",
+      "`table2_inference_summary.md` -- same data, every cut of it."),
+"",
+paste("Section 1 lists three things that will mislead a reader who skips them. Section 2",
+      "is the scorecards, section 3 the findings worth arguing about, and section 4 the",
+      "complete confusion matrices behind every figure quoted anywhere else."),
+"",
+paste("Two habits make the tables readable. Read recall and precision together -- a method",
+      "that declines to answer looks precise for the wrong reason. And check the trio count",
+      "a column rests on before comparing it with its neighbour.")),
+terms = c("trio", "models", "coarse", "levels", "recall", "precision", "arms", "cs",
+          "oracle", "nocall", "strata", "methods"))
+
+lines <- with.contents(lines)
 
 writeLines(lines, OUT, useBytes = TRUE)
 cat(sprintf("wrote %s | %d lines\n", OUT, length(lines)))

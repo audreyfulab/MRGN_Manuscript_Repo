@@ -17,6 +17,40 @@ The `T1 − T2 edge` row scores the **edge-present** class: recall is the share 
 
 ---
 
+## Contents
+
+- [What this report is](#what-this-report-is)
+- [Terms used here](#terms-used-here)
+- [Table 2a. All available trios](#table-2a-all-available-trios)
+- [Table 2b. Matched — all four methods on the same 900 trios (n ≤ 300)](#table-2b-matched--all-four-methods-on-the-same-900-trios-n--300)
+- [Notes](#notes)
+
+---
+
+## What this report is
+
+The headline comparison: all four methods, every generating model, recall and precision side by side. This rebuilds the layout of **Table 2** of the manuscript on the revised simulation, with MR-GGI added as a fourth method.
+
+Two tables rather than one, because MRPC was not run at the two largest sample sizes. Table 2a gives each method every trio it has; Table 2b restricts all four to the same 900 trios so the columns are strictly comparable. Read 2b when comparing methods to each other.
+
+## Terms used here
+
+| Term | What it means |
+| --- | --- |
+| **Trio, `V1` / `T1` / `T2`** | The unit of analysis: one genetic variant `V1` and two genes, `T1` (the *cis* gene, near the variant) and `T2` (the *trans* gene, far from it). Every method is asked the same question about a trio -- how are these three connected? |
+| **M0 - M4** | The five ways a trio can be wired, and the five right answers a method is scored against. **M0** null, no `T1`-`T2` link. **M1** mediation, `V1 -> T1 -> T2`. **M2** v-structure, `V1 -> T1 <- T2`. **M3** conditional independence, `T1 <- V1 -> T2`. **M4** fully connected. M1, M2 and M4 have a real `T1`-`T2` edge; M0 and M3 do not. |
+| **Coarse labels** | Some models have two configurations (`M0.1` and `M0.2` differ in which gene the variant acts on). Scoring is **coarse**: both count as `M0`. |
+| **Model level / edge level** | Two questions, scored separately. The **model level** asks a method to name which of M0-M4 generated the trio. The **edge level** asks only whether the `T1`-`T2` link is there. GMAC and MR-GGI cannot name a model, so the edge level is the only place all four methods compare. |
+| **Recall** | Of the trios that really were generated under a model, the share the method labelled correctly. Power, in other words. |
+| **Precision** | Of the trios a method gave a label, the share that really were generated that way. A method that answers rarely but well has high precision and low recall, so the two are read together. |
+| **Arm** | The same method run on different confounder sets. Comparing arms separates the cost of choosing confounders badly from the cost of the method itself. |
+| **CS-q / CS-alpha / CS-i** | The three selection rules, differing only in how harshly they correct for testing many covariates at once. **CS-q** corrects across the whole trio-by-covariate matrix and picks fewest. **CS-alpha** applies a raw per-test cutoff with no correction and picks the most, nearly all wrong. **CS-i** corrects per covariate across trios; it is the rule the published GTEx analysis used. |
+| **Truth (oracle) arm** | The **truth** or **oracle** arm is a method handed the real confounders. It is a ceiling showing what the method could do if selection were perfect, not a competitor, so it is normally excluded when marking the best result in a row. |
+| **No-call** | A method can decline to answer. MRGN returns `Other` when no topology matched, MRPC `Failed` when it timed out, MR-GGI `Weak instrument` when its instrument was too weak to trust and `Screened out` when it never looked at the trio. **A no-call is not a wrong call**: it lowers recall without inflating anyone's precision, and a method that abstains often can look precise for the wrong reason. |
+| **The four methods** | **MRGN** is the method under study. **MRPC** infers a graph with a PC algorithm. **GMAC** returns a mediation call rather than a model label. **MR-GGI** is a Mendelian randomisation method using the variant as an instrument. |
+
+---
+
 ## Table 2a. All available trios
 
 |  |  MRGN (True Confs.)<br>Recall | MRGN (True Confs.)<br>Prec. | MRGN (CS-q)<br>Recall | MRGN (CS-q)<br>Prec. | MRGN (CS-α)<br>Recall | MRGN (CS-α)<br>Prec. | MRPC (CS-q)<br>Recall | MRPC (CS-q)<br>Prec. | GMAC<br>Recall | GMAC<br>Prec. | MR-GGI (CS-q)<br>Recall | MR-GGI (CS-q)<br>Prec. |

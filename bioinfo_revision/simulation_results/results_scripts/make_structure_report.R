@@ -372,9 +372,13 @@ paste("3. **The intermediate can be dropped from the list of concerns at this sa
       "was measurable here."),
 "",
 paste("4. **This sharpens the CS-α case.** CS-α admits the collider at the same rate as CS-q",
-      "(Table C6) on top of its ~100 false positives, and its M0/M3 recall degrades the same",
-      "way. Its higher headline accuracy in `u_z` comes from the models the collider does not",
-      "touch."),
+      "(Table C6) on top of a median ~80 false positives in a selected set of ~100, and its",
+      "M0/M3 recall degrades the same way. Its higher headline accuracy in `u_z` -- 53.0%",
+      "against CS-q's 48.7% -- does **not** come from the models the collider leaves alone:",
+      "those contribute -0.7 points net. It comes from M0 (+20.0) and M3 (+5.0), the two",
+      "models the collider does damage, where CS-α's much larger selected set dilutes the",
+      "one bad covariate. That is a milder poisoning of the same wound, not an escape from",
+      "it."),
 "",
 "---",
 "",
@@ -387,7 +391,7 @@ paste("- **Effect treatments pooled**, with §8's check that the effect is prese
       "three."),
 paste("- **300 trios per structure, 60 per generating model.** A per-model recall moves in",
       "steps of 1/60 = 1.7 points, so differences of a few points are noise. The M0 and M3",
-      "changes are 20-35 points."),
+      "changes are 30-35 points."),
 paste("- **Run with `--bootstrap 0`.** The `boot.*` columns are `NA` throughout. This does",
       "not touch anything above: `apply.mrgn()` takes the model call from",
       "`MRGN::infer.trio()`, which never sees the bootstrap argument. Every figure in this",
@@ -400,6 +404,27 @@ paste("Companion documents: `CONFOUNDER_SELECTION.md` scores the selection that 
       "simulation; `../simulation_results/tables/confusion_structures.md` holds the full",
       "matrices behind Tables C2-C5."),
 "")
+
+# Navigation. Built from the headings just assembled, so it cannot drift out of step
+# with the body -- see with.contents() in confusion_utils.R.
+lines <- with.primer(lines, what = c(
+paste("Two of the covariates around a trio must **not** be adjusted for: the intermediate",
+      "`W`, which sits on the causal path between the genes, and the common child `Z`,",
+      "which sits below both. Adjusting for either damages inference, and for different",
+      "reasons. The main simulation attaches both to every trio, so it cannot say which one",
+      "is responsible when something goes wrong."),
+"",
+paste("These four runs separate them: confounders alone, confounders plus one intermediate,",
+      "confounders plus one common child, and both together. Everything else is held",
+      "identical, so a difference between them has exactly one possible cause."),
+"",
+paste("The short version: the common child does the damage and the intermediate is",
+      "essentially harmless, which is not what the confounder-selection filter is tuned",
+      "for.")),
+terms = c("trio", "models", "levels", "recall", "precision", "confounder", "wz", "cs",
+          "oracle", "strata"))
+
+lines <- with.contents(lines)
 
 writeLines(lines, OUT, useBytes = TRUE)
 cat(sprintf("wrote %s | %d lines\n", OUT, length(lines)))

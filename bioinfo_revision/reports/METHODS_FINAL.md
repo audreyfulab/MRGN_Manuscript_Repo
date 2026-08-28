@@ -28,6 +28,7 @@ question all four methods can be asked in common.
 
 ## Contents
 
+- [Terms used here](#terms-used-here)
 - [1. Pipeline](#1-pipeline)
 - [2. Data generation](#2-data-generation)
   - [2.1 Generating models](#21-generating-models)
@@ -43,7 +44,25 @@ question all four methods can be asked in common.
 - [6. Evaluation](#6-evaluation)
 - [7. Design rationale and known limitations](#7-design-rationale-and-known-limitations)
 - [8. Reproducing](#8-reproducing)
+- [Related documents](#related-documents)
 
+## Terms used here
+
+| Term | What it means |
+| --- | --- |
+| **Trio, `V1` / `T1` / `T2`** | The unit of analysis: one genetic variant `V1` and two genes, `T1` (the *cis* gene, near the variant) and `T2` (the *trans* gene, far from it). Every method is asked the same question about a trio -- how are these three connected? |
+| **M0 - M4** | The five ways a trio can be wired, and the five right answers a method is scored against. **M0** null, no `T1`-`T2` link. **M1** mediation, `V1 -> T1 -> T2`. **M2** v-structure, `V1 -> T1 <- T2`. **M3** conditional independence, `T1 <- V1 -> T2`. **M4** fully connected. M1, M2 and M4 have a real `T1`-`T2` edge; M0 and M3 do not. |
+| **Coarse labels** | Some models have two configurations (`M0.1` and `M0.2` differ in which gene the variant acts on). Scoring is **coarse**: both count as `M0`. |
+| **Model level / edge level** | Two questions, scored separately. The **model level** asks a method to name which of M0-M4 generated the trio. The **edge level** asks only whether the `T1`-`T2` link is there. GMAC and MR-GGI cannot name a model, so the edge level is the only place all four methods compare. |
+| **Confounder** | A variable that affects both genes and so creates association between them that is not causal. Adjusting for the right ones is what lets a method tell a real edge from an induced one. |
+| **Confounder selection** | The step before inference: choosing, from a pool of several thousand candidate covariates, which ones to adjust for. It is a separate problem from inference and is scored separately. |
+| **Arm** | The same method run on different confounder sets. Comparing arms separates the cost of choosing confounders badly from the cost of the method itself. |
+| **CS-q / CS-alpha / CS-i** | The three selection rules, differing only in how harshly they correct for testing many covariates at once. **CS-q** corrects across the whole trio-by-covariate matrix and picks fewest. **CS-alpha** applies a raw per-test cutoff with no correction and picks the most, nearly all wrong. **CS-i** corrects per covariate across trios; it is the rule the published GTEx analysis used. |
+| **Truth (oracle) arm** | The **truth** or **oracle** arm is a method handed the real confounders. It is a ceiling showing what the method could do if selection were perfect, not a competitor, so it is normally excluded when marking the best result in a row. |
+| **No-call** | A method can decline to answer. MRGN returns `Other` when no topology matched, MRPC `Failed` when it timed out, MR-GGI `Weak instrument` when its instrument was too weak to trust and `Screened out` when it never looked at the trio. **A no-call is not a wrong call**: it lowers recall without inflating anyone's precision, and a method that abstains often can look precise for the wrong reason. |
+| **Effect strata, sample sizes** | Every trio is drawn in one of three **effect-size strata** -- small, medium or large -- which set how strong the variant-to-gene and gene-to-gene effects are, and at one of five **sample sizes** (n = 50, 150, 300, 670, 1000). n = 670 matches GTEx whole blood. |
+| **Intermediate `W`, common child `Z`** | Two covariates that must **not** be adjusted for. The **intermediate** `W` sits on the causal path between the genes, so conditioning on it blocks the effect being estimated. The **common child** `Z` sits below both, so conditioning on it is a collider adjustment and opens a path that was not there. |
+| **The four methods** | **MRGN** is the method under study. **MRPC** infers a graph with a PC algorithm. **GMAC** returns a mediation call rather than a model label. **MR-GGI** is a Mendelian randomisation method using the variant as an instrument. |
 ---
 
 ## 1. Pipeline
@@ -289,7 +308,7 @@ checkpointed. The consequences of this design are in
 | `adjust_by` | `"all"` |
 | `blocksize` | `min(500, n trios)` |
 
-**Table 7. Confounder-selection settings** (`inference_config.R:122-126`,
+**Table 7. Confounder-selection settings** (`inference_config.R:159-162`,
 `inference_utils.R:213-237`). These produce **three** confounder sets per trio:
 
 - **CS-q** — the q-value FDR screen at 5% under `adjust_by = "all"`, taken directly from
@@ -331,7 +350,7 @@ thresholding the one cached matrix:
 | --- | ---: | ---: | ---: | ---: |
 | selected/trio (mean) | 0.49 | 2.60 | 82.27 | ~25 |
 | realised p threshold | 3.0 × 10⁻⁶ | 4.8 × 10⁻⁴ | 10⁻² | — |
-| rejections in the group | 146 | 720 | 24,673 | — |
+| rejections in the group | 146 | 779 | 24,680 | — |
 
 **Table 7c. What each family costs, n = 50.** CS-q's correction across 2.4M tests is severe
 enough that it returns far fewer covariates than a trio actually has. CS-α's uncorrected
@@ -433,12 +452,16 @@ selection rather than of the method.
 | method | settings | source |
 | --- | --- | --- |
 | MRGN | `MRGN::infer.trio()`, `use.perm = FALSE`; model read as `$Inferred.Model`. Bootstrap: 1,000 resamples with replacement, non-finite replicates dropped, edge indicators averaged and called at ≥ 0.5, relabelled by `MRGN::class.vec()` | `inference_config.R:41`, `inference_utils.R:694-761` |
-| MRPC | `GV = 1`, `FDR = 0.05`, `alpha = 0.01`, `indepTest = "gaussCItest"`, `FDRcontrol = "ADDIS"`; classical correlation sufficient statistic; 180 s cap per fit via `withTimeout()`; scored on the 3×3 trio block of the fitted graph | `inference_config.R:42`, `inference_utils.R:883-927` |
-| GMAC | 1,000 permutations, `nominal.p = TRUE`, `fdr = 0.05`, `fdr_filter = 0.1`; mediation called at α = 0.05; run twice per group, cis-mediator and trans-mediator | `inference_config.R:43-44`, `inference_utils.R:1015-1061` |
-| MR-GGI | α = 0.05, `cor.thr = 0`, first-stage `F ≥ 10` gate on `V1 → T1`; only `T1` is instrumented, `T2` and every covariate receive a zero column | `inference_config.R:192-244`, `inference_utils.R:1339-1398` |
+| MRPC | `GV = 1`, `FDR = 0.05`, `alpha = 0.01`, `indepTest = "gaussCItest"`, `FDRcontrol = "ADDIS"`; classical correlation sufficient statistic; 180 s cap per fit via `withTimeout()`; scored on the 3×3 trio block of the fitted graph | `inference_config.R:63`, `inference_utils.R:883-927` |
+| GMAC | 1,000 permutations, `nominal.p = TRUE`, `fdr = 0.05`, `fdr_filter = 0.1`; mediation called at α = 0.05; run twice per group, cis-mediator and trans-mediator | `inference_config.R:64-65`, `inference_utils.R:1015-1061` |
+| MR-GGI | α = 0.05, `cor.thr = 0.1`, first-stage `F ≥ 10` gate on `V1 → T1`; only `T1` is instrumented, `T2` and every covariate receive a zero column | `inference_config.R:256`, `inference_config.R:296`, `inference_config.R:347`, `inference_utils.R:1339-1398` |
 
-**Table 8. Per-method tuning parameters.** All are set in `inference_config.R` so the four
-methods stay comparable; changing one in an `apply_*.R` script instead breaks that.
+**Table 8. Per-method tuning parameters.** The scheduling and cost parameters live in
+`inference_config.R` so the four methods stay comparable; changing one in an `apply_*.R`
+script instead breaks that. The statistical settings themselves are not all there:
+`inference_config.R` carries `mrpc.timeout`, `mrpc.arms` and `mrpc.truth.max.n` but not
+`mrpc.GV`, `mrpc.FDR`, `mrpc.alpha`, `mrpc.indepTest` or `mrpc.FDRcontrol`, and not GMAC's
+`nominal.p` or MRGN's `use.perm`; those are set at the call site in `inference_utils.R`.
 `run_all_inference.R` launches one process per method and splits cores between them, giving
 MRPC exactly one (it is single-threaded) and dividing the rest 0.45 / 0.35 / 0.20 between
 MRGN, MR-GGI and GMAC.
@@ -450,10 +473,13 @@ Three settings need their rationale recorded, because each looks like a choice a
   — with a trailing `s`, base R's vector of *all* method names — so `match.arg()` silently
   takes the first element. Read `mrggi.<arm>.FDR.T1T2` as holm-adjusted whatever is passed,
   and recompute from `mrggi.<arm>.p.T1T2` if a different correction is wanted.
-- **`cor.thr = 0` is the package default and is left there deliberately.** It screens gene
-  pairs by correlation before testing; with a single pair per trio it only decides whether
-  that trio is tested at all, so a nonzero value would discard trios untested and cap
-  recall before any inference happened.
+- **`cor.thr` is set to `0.1`, not the package default of `0`.** It screens gene pairs by
+  correlation before testing; with a single pair per trio it only decides whether that trio
+  is tested at all, so a nonzero value discards trios untested. It was `0` in the runs
+  before 2026-08-27, on the reasoning that a nonzero value would cap recall before any
+  inference happened; §6 records why it was raised and what it costs — about 26% of trios,
+  concentrated almost entirely in the two models with no `T1`–`T2` edge. **Every MR-GGI
+  edge number has to be read with that screened-out share beside it.**
 - **`mrggi.min.F = 10` is a weak-instrument gate, not a tuning knob.** With a single
   instrument MR-GGI's p-value reduces to the instrument→outcome t-statistic, so the
   exposure's first stage cancels out of the test and nothing otherwise stops it reporting a
@@ -465,7 +491,7 @@ Three settings need their rationale recorded, because each looks like a choice a
 | method | arms with results | covariates each arm receives |
 | --- | --- | --- |
 | MRGN | `truth`, `CSq`, `CSa`, **`CSi`** | oracle set / CS-q / CS-α / CS-i |
-| MRPC | `truth`, `CSq` | as above; `truth` attempted only at n ≤ 300, `CSa` disabled |
+| MRPC | `truth`, `CSq` | as above; `CSa` disabled. **MRPC has no results above n = 300 in either arm** — the n = 670 and n = 1000 groups were never run (see the timeout note in §5), so MRPC is scored on 900 trios against the other methods' 1,500 |
 | GMAC | `gmac` only | GMAC's own selection. A `gmac.truth` oracle arm is coded but has no results — see below |
 | MR-GGI | `none`, `truth`, `CSq`, `CSa`, **`CSi`** | bare trio / oracle set / CS-q / CS-α / CS-i |
 
@@ -597,13 +623,14 @@ be read off each other directly. Columns are always the five generating models
 estimates plus the instrument-gene and marginal tests. With a **single** instrument the
 Wald-ratio p-value reduces to the instrument→outcome t-statistic, so those two "causal"
 indicators are not independent of the two marginals: `b12` is really the `V1 → T2` test and
-`b22` the `V1 → T1` test, measured identical to them on **100%** of trios. The six-vector
+`b22` the `V1 → T1` test, measured identical to them on **99.9%** and **99.5%** of trios
+respectively. The six-vector
 therefore carries four distinct tests, not six, and three of the five models become
 unreachable:
 
 | model | needs | why it cannot be formed |
 | --- | --- | --- |
-| **M0** | `b22 = 0` | `b22` proxies `V1 → T1`, which exists in every model; it fires on 92% of all trios |
+| **M0** | `b22 = 0` | `b22` proxies `V1 → T1`, which exists in every model; it fires on 79% of all trios, rising from 58% at n = 50 to 92% at n = 1000 |
 | **M3** | `b22 = 0` | same |
 | **M2** | `b12 ≠ 0` | `b12` proxies `V1 → T2`, and M2 is `V1 → T1 ← T2`, where the two are marginally independent |
 
@@ -682,7 +709,7 @@ two further files covering MRGN across the four structures of Table 5.
 
 Two assertions stop the run rather than producing a misleading table: the MRGN matrix
 diagonal must equal `sum(mrgn.<arm>.correct.coarse)` on the same subset for each of the 15
-arm × sample-size cells, and MR-GGI's raw-p edge call must be identical across all four
+arm × sample-size cells, and MR-GGI's raw-p edge call must be identical across all five
 arms.
 
 ---
@@ -728,7 +755,7 @@ Both halves of that need stating, because either alone misleads:
 
 **Table 15. CS-i against CS-q, MRGN, all 1,500 trios.** CS-i selects roughly five times as
 many covariates at n = 50 (2.60 against 0.49) and recovers more true confounders at every
-sample size, but converts that into only **+0.3 to +1.4 accuracy points** at n ≥ 150 — and
+sample size, but converts that into only **+0.3 to +1.3 accuracy points** at n ≥ 150 — and
 it is **5 points worse at n = 50**, where the extra covariates push more fits into
 rank-deficiency and the `Other` rate rises from 65.7% to 73.3%.
 

@@ -16,6 +16,9 @@
 #   fig4_by_effect.png   POSITIVE confounders the selection handed it (panel a) and the
 #                        number of false NEGATIVES it missed (panel b). Reproduces
 #                        Manuscript/figures/SF7_Confounder_Selection_Impact_On_Inference.pdf
+#                        Scored over ALL THREE trio edges (V1-T1, V1-T2, T1-T2) at the
+#                        skeleton level, not on T1-T2 alone -- see the note above
+#                        edge.pr.by().
 #
 # THIS IS THE ONE SCRIPT IN THE STAGE THAT NEEDS ggplot2. confusion_utils.R is deliberately
 # base R so the tables can be rebuilt without it; the figures cannot be, so the dependency
@@ -120,11 +123,20 @@ save.fig(fig3.base(fig3.long) + facet_grid(selection.lab ~ effect_size),
 # smoothed. This is the only way to put them against a per-trio count, and it is what the
 # published figure does.
 #
-# Scored on the EDGE, not the model: EDGE.CORRECT maps M0 and M3 to "edge absent" and
-# M1/M2/M4 to "edge present", so
+# Scored on the EDGES, not the model. TRIO.EDGES (confusion_utils.R) gives the SKELETON of
+# each of the eight topologies -- which of V1-T1, V1-T2 and T1-T2 are adjacent, orientation
+# ignored -- and the counts are summed over the trios in a bin, so
 #
-#   precision = called present and truly present / called present
-#   recall    = called present and truly present / truly present
+#   precision = edges called that are truly there / edges called
+#   recall    = edges called that are truly there / edges truly there
+#
+# THIS IS ALL THREE TRIO EDGES, NOT JUST T1-T2. The two-row confusion tables score T1-T2
+# alone because GMAC and MR-GGI resolve nothing else and the tables exist to be read
+# against them; Figure 4 is MRGN-only and has no such constraint. A trio therefore
+# contributes 1-3 to each denominator rather than 0-1, and a partially-right call -- M3
+# returned for an M4 trio, say -- scores 2/2 precision and 2/3 recall instead of being a
+# flat miss. Orientation is not scored here (M1.1 and M2.1 share a skeleton); that is what
+# the model rows of Table 2 measure.
 #
 # ---------------------------------------------------------------------------------------
 # HOW THE X-AXIS IS BINNED, AND THE THREE BUGS THIS REPLACES
@@ -178,10 +190,9 @@ BINS.DROPPED <- 0L   # accumulated across every panel, reported at the end
 
 edge.pr.by <- function(df, xcol, arm) {
     model.col <- paste0("mrgn.", arm, ".model")
-    truth.edge <- unname(EDGE.CORRECT[coarse.model(df$truth.model)])
-    pred.edge  <- mrgn.edge(df[[model.col]])
+    truth.skel <- trio.skeleton(df$truth.model)
+    pred.skel  <- trio.skeleton(df[[model.col]])
 
-    present <- EDGE.LEVELS[2]
     x <- df[[xcol]]
     ok <- which(!is.na(x))
     if (length(ok) == 0) return(NULL)
@@ -203,9 +214,12 @@ edge.pr.by <- function(df, xcol, arm) {
             BINS.DROPPED <<- BINS.DROPPED + 1L
             return(NULL)
         }
-        tp <- sum(pred.edge[i] == present & truth.edge[i] == present)
-        cp <- sum(pred.edge[i] == present)
-        tr <- sum(truth.edge[i] == present)
+        # Edges, not trios: each trio contributes its own skeleton to the three counts,
+        # so a bin of 30 trios carries roughly 60 true edges rather than 30 binary calls.
+        tp <- sum(vapply(i, function(k) length(intersect(truth.skel[[k]], pred.skel[[k]])),
+                         numeric(1)))
+        cp <- sum(vapply(i, function(k) length(pred.skel[[k]]),  numeric(1)))
+        tr <- sum(vapply(i, function(k) length(truth.skel[[k]]), numeric(1)))
         data.frame(x = mean(x[i]), trios = length(i),
                    Precision = if (cp > 0) tp / cp else NA_real_,
                    Recall    = if (tr > 0) tp / tr else NA_real_)
@@ -328,12 +342,14 @@ fig4.base <- function(d, keys) {
     }
     # ---- bins where the metric is UNDEFINED, not zero ----
     #
-    # Precision is 0/0 in any bin where MRGN called no trio edge-present, and that is not a
-    # precision of zero -- the question does not apply. Those bins carry NA, so the curve
-    # legitimately stops at the last bin that had a value while recall, whose denominator
-    # is the truly-edge-present trios and so is never zero, carries on to the end of the
-    # panel. In the CS-alpha false-negative panels that is a real result: past roughly 15
-    # missed confounders MRGN returns "Other" for everything and stops calling edges at all.
+    # Precision is 0/0 in any bin where MRGN named no edges at all -- every trio in it came
+    # back "Other", whose skeleton is empty -- and that is not a precision of zero: the
+    # question does not apply. Those bins carry NA, so the curve legitimately stops at the
+    # last bin that had a value while recall, whose denominator is the edges the generating
+    # topologies actually contain and so is never zero (every model has at least the V1-T1
+    # or V1-T2 edge), carries on to the end of the panel. In the CS-alpha false-negative
+    # panels that is a real result: past roughly 15 missed confounders MRGN returns "Other"
+    # for everything and stops calling edges at all.
     #
     # Without a mark, that reads as a truncated line -- indistinguishable from the binning
     # bug this figure used to have. A rug at the top of the panel says where the metric

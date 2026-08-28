@@ -204,6 +204,49 @@ EDGE.CORRECT <- c(M0 = EDGE.LEVELS[1], M3 = EDGE.LEVELS[1],
 
 
 # ---------------------------------------------------------------------------------------
+# the full trio skeleton, for Figure 4
+# ---------------------------------------------------------------------------------------
+#
+# EDGE.CORRECT above scores ONE edge -- T1-T2 -- because that is the only edge GMAC and
+# MR-GGI resolve, and the two-row tables exist so those methods can be read against MRGN.
+# Figure 4 is MRGN-only, so it has no such constraint and scores all three trio edges:
+# V1-T1, V1-T2 and T1-T2.
+#
+# ADJACENCY, NOT ORIENTATION. An edge is a true positive when the pair is adjacent in both
+# the generating topology and the inferred one, however either orients it. That is the
+# consistent extension of the T1-T2 metric, which has always asked "is there an edge"
+# rather than "which way does it point". The cost is that M1.1 (V1 -> T1 -> T2) and M2.1
+# (V1 -> T1 <- T2) have the SAME skeleton, so a mediation trio called a v-structure scores
+# a full 2/2 here. Orientation error is not what Figure 4 measures; it is what the model
+# rows of Table 2 measure, and the two figures should be read together.
+#
+# The mapping is on the FINE label, not the coarse one -- unlike EDGE.CORRECT, which can
+# collapse M0.1/M0.2 because the mirror does not change T1-T2 adjacency. Here it does:
+# M0.1 is V1-T1 and M0.2 is V1-T2, which are different edges.
+TRIO.EDGES <- list(
+    "M0.1" = c("V1-T1"),
+    "M0.2" = c("V1-T2"),
+    "M1.1" = c("V1-T1", "T1-T2"),
+    "M1.2" = c("V1-T2", "T1-T2"),
+    "M2.1" = c("V1-T1", "T1-T2"),
+    "M2.2" = c("V1-T2", "T1-T2"),
+    "M3"   = c("V1-T1", "V1-T2"),
+    "M4"   = c("V1-T1", "V1-T2", "T1-T2"))
+
+# "Other" predicts the EMPTY skeleton, which is the same convention the two-row tables use
+# for it: infer.trio() fitted the trio but matched no topology, so it named no edges. It
+# therefore contributes a false negative for every true edge and never a false positive --
+# a no-call costs recall and leaves precision untouched, exactly as at the model level.
+# An NA model (the fit errored outright) is treated the same way.
+trio.skeleton <- function(model) {
+    model <- as.character(model)
+    lapply(model, function(m) {
+        if (is.na(m) || is.null(TRIO.EDGES[[m]])) character(0) else TRIO.EDGES[[m]]
+    })
+}
+
+
+# ---------------------------------------------------------------------------------------
 # loading
 # ---------------------------------------------------------------------------------------
 
@@ -617,4 +660,167 @@ load.structure <- function(dir) {
     env <- new.env(parent = emptyenv())
     load(path, envir = env)
     get("results", envir = env)
+}
+
+
+# ---------------------------------------------------------------------------------------
+# markdown: table of contents
+# ---------------------------------------------------------------------------------------
+#
+# The reports are long enough that a reader arriving from a link needs a way to move around
+# them. Building the contents list FROM the assembled `lines` rather than maintaining it by
+# hand is the whole point: rename a section, add one, reorder them, and the next run picks
+# the change up. A hand-written contents block in a file stamped "do not edit by hand" would
+# rot on the first heading change and nothing would catch it.
+#
+# md.anchor() reproduces GitHub's heading-slug rule, which is also what the VS Code preview
+# and most static-site renderers use: take the RENDERED text (so markdown syntax and link
+# targets are gone), lowercase it, drop every character that is not alphanumeric, space,
+# hyphen or underscore, then turn spaces into hyphens. Runs of punctuation therefore leave
+# runs of hyphens -- "Figure 3 -- selection" slugs to "figure-3----selection" -- which looks
+# wrong and is correct.
+md.anchor <- function(heading) {
+    s <- sub("^#+[[:space:]]*", "", heading)
+    s <- gsub("\\[([^]]*)\\]\\([^)]*\\)", "\\1", s)   # links render as their label
+    s <- gsub("[`*_]", "", s)                         # code, bold and italic markers
+    s <- tolower(s)
+    s <- gsub("[^a-z0-9 _-]", "", s, perl = TRUE)     # everything else is dropped
+    gsub(" ", "-", s)
+}
+
+# Headings inside fenced code blocks are shell comments and R comments, not headings, so the
+# fence state has to be tracked rather than matching "^#" line by line.
+md.headings <- function(lines, min.depth = 2, max.depth = 3) {
+    fenced <- FALSE
+    keep <- character(0)
+    for (ln in lines) {
+        if (grepl("^[[:space:]]*```", ln)) { fenced <- !fenced; next }
+        if (fenced) next
+        hashes <- regmatches(ln, regexpr("^#+", ln))
+        if (!length(hashes)) next
+        depth <- nchar(hashes)
+        if (depth < min.depth || depth > max.depth) next
+        keep <- c(keep, ln)
+    }
+    keep
+}
+
+md.toc <- function(lines, min.depth = 2, max.depth = 3) {
+    heads <- md.headings(lines, min.depth, max.depth)
+    if (!length(heads)) return(character(0))
+    vapply(heads, function(h) {
+        depth <- nchar(regmatches(h, regexpr("^#+", h)))
+        label <- sub("^#+[[:space:]]*", "", h)
+        label <- gsub("`", "", label)          # backticks inside a link label render badly
+        label <- gsub("\\*\\*", "", label)
+        sprintf("%s- [%s](#%s)", strrep("  ", depth - min.depth), label, md.anchor(h))
+    }, character(1), USE.NAMES = FALSE)
+}
+
+# Splices a contents block in immediately above the first top-level section, leaving the
+# title and the "generated by" preamble above it. Returns `lines` unchanged when the report
+# has no headings to list, so a short report does not get an empty stub.
+with.contents <- function(lines, heading = "## Contents", max.depth = 3) {
+    toc <- md.toc(lines, 2, max.depth)
+    if (!length(toc)) return(lines)
+    at <- which(grepl("^## ", lines))
+    if (!length(at)) return(lines)
+    at <- at[1]
+    c(lines[seq_len(at - 1)], heading, "", toc, "", "---", "", lines[at:length(lines)])
+}
+
+
+# ---------------------------------------------------------------------------------------
+# markdown: orientation primer and shared glossary
+# ---------------------------------------------------------------------------------------
+#
+# These reports are read by people arriving from a manuscript or a review, not only by
+# whoever built the pipeline. One canonical definition per term, kept here and selected per
+# report, is what stops five files drifting into five slightly different accounts of what
+# "arm" or "no-call" means.
+GLOSSARY <- list(
+    trio = paste("The unit of analysis: one genetic variant `V1` and two genes, `T1` (the",
+                 "*cis* gene, near the variant) and `T2` (the *trans* gene, far from it).",
+                 "Every method is asked the same question about a trio -- how are these",
+                 "three connected?"),
+    models = paste("The five ways a trio can be wired, and the five right answers a method",
+                   "is scored against. **M0** null, no `T1`-`T2` link. **M1** mediation,",
+                   "`V1 -> T1 -> T2`. **M2** v-structure, `V1 -> T1 <- T2`. **M3**",
+                   "conditional independence, `T1 <- V1 -> T2`. **M4** fully connected.",
+                   "M1, M2 and M4 have a real `T1`-`T2` edge; M0 and M3 do not."),
+    coarse = paste("Some models have two configurations (`M0.1` and `M0.2` differ in which",
+                   "gene the variant acts on). Scoring is **coarse**: both count as `M0`."),
+    levels = paste("Two questions, scored separately. The **model level** asks a method to",
+                   "name which of M0-M4 generated the trio. The **edge level** asks only",
+                   "whether the `T1`-`T2` link is there. GMAC and MR-GGI cannot name a",
+                   "model, so the edge level is the only place all four methods compare."),
+    recall = paste("Of the trios that really were generated under a model, the share the",
+                   "method labelled correctly. Power, in other words."),
+    precision = paste("Of the trios a method gave a label, the share that really were",
+                      "generated that way. A method that answers rarely but well has high",
+                      "precision and low recall, so the two are read together."),
+    confounder = paste("A variable that affects both genes and so creates association",
+                       "between them that is not causal. Adjusting for the right ones is",
+                       "what lets a method tell a real edge from an induced one."),
+    selection = paste("The step before inference: choosing, from a pool of several thousand",
+                      "candidate covariates, which ones to adjust for. It is a separate",
+                      "problem from inference and is scored separately."),
+    arms = paste("The same method run on different confounder sets. Comparing arms",
+                 "separates the cost of choosing confounders badly from the cost of the",
+                 "method itself."),
+    cs = paste("The three selection rules, differing only in how harshly they correct for",
+               "testing many covariates at once. **CS-q** corrects across the whole",
+               "trio-by-covariate matrix and picks fewest. **CS-alpha** applies a raw",
+               "per-test cutoff with no correction and picks the most, nearly all wrong.",
+               "**CS-i** corrects per covariate across trios; it is the rule the published",
+               "GTEx analysis used."),
+    oracle = paste("The **truth** or **oracle** arm is a method handed the real confounders.",
+                   "It is a ceiling showing what the method could do if selection were",
+                   "perfect, not a competitor, so it is normally excluded when marking the",
+                   "best result in a row."),
+    nocall = paste("A method can decline to answer. MRGN returns `Other` when no topology",
+                   "matched, MRPC `Failed` when it timed out, MR-GGI `Weak instrument` when",
+                   "its instrument was too weak to trust and `Screened out` when it never",
+                   "looked at the trio. **A no-call is not a wrong call**: it lowers recall",
+                   "without inflating anyone's precision, and a method that abstains often",
+                   "can look precise for the wrong reason."),
+    strata = paste("Every trio is drawn in one of three **effect-size strata** -- small,",
+                   "medium or large -- which set how strong the variant-to-gene and",
+                   "gene-to-gene effects are, and at one of five **sample sizes**",
+                   "(n = 50, 150, 300, 670, 1000). n = 670 matches GTEx whole blood."),
+    wz = paste("Two covariates that must **not** be adjusted for. The **intermediate** `W`",
+               "sits on the causal path between the genes, so conditioning on it blocks the",
+               "effect being estimated. The **common child** `Z` sits below both, so",
+               "conditioning on it is a collider adjustment and opens a path that was not",
+               "there."),
+    methods = paste("**MRGN** is the method under study. **MRPC** infers a graph with a PC",
+                    "algorithm. **GMAC** returns a mediation call rather than a model label.",
+                    "**MR-GGI** is a Mendelian randomisation method using the variant as an",
+                    "instrument."))
+
+md.glossary <- function(keys, heading = "## Terms used here") {
+    missing <- setdiff(keys, names(GLOSSARY))
+    if (length(missing)) stop("no glossary entry for: ", paste(missing, collapse = ", "))
+    labels <- c(trio = "Trio, `V1` / `T1` / `T2`", models = "M0 - M4",
+                coarse = "Coarse labels", levels = "Model level / edge level",
+                recall = "Recall", precision = "Precision", confounder = "Confounder",
+                selection = "Confounder selection", arms = "Arm", cs = "CS-q / CS-alpha / CS-i",
+                oracle = "Truth (oracle) arm", nocall = "No-call", strata = "Effect strata, sample sizes",
+                wz = "Intermediate `W`, common child `Z`", methods = "The four methods")
+    c(heading, "",
+      "| Term | What it means |", "| --- | --- |",
+      vapply(keys, function(k) sprintf("| **%s** | %s |", labels[[k]], GLOSSARY[[k]]),
+             character(1), USE.NAMES = FALSE),
+      "")
+}
+
+# Splices an orientation section and a glossary in above the first numbered section, so a
+# reader who has never seen the pipeline can start at the top of any report. Call this
+# BEFORE with.contents() so the new sections appear in the contents list.
+with.primer <- function(lines, what, terms, what.heading = "## What this report is") {
+    at <- which(grepl("^## ", lines))
+    if (!length(at)) return(lines)
+    at <- at[1]
+    block <- c(what.heading, "", what, "", md.glossary(terms), "---", "")
+    c(lines[seq_len(at - 1)], block, lines[at:length(lines)])
 }

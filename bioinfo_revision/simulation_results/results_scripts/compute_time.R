@@ -506,6 +506,12 @@ covar.median <- function(method, arm) {
 
 mrgn.boot <- load.method("mrgn")
 
+# Stall bookkeeping for section 4. Computed rather than asserted so the paragraph that
+# uses it can be omitted entirely when the run has no stalls -- which is the current state.
+n.stalled <- sum(long$stalled, na.rm = TRUE)
+stalled.trios <- if (n.stalled == 0) "" else
+    paste(sort(unique(long$dataset[long$stalled])), collapse = ", ")
+
 lines <- c(
 "# Per-trio compute time",
 "",
@@ -557,11 +563,27 @@ md.table(c("method", "confounders", paste0("n = ", SAMPLE.SIZES)),
 "## 3. Every arm",
 "",
 "The deployed row is one column of a wider picture. For all four methods the per-trio cost",
-"is set by **how many covariates the method was handed**, not by the method. MR-GGI is the",
-"clearest case: median 23 ms with no covariates, 1.3 min against CS-alpha's median of 98 --",
-"a factor of ~3,400 on the same trios, because its cost is quadratic in the covariate count",
-"(it tests every gene pair). The other two move far less: MRGN spans 7-34 ms across its",
-"three arms and MRPC 34-163 ms across its two, a factor of five each.",
+"is set by **how many covariates the method was handed**, not by the method.",
+"",
+local({
+    span <- function(method, arms) {
+        m <- vapply(arms, function(a) cell(method, a, "all")$median, numeric(1))
+        list(lo = min(m), hi = max(m), factor = max(m) / min(m))
+    }
+    g <- span("MR-GGI", c("none", "truth", "CSq", "CSa", "CSi"))
+    n <- span("MRGN",   c("truth", "CSq", "CSa", "CSi"))
+    p <- span("MRPC",   c("truth", "CSq"))
+    paste(sprintf(paste0("MR-GGI is the clearest case: %s with no covariates against %s ",
+                         "under CS-alpha, a factor of ~%.0f on the same trios, because its ",
+                         "cost is quadratic in the covariate count -- it tests every gene ",
+                         "pair, and CS-alpha hands it a median of %s of them."),
+                  fmt.time(g$lo), fmt.time(g$hi), g$factor, covar.median("MR-GGI", "CSa")),
+          sprintf(paste0("The other two move far less: MRGN spans %s to %s across its four ",
+                         "arms (a factor of %.1f) and MRPC %s to %s across its two (a ",
+                         "factor of %.1f)."),
+                  fmt.time(n$lo), fmt.time(n$hi), n$factor,
+                  fmt.time(p$lo), fmt.time(p$hi), p$factor))
+}),
 "",
 "![compute time by confounder set](figures/fig_compute_time_by_arm.png)",
 "",
@@ -613,20 +635,18 @@ sprintf(paste0("**MRPC's timeouts are censored, not slow.** A fit that hits the 
                "n <= 300; the oracle arm loses %d of 900, all at n = 300."),
         mrpc.timeout, sum(long$timed.out[long$method == "MRPC" & long$arm == "truth"])),
 "",
-sprintf(paste0("**Twenty MR-GGI trios carry machine stalls.** All at n = 670, all with ",
-               "wall clocks of 3,000-53,000 s clustered at near-identical values across ",
-               "trios that were in flight on different workers at the same instant, and ",
-               "all wildly out of line with their own covariate counts -- dataset 191 has ",
-               "78 covariates and 53,192 s, against 155 s for a 106-covariate trio at ",
-               "n = 1000. That is the machine suspending, not MR-GGI computing, so they ",
-               "are excluded from every statistic here and counted in `n_stalled` ",
-               "instead. **The medians and IQRs are identical either way** -- all thirty ",
-               "sit above the 75th percentile of their cell -- so nothing is lost; what ",
-               "the exclusion buys is a `mean`, `max` and `total_hours` in the CSV that ",
-               "mean something. Left in, MR-GGI's CS-q arm would report 10.9 total hours ",
-               "of which 9.3 are a sleeping laptop. Affected trios: %s."),
-        paste(sort(unique(long$dataset[long$stalled])), collapse = ", ")),
-"",
+# Written only when there ARE stalls. The paragraph below described 20 suspended-machine
+# wall clocks at n = 670; the current data has none, and a hardcoded account of a run that
+# no longer exists is worse than no account at all. Guarding it means the text appears when
+# it is true and vanishes when it is not, instead of quietly going stale again.
+if (n.stalled > 0) sprintf(paste0("**%d MR-GGI wall clocks are machine stalls, not fits.** ",
+               "They sit wildly out of line with their own covariate counts -- a suspended ",
+               "machine, not MR-GGI computing -- so they are excluded from every statistic ",
+               "here and counted in `n_stalled` instead. The medians and IQRs are identical ",
+               "either way, since every one sits above the 75th percentile of its cell; what ",
+               "the exclusion buys is a `mean`, `max` and `total_hours` in the CSV that mean ",
+               "something. Affected trios: %s."),
+        n.stalled, stalled.trios) else NULL,
 "**MRGN's CS-i arm ran on a quiet machine, and it shows.** It reports a 4 ms median",
 "against CS-q's 7 ms while carrying *more* covariates (2.6-24.0 per trio against",
 "0.5-21.7), which inverts the relationship every other row in section 3 follows. The arm",
@@ -641,6 +661,25 @@ sprintf(paste0("**Twenty MR-GGI trios carry machine stalls.** All at n = 670, al
 "groups on a `parallel::makeCluster()`; MRPC did not (`apply_mrpc.R` never builds one), so",
 "a trio timed inside a busy worker carries CPU contention that a serial fit does not. Read",
 "factor-of-two differences as noise and factor-of-a-hundred differences as real.")
+
+# Navigation. Built from the headings just assembled, so it cannot drift out of step
+# with the body -- see with.contents() in confusion_utils.R.
+lines <- with.primer(lines, what = c(
+paste("How long does each method take to fit **one trio**? This is the table form of",
+      "**Table 3** of the manuscript, with MR-GGI added."),
+"",
+paste("One thing to hold on to before reading any number here: what is timed is the",
+      "inference call and nothing else. Confounder selection is excluded for all four",
+      "methods, because it runs once per group and is shared; MRGN's optional bootstrap is",
+      "excluded too. So these are times to fit one trio *given* a confounder set, which is",
+      "the quantity that is comparable across methods -- not end-to-end cost. Section 4",
+      "spells out what that does and does not license."),
+"",
+paste("The other thing that matters more than method choice is how many covariates a method",
+      "was handed, which is what section 3 is for.")),
+terms = c("trio", "arms", "cs", "oracle", "strata", "methods"))
+
+lines <- with.contents(lines)
 
 writeLines(lines, REPORT)
 cat(sprintf("  wrote %s\n", REPORT))

@@ -129,10 +129,16 @@ gmac <- function(cl = NULL, known.conf, cov.pool=NULL, exp.dat, snp.dat.cis, tri
     time.to.compute.trios = c(start = start, end = end)
 
   } else {
+    # the timing has to be recorded on this branch too: comp.time is read unconditionally
+    # when the output list is assembled below, so a parallel run errored with
+    # "object 'time.to.compute.trios' not found"
+    start = Sys.time()
     output <- parLapply(cl, 1:num_trio, getp.func, triomatrix = triomatrix,
                         known_confounders = known_confounders, pool_cov = pool_cov,
                         est_conf_pool_idx = est_conf_pool_idx, nperm = nperm,
                         nominal.p = nominal.p, use.PC = use.PC)
+    end = Sys.time()
+    time.to.compute.trios = c(start = start, end = end)
   }
   pvals <- matrix(unlist(lapply(output, function(x) x$pvals), use.names = FALSE),
                   byrow = T, ncol = 2)

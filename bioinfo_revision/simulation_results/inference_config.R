@@ -252,10 +252,48 @@ if (!is.null(inference.opt("--rerun-inference"))) {
 
 # ---- MR-GGI ----
 # Edge called at raw p < mrggi.alpha, matching how mrpc.alpha and selection.alpha are
-# applied per trio. cor.thr = 0 is the package default: it decides which gene pairs are
-# tested at all, and at 0 every pair with a nonzero correlation is.
+# applied per trio.
 mrggi.alpha   <- 0.05
-mrggi.cor.thr <- 0
+
+# MRggi's correlation screen. It is NOT a confounder adjustment and NOT covariate selection:
+#
+#     cor.y  <- cor(scale.y)
+#     corMat[which(abs(cor.y) > cor.thr)] <- 1
+#     calc.idx <- which(corMat == 1, arr.ind = TRUE)      # which PAIRS get computed
+#
+# It gates which gene pairs are estimated at all, on their marginal correlation, and never
+# enters .TSLS(). It therefore cannot move B.T1T2 or p.T1T2 for a pair that survives it.
+#
+# IT DOES TWO THINGS, AND THE SECOND IS THE ONE TO WATCH.
+#
+# 1. It sets the multiplicity family. FDR.T1T2 is p.adjust() over the pairs sharing
+#    g1 == "T1", so a higher threshold drops weakly-correlated partners out of that family
+#    and makes the correction on the T1-T2 edge less harsh. Only edge.fdr moves.
+#
+# 2. IT DECIDES WHETHER THE TRIO IS TESTED AT ALL. If |cor(T1, T2)| <= cor.thr the T1-T2
+#    pair never enters calc.idx and there is no estimate to read. That is a no-call, and it
+#    is recorded as screened.out = TRUE rather than allowed to look like a null result.
+#
+# THE SCREEN IS NOT NEUTRAL ACROSS THE GENERATING MODELS. Measured over all 1,500 trios at
+# cor.thr = 0.1, the share whose T1-T2 pair is never tested:
+#
+#   model0   65.7%     no true T1-T2 edge
+#   model3   43.0%     no true T1-T2 edge
+#   model1    8.3%     true edge
+#   model2    5.0%     true edge
+#   model4    6.3%     true edge
+#
+# ~26% of trios overall, concentrated almost entirely in the two models that have NO edge --
+# they are the trios with near-zero T1-T2 correlation, which is exactly what the screen is
+# built to remove. Reading that off the scored tables: MR-GGI is excused from answering on
+# most of its true negatives, which RAISES its edge precision and LOWERS its edge-absent
+# recall by construction. Neither number is comparable to a method that answered on every
+# trio unless the screened-out share is quoted beside it.
+#
+# This is the package behaving as designed -- MR on an uncorrelated pair is not meaningful --
+# so the screen is kept and its cost is reported, rather than being disabled to make the
+# numbers look comparable. See MRGGI_METHODS.md section 4.2.
+mrggi.cor.thr <- 0.1
 
 # Which covariate sets MR-GGI is run against, one MRggi() call per arm per trio.
 #

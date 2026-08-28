@@ -9,12 +9,16 @@
 # extended to the four methods of the revision. Reads tables/confusion_counts_long.csv, so
 # run make_all_tables.R first.
 #
-# TWO METHODS CANNOT FILL THE MODEL ROWS, and this is a property of the methods rather than
-# of the run. GMAC returns a mediation call (Cis Mediated / Trans Mediated / No Mediation /
-# Undirected) and MR-GGI returns only a T1-T2 edge call; neither names one of the five
-# models, so both contribute the T1-T2 row alone. The original Table 2 handles GMAC the same
-# way -- it is named in the caption and marked with an asterisk on the T1-T2 row, but has no
-# column of its own.
+# GMAC CANNOT FILL THE MODEL ROWS. It returns a mediation call (Cis Mediated / Trans
+# Mediated / No Mediation / Undirected), which is not one of the five models, so it
+# contributes the T1-T2 row alone. The original Table 2 handles it the same way -- named in
+# the caption and marked with an asterisk on the T1-T2 row, with no column of its own.
+#
+# MR-GGI now DOES fill them, from mrggi.model. That column is built by MRGN::class.vec()
+# from MR-GGI's own pairwise estimates plus the instrument-gene and marginal tests, and it
+# is reported because it FAILS: M0 and M2 are structurally unreachable, because with one
+# instrument the Wald-ratio p reduces to the instrument->outcome t-test and the causal tests
+# are therefore not independent of the marginals. See MRGGI_METHODS.md section 5.2.
 #
 # MRPC COVERS THREE OF THE FIVE SAMPLE SIZES. Its n = 670 and n = 1000 groups were dropped
 # (see inference_config.R), so two tables are written: one over all 1,500 trios with MRPC
@@ -45,12 +49,14 @@ COLUMNS <- list(
          label = "MRPC (CS-q)", oracle = FALSE),
     list(method = "gmac",  arm = "gmac",  model.level = NA,      edge.level = "edge",
          label = "GMAC", oracle = FALSE),
-    # MR-GGI's raw-p edge call is identical in all four arms; only the FDR-adjusted call
-    # varies, so the CS-q column here is the edge.fdr level. The arm-invariant raw-p figures
-    # are reported in the notes, since that is the column directly comparable with the
-    # others.
-    list(method = "mrggi", arm = "CSq",   model.level = NA,      edge.level = "edge.fdr",
-         label = "MR-GGI (CS-q)", oracle = FALSE))
+    # MR-GGI is shown on its ARM-INVARIANT columns, both of which are reported under the arm
+    # label "mrggi": the raw-p edge call, which is the one comparable with GMAC and MRGN, and
+    # the model call, which class.vec() builds from the same pairwise estimates. Its four
+    # covariate arms move only the FDR-adjusted edge call, so an arm-specific column here
+    # would differ from its neighbours in the correction applied rather than in the method.
+    # The per-arm edge.fdr figures are in INFERENCE_PERFORMANCE.md.
+    list(method = "mrggi", arm = "mrggi", model.level = "model", edge.level = "edge",
+         label = "MR-GGI", oracle = FALSE))
 
 MODEL.ROWS <- c(M0 = "Null Model (**M0**)",
                 M1 = "Mediation (**M1**)",
@@ -89,7 +95,7 @@ edge.row <- function(method, arm, level, sizes) {
     m <- pool.matrix(method, arm, level, sizes)
     if (is.null(m)) return(c(recall = NA_real_, prec = NA_real_))
     nc <- if (method == "mrpc") c("Other", "Failed")
-          else if (method == "mrggi") "Weak instrument"
+          else if (method == "mrggi") c("Weak instrument", "Screened out")
           else if (method == "gmac") "" else "Other"
     s <- edge.scores(m, no.call.level = nc)
     c(recall = s$present.recall, prec = s$present.prec)
@@ -235,12 +241,19 @@ paste("Every column is now scored on identical trios, so differences between col
 "",
 "## Notes",
 "",
-paste("**GMAC and MR-GGI have no model rows, and this is structural.** GMAC returns a",
-      "mediation call -- Cis Mediated / Trans Mediated / No Mediation / Undirected -- and",
-      "MR-GGI returns only a T1−T2 edge call. Neither names one of the five models, so",
-      "neither can be scored on the model rows and both are shown as `--`. The original",
-      "Table 2 treats GMAC identically: it is named in the caption and marked on the T1−T2",
-      "row, but has no column."),
+paste("**GMAC has no model rows, and this is structural.** It returns a mediation call --",
+      "Cis Mediated / Trans Mediated / No Mediation / Undirected -- which is not one of the",
+      "five models, so it cannot be scored on them and is shown as `--`. The original",
+      "Table 2 treats it identically: named in the caption and marked on the T1−T2 row, but",
+      "with no column."),
+"",
+paste("**MR-GGI's model rows are reported because they fail.** `mrggi.model` is built by",
+      "`MRGN::class.vec()` from MR-GGI's own pairwise estimates together with the",
+      "instrument-gene and marginal tests. With a single instrument the Wald-ratio p-value",
+      "reduces to the instrument→outcome t-test, so the two causal tests are not independent",
+      "of the two marginals: the six-vector `class.vec()` receives carries four distinct",
+      "tests, and **M0 and M2 are unreachable**. Read the model row for MR-GGI as a",
+      "measurement of that limit, not as a competitive score. `MRGGI_METHODS.md` §5.2."),
 "",
 paste("**MR-GGI's arms are not confounder adjustments.** `MRggi()` has no covariate",
       "argument; its estimator is strictly pairwise, so the raw-p T1−T2 call is *identical*",

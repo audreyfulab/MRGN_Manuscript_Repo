@@ -22,6 +22,7 @@
 # is isolated here rather than pushed into the shared helpers.
 
 library(ggplot2)
+library(grid)   # unit(), for the undefined-metric rug in fig4.base()
 
 source("bioinfo_revision/simulation_results/results_scripts/selection_metrics.R")
 
@@ -325,6 +326,26 @@ fig4.base <- function(d, keys) {
                              inherit.aes = FALSE, alpha = 0.18) +
             geom_line(data = sm, aes(x, value, colour = metric), linewidth = 1.1)
     }
+    # ---- bins where the metric is UNDEFINED, not zero ----
+    #
+    # Precision is 0/0 in any bin where MRGN called no trio edge-present, and that is not a
+    # precision of zero -- the question does not apply. Those bins carry NA, so the curve
+    # legitimately stops at the last bin that had a value while recall, whose denominator
+    # is the truly-edge-present trios and so is never zero, carries on to the end of the
+    # panel. In the CS-alpha false-negative panels that is a real result: past roughly 15
+    # missed confounders MRGN returns "Other" for everything and stops calling edges at all.
+    #
+    # Without a mark, that reads as a truncated line -- indistinguishable from the binning
+    # bug this figure used to have. A rug at the top of the panel says where the metric
+    # existed but could not be computed. It goes at the TOP deliberately: a rug along the
+    # bottom would sit where y = 0 and invite exactly the "precision fell to zero" reading
+    # it is there to prevent.
+    undef <- d[is.na(d$value), , drop = FALSE]
+    if (nrow(undef) > 0) {
+        p <- p + geom_rug(data = undef, aes(x = x, colour = metric), inherit.aes = FALSE,
+                          sides = "t", linewidth = 0.5, alpha = 0.8, length = unit(3, "mm"))
+    }
+
     # The bin estimates stay visible under the curve. SF7 hides them, and hiding them here
     # is exactly what let a figure built from 2 surviving bins look like a result.
     p + geom_point(aes(size = trios), alpha = 0.55, stroke = 0) +

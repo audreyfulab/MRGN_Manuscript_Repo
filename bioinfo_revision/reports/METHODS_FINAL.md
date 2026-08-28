@@ -515,6 +515,31 @@ Two arm-level caveats:
   asserts the invariance rather than assuming it. See
   [`../MRGGI_METHODS.md`](../MRGGI_METHODS.md) for the full derivation, the trio adaptation
   and its limitations.
+- **MR-GGI's correlation screen is set to `cor.thr = 0.1`, and it removes a quarter of the
+  trios — unevenly.** `MRggi()` estimates a gene pair only when `|cor(g1, g2)| > cor.thr`.
+  It is not confounder selection and never enters `.TSLS()`, so for a surviving pair `B` and
+  `p` are unchanged; what it changes is the multiplicity family behind `edge.fdr` and, for
+  the trio, **whether the trio is analysed at all**. If `|cor(T1, T2)|` falls below the
+  threshold there is no estimate, and the trio is a no-call. Measured over all 1,500 trios:
+
+  | generating model | true T1–T2 edge | screened out |
+  | --- | --- | --- |
+  | model0 | **none** | **65.7%** |
+  | model3 | **none** | **43.0%** |
+  | model1 | yes | 8.3% |
+  | model2 | yes | 5.0% |
+  | model4 | yes | 6.3% |
+
+  **Table 9b. The screen falls almost entirely on the two models with no T1–T2 edge**, which
+  are the trios whose T1–T2 correlation is near zero — exactly what the screen exists to
+  remove. ~26% overall, and stable across sample sizes (21.7 / 24.0 / 29.3 / 27.7 / 25.7% at
+  n = 50 → 1000), so it is a property of the models rather than of power. The consequence is
+  structural and must be quoted with any MR-GGI edge figure: **the method is excused from
+  answering on most of its true negatives, which raises its edge precision and lowers its
+  edge-absent recall by construction.** The screen is kept because it is the package working
+  as designed — MR on an uncorrelated pair is not meaningful — and its cost is reported
+  rather than hidden by disabling it. It was `0` in the runs before 2026-08-27, which was the
+  package default and harmless while MR-GGI saw only the bare trio.
 
 ---
 
@@ -577,18 +602,25 @@ assigned to is blank for the same reason.
 
 ### No-call rows
 
-Three rows mean "no call was produced", and they are **not** the same failure:
+Four rows mean "no call was produced", and they are **not** the same failure:
 
 - **`Other`** (MRGN, MRPC) — the fit succeeded but matched none of the eight M-topologies.
 - **`Failed`** (MRPC only) — the fit did not finish within `mrpc.timeout`. This is a result,
   not missing data: it is a property of the method on this design.
-- **`Weak instrument`** (MR-GGI) — the first-stage F fell below `mrggi.min.F` and the edge
-  was never tested. `mrggi.fields()` records these trios as `edge = "none"`, so reading the
-  edge column alone would score an untested trio as a confident edge-absent call.
+- **`Weak instrument`** (MR-GGI) — the first-stage F fell below `mrggi.min.F`. MR-GGI tried
+  to test the edge and could not.
+- **`Screened out`** (MR-GGI) — `|cor(T1, T2)|` fell at or below `mrggi.cor.thr`, so the pair
+  never entered `MRggi()`'s `calc.idx`. MR-GGI never looked at this trio. Distinct from
+  `Weak instrument` — one is a failed test, the other an absent one — and by far the larger
+  of the two: ~26% of trios at `cor.thr = 0.1`, against a weak-instrument rate that falls
+  from 70% at n = 50 to 15% at n = 1000.
 
-All three **count against accuracy**, and none is folded into an edge row, because doing so
-would invent output the method did not produce. GMAC has no such row: it always answers.
-Read the no-call rate alongside accuracy rather than as one rate.
+All four **count against accuracy**, and none is folded into an edge row, because doing so
+would invent output the method did not produce. That matters most for `Screened out`: the
+screen removes 65.7% of model0 and 43.0% of model3 — the two models whose right answer *is*
+`Edge Absent` — so folding it in would count a refusal to answer as a correct rejection and
+flatter MR-GGI badly. GMAC has no such row: it always answers. Read the no-call rate
+alongside accuracy rather than as one rate.
 
 An `NA` model is fatal rather than a category — `confusion()` maps it to a `Failed` level
 that is deliberately absent from the MRGN, GMAC and MR-GGI level sets, so the run stops

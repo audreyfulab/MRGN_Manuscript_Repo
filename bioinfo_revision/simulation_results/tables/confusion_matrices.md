@@ -522,61 +522,66 @@ Only the cis -> trans direction is scored. The reverse estimate is in `inference
 
 | inferred \ true | M0 | M1 | M2 | M3 | M4 | Total | Precision |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| T1 - T2 Edge Absent | 18 | 8 | 17 | 3 | 0 | 46 | 0.4565 |
-| T1 - T2 Edge Present | 1 | 11 | 2 | 14 | 16 | 44 | 0.6591 |
+| T1 - T2 Edge Absent | 12 | 7 | 17 | 3 | 0 | 39 | 0.3846 |
+| T1 - T2 Edge Present | 0 | 11 | 2 | 13 | 16 | 42 | 0.6905 |
 | Weak instrument | 41 | 41 | 41 | 43 | 44 | 210 |  |
+| Screened out | 7 | 1 | 0 | 1 | 0 | 9 |  |
 | **Total** | **60** | **60** | **60** | **60** | **60** | **300** |  |
-| **Recall** | **0.3000** | **0.1833** | **0.0333** | **0.0500** | **0.2667** |  | **0.1667** |
+| **Recall** | **0.2000** | **0.1833** | **0.0333** | **0.0500** | **0.2667** |  | **0.1467** |
 
-Edge accuracy: **16.7%** (50 of 300). Weak instrument: 70.0%.
+Edge accuracy: **14.7%** (44 of 300). Weak instrument: 70.0%.
 
 #### n = 150
 
 | inferred \ true | M0 | M1 | M2 | M3 | M4 | Total | Precision |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| T1 - T2 Edge Absent | 34 | 6 | 26 | 1 | 0 | 67 | 0.5224 |
-| T1 - T2 Edge Present | 2 | 20 | 0 | 34 | 35 | 91 | 0.6044 |
+| T1 - T2 Edge Absent | 11 | 6 | 26 | 1 | 0 | 44 | 0.2727 |
+| T1 - T2 Edge Present | 0 | 20 | 0 | 25 | 35 | 80 | 0.6875 |
 | Weak instrument | 24 | 34 | 34 | 25 | 25 | 142 |  |
+| Screened out | 25 | 0 | 0 | 9 | 0 | 34 |  |
 | **Total** | **60** | **60** | **60** | **60** | **60** | **300** |  |
-| **Recall** | **0.5667** | **0.3333** | **0.0000** | **0.0167** | **0.5833** |  | **0.3000** |
+| **Recall** | **0.1833** | **0.3333** | **0.0000** | **0.0167** | **0.5833** |  | **0.2233** |
 
-Edge accuracy: **30.0%** (90 of 300). Weak instrument: 47.3%.
+Edge accuracy: **22.3%** (67 of 300). Weak instrument: 47.3%.
 
 #### n = 300
 
 | inferred \ true | M0 | M1 | M2 | M3 | M4 | Total | Precision |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| T1 - T2 Edge Absent | 39 | 9 | 34 | 1 | 0 | 83 | 0.4819 |
-| T1 - T2 Edge Present | 4 | 34 | 3 | 39 | 42 | 122 | 0.6475 |
+| T1 - T2 Edge Absent | 9 | 9 | 33 | 1 | 0 | 52 | 0.1923 |
+| T1 - T2 Edge Present | 2 | 34 | 3 | 21 | 42 | 102 | 0.7745 |
 | Weak instrument | 17 | 17 | 23 | 20 | 18 | 95 |  |
+| Screened out | 32 | 0 | 1 | 18 | 0 | 51 |  |
 | **Total** | **60** | **60** | **60** | **60** | **60** | **300** |  |
-| **Recall** | **0.6500** | **0.5667** | **0.0500** | **0.0167** | **0.7000** |  | **0.3967** |
+| **Recall** | **0.1500** | **0.5667** | **0.0500** | **0.0167** | **0.7000** |  | **0.2967** |
 
-Edge accuracy: **39.7%** (119 of 300). Weak instrument: 31.7%.
+Edge accuracy: **29.7%** (89 of 300). Weak instrument: 31.7%.
 
 #### n = 670
 
 | inferred \ true | M0 | M1 | M2 | M3 | M4 | Total | Precision |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| T1 - T2 Edge Absent | 44 | 14 | 50 | 0 | 0 | 108 | 0.4074 |
-| T1 - T2 Edge Present | 1 | 32 | 3 | 48 | 50 | 134 | 0.6343 |
+| T1 - T2 Edge Absent | 11 | 10 | 48 | 0 | 0 | 69 | 0.1594 |
+| T1 - T2 Edge Present | 1 | 32 | 2 | 30 | 48 | 113 | 0.7257 |
 | Weak instrument | 15 | 14 | 7 | 12 | 10 | 58 |  |
+| Screened out | 33 | 4 | 3 | 18 | 2 | 60 |  |
 | **Total** | **60** | **60** | **60** | **60** | **60** | **300** |  |
-| **Recall** | **0.7333** | **0.5333** | **0.0500** | **0.0000** | **0.8333** |  | **0.4300** |
+| **Recall** | **0.1833** | **0.5333** | **0.0333** | **0.0000** | **0.8000** |  | **0.3100** |
 
-Edge accuracy: **43.0%** (129 of 300). Weak instrument: 19.3%.
+Edge accuracy: **31.0%** (93 of 300). Weak instrument: 19.3%.
 
 #### n = 1000
 
 | inferred \ true | M0 | M1 | M2 | M3 | M4 | Total | Precision |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| T1 - T2 Edge Absent | 50 | 10 | 49 | 2 | 1 | 112 | 0.4643 |
-| T1 - T2 Edge Present | 2 | 40 | 1 | 51 | 48 | 142 | 0.6268 |
+| T1 - T2 Edge Absent | 17 | 8 | 48 | 1 | 1 | 75 | 0.2400 |
+| T1 - T2 Edge Present | 1 | 39 | 1 | 30 | 47 | 118 | 0.7373 |
 | Weak instrument | 8 | 10 | 10 | 7 | 11 | 46 |  |
+| Screened out | 34 | 3 | 1 | 22 | 1 | 61 |  |
 | **Total** | **60** | **60** | **60** | **60** | **60** | **300** |  |
-| **Recall** | **0.8333** | **0.6667** | **0.0167** | **0.0333** | **0.8000** |  | **0.4700** |
+| **Recall** | **0.2833** | **0.6500** | **0.0167** | **0.0167** | **0.7833** |  | **0.3500** |
 
-Edge accuracy: **47.0%** (141 of 300). Weak instrument: 15.3%.
+Edge accuracy: **35.0%** (105 of 300). Weak instrument: 15.3%.
 
 ## T1-T2 edge -- MRGN vs GMAC vs MR-GGI
 
@@ -859,7 +864,7 @@ Trios whose T1-T2 edge status was called correctly. MRGN's `Other` and MR-GGI's 
 | MRPC truth | 0.137 | 0.377 | 0.363 | -- | -- |
 | MRPC CSq | 0.230 | 0.483 | 0.547 | -- | -- |
 | GMAC | 0.633 | 0.660 | 0.623 | 0.663 | 0.687 |
-| MR-GGI | 0.167 | 0.300 | 0.397 | 0.430 | 0.470 |
+| MR-GGI | 0.147 | 0.223 | 0.297 | 0.310 | 0.350 |
 
 #### Edge-present recall
 
@@ -874,7 +879,7 @@ Of the `M1`/`M2`/`M4` trios, the share found to have an edge.
 | MRPC truth | 0.067 | 0.289 | 0.317 | -- | -- |
 | MRPC CSq | 0.206 | 0.411 | 0.489 | -- | -- |
 | GMAC | 0.606 | 0.817 | 0.828 | 0.911 | 0.933 |
-| MR-GGI | 0.161 | 0.306 | 0.439 | 0.472 | 0.494 |
+| MR-GGI | 0.161 | 0.306 | 0.439 | 0.456 | 0.483 |
 
 #### Edge-absent recall
 
@@ -889,7 +894,7 @@ Of the `M0`/`M3` trios, the share correctly found to have none. This is where th
 | MRPC truth | 0.242 | 0.508 | 0.433 | -- | -- |
 | MRPC CSq | 0.267 | 0.592 | 0.633 | -- | -- |
 | GMAC | 0.675 | 0.425 | 0.317 | 0.292 | 0.317 |
-| MR-GGI | 0.175 | 0.292 | 0.333 | 0.367 | 0.433 |
+| MR-GGI | 0.125 | 0.100 | 0.083 | 0.092 | 0.150 |
 
 #### No edge call
 

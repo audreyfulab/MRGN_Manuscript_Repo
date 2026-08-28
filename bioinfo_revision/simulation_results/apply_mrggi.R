@@ -64,6 +64,8 @@ invisible(parallel::clusterEvalQ(cl, {
 # nothing here needs `sel`, `datasets` or the row builders.
 parallel::clusterExport(cl, c(
     "mrggi.run.arms", "mrggi.one.trio", "mrggi.fields", "prefixed", "safely",
+    # the arm-invariant model classifier, called once per trio by mrggi.run.arms()
+    "mrggi.model.call", "mrggi.model.fields",
     # settings referenced as defaults inside those functions
     "mrggi.arms", "mrggi.cor.thr", "mrggi.alpha", "mrggi.min.F", "mrggi.p.adjust"))
 

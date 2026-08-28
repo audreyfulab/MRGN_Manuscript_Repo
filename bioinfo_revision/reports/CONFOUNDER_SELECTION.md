@@ -110,6 +110,8 @@ Reproduces `Manuscript/figures/Figure_Confounder_Selection_Performance.pdf` on t
 
 Reproduces `Manuscript/figures/SF7_Confounder_Selection_Impact_On_Inference.pdf`. Precision and recall are set-level quantities and cannot be computed per trio, so the x-axis is grouped and both metrics are computed within each group, then fitted with a **trio-count-weighted LOESS and a 95% confidence ribbon**, matching the published figure. Where the count takes few enough distinct values -- CS-q's false positives run 0-7 -- the grouping is by exact value rather than by quantile bin, since quantile breaks cannot split a variable that takes three values. Points are the group estimates, sized by how many trios back them; a panel with fewer than 5 distinct x values shows those points with no curve, because there is nothing to fit through them. Scored on the **edge**: `M0`/`M3` are edge-absent, `M1`/`M2`/`M4` edge-present.
 
+**A precision curve that stops short of the panel is a result, not a gap.** Precision is 0/0 in any bin where MRGN called no trio edge-present -- undefined, not zero -- so the curve ends at the last bin that had a value, while recall carries on because its denominator is the truly-edge-present trios and is never zero. **Ticks along the top of a panel mark those bins.** In the CS-α false-negative panels this is the substantive finding: past roughly 15 missed confounders at the small effect treatment, MRGN returns `Other` for every trio in the bin and stops calling edges at all -- 155 trios across the last five bins. Read the ticks as *the method gave no answer here*, not as a precision that fell to zero.
+
 ![Figure 4](figures/fig4_pooled.png)
 
 **Figure 4.** All sample sizes together, the published layout.

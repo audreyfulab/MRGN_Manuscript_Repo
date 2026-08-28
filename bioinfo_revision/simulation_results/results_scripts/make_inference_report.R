@@ -46,7 +46,8 @@ md.table <- function(df) {
 # and GMAC has none. All count against accuracy; none is a wrong edge call.
 no.call.for <- function(method, level) {
     if (method == "mrpc")  return(c("Other", "Failed"))
-    if (method == "mrggi") return("Weak instrument")
+    # two no-calls: a trio it could not test (F gate) and one it never looked at (cor screen)
+    if (method == "mrggi") return(c("Weak instrument", "Screened out"))
     if (method == "gmac")  return(character(0))
     "Other"
 }

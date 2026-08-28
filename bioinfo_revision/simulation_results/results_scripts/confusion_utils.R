@@ -137,7 +137,7 @@ mrgn.edge <- function(model) {
 # So `weak.instrument` is broken out, exactly as MRGN's "Other" is: not a wrong edge call,
 # no edge call. It counts against accuracy, because a trio whose edge was never called is
 # a trio whose edge was not identified.
-MRGGI.EDGE.LEVELS <- c(EDGE.LEVELS, "Weak instrument")
+MRGGI.EDGE.LEVELS <- c(EDGE.LEVELS, "Weak instrument", "Screened out")
 
 # Takes the two columns rather than one, because the gate lives in a separate column from
 # the call. `weak` wins over `edge`: mrggi.fields() has already forced edge to "none" for
@@ -148,12 +148,19 @@ mrggi.edge <- function(edge, weak) {
     out[edge == "none"]   <- EDGE.LEVELS[1]
     out[edge == "T1->T2"] <- EDGE.LEVELS[2]
 
-    unknown <- setdiff(unique(edge[!is.na(edge)]), c("none", "T1->T2"))
+    unknown <- setdiff(unique(edge[!is.na(edge)]), c("none", "T1->T2", "screened"))
     if (length(unknown)) {
         stop("unrecognised mrggi.edge value(s): ", paste(unknown, collapse = ", "),
-             ". Only \"none\" and \"T1->T2\" are written -- see mrggi.fields().")
+             ". Only \"none\", \"T1->T2\" and \"screened\" are written -- see mrggi.fields().")
     }
 
+    # Two distinct no-calls, kept apart because they say different things. "Weak instrument"
+    # is a trio MR-GGI tried to test and could not -- the first-stage F gate. "Screened out"
+    # is a trio it never looked at, because |cor(T1,T2)| fell below mrggi.cor.thr. Folding
+    # either into "Edge Absent" would count a refusal to answer as a correct rejection, and
+    # the screen removes 65.7% of model0 and 43.0% of model3 -- the two models whose right
+    # answer IS "absent" -- so that error would flatter MR-GGI badly.
+    out[edge == "screened"] <- MRGGI.EDGE.LEVELS[4]
     out[!is.na(weak) & weak] <- MRGGI.EDGE.LEVELS[3]
     out[is.na(edge)] <- NA_character_   # confusion() turns these into "Failed" and stops
     out
@@ -566,6 +573,8 @@ pred.levels.for <- function(method, level) {
            "mrpc model"     = MRPC.LEVELS,
            "mrpc edge"      = MRPC.EDGE.LEVELS,
            "gmac edge"      = EDGE.LEVELS,
+           # MR-GGI's model call comes from MRGN::class.vec() and so uses MRGN's label set.
+           "mrggi model"    = MRGN.LEVELS,
            "mrggi edge"     = MRGGI.EDGE.LEVELS,
            "mrggi edge.fdr" = MRGGI.EDGE.LEVELS,
            stop("no level set defined for method '", method, "' at level '", level, "'"))

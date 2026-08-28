@@ -208,6 +208,74 @@ covariates — roughly 5,800 pairs per trio, nearly all returning `NaN` since a 
 no instrument and cannot be an exposure. This is why `apply_mrggi.R` now builds a cluster
 rather than running single threaded.
 
+### 4.2 The correlation screen, `cor.thr`
+
+`MRggi()`'s second argument after the data is a correlation threshold, and it is easy to
+mistake for confounder selection. It is not. It gates **which gene pairs are estimated at
+all**, on their marginal correlation:
+
+```r
+cor.y    <- cor(scale.y)
+corMat[which(abs(cor.y) > cor.thr)] <- 1
+corMat[lower.tri(corMat, diag = TRUE)] <- 0
+calc.idx <- which(corMat == 1, arr.ind = TRUE)
+```
+
+It never reaches `.TSLS()`, so for a pair that survives it, `B` and `p` are unchanged. What
+it changes is which pairs exist to be corrected over — and, for the trio, whether the trio is
+analysed at all.
+
+**Set to `0.1`** (`mrggi.cor.thr`). It was `0` for the earlier runs, which was the package
+default and harmless while MR-GGI saw only the bare trio: with one pair, a screen has nothing
+to choose between. Once the covariate arms were added, `0` meant every pair in the upper
+triangle was computed — 4,950 per trio under CS-alpha, of which we read one.
+
+**Two consequences, and the second is the one to carry into the results.**
+
+**(a) It sets the multiplicity family.** `FDR.T1T2` is `p.adjust()` over the pairs sharing
+`g1 == "T1"`, so a higher threshold drops weakly-correlated partners out of that family and
+corrects the T1–T2 p-value less harshly. Only `edge.fdr` moves; `edge`, from the raw p, does
+not.
+
+**(b) It decides whether the trio is tested at all.** If `|cor(T1, T2)| <= cor.thr` the T1–T2
+pair never enters `calc.idx`, there is no estimate, and the trio is a **no-call**. Measured
+over all 1,500 trios at `cor.thr = 0.1`:
+
+| generating model | true T1–T2 edge | screened out |
+| --- | --- | --- |
+| model0 | **none** | **65.7%** |
+| model3 | **none** | **43.0%** |
+| model1 | yes | 8.3% |
+| model2 | yes | 5.0% |
+| model4 | yes | 6.3% |
+
+**Table 4d. The screen is not neutral across the generating models.** ~26% of trios overall,
+concentrated almost entirely in the two models that have **no** T1–T2 edge — they are the
+trios whose T1–T2 correlation is near zero, which is precisely what the screen exists to
+remove. By sample size the overall rate is stable (21.7 / 24.0 / 29.3 / 27.7 / 25.7% at
+n = 50 → 1000), so this is a property of the models, not of power.
+
+**Read every MR-GGI edge number with that in mind.** MR-GGI is excused from answering on most
+of its true negatives, which **raises its edge precision and lowers its edge-absent recall by
+construction**. Neither is comparable with a method that answered on every trio unless the
+screened-out share is quoted beside it.
+
+This is the package working as designed — MR on an uncorrelated pair is not meaningful — so
+the screen is kept and its cost reported, rather than disabled to make the columns look
+comparable. Screened trios are recorded as `screened.out = TRUE`, written as
+`edge = "screened"`, and tabulated in their own `Screened out` row, distinct from
+`Weak instrument`: one is a trio MR-GGI tried to test and could not, the other a trio it
+never looked at. Folding either into `Edge Absent` would count a refusal to answer as a
+correct rejection.
+
+**One implementation note.** The screen is checked in `mrggi.one.trio()` *before* calling
+`MRggi()`, not only by looking for a missing T1–T2 row afterwards. When nothing survives the
+screen — which is every screened trio in the `none` arm, having only the one pair — `calc.idx`
+is empty and `MRggi()`'s main loop runs `for (k in 1:nrow(calc.idx))` with `nrow = 0`. R
+evaluates `1:0` as `c(1, 0)`, the body executes on a zero-row frame, and the function dies.
+Without the pre-check a screened trio is indistinguishable from a genuine failure; that is
+exactly how the first run produced 8 all-`NA` rows out of 20.
+
 ---
 
 ## 5. What MR-GGI can and cannot answer
@@ -229,9 +297,88 @@ are indistinguishable to MR-GGI, as are model1 and model4, because each pair dif
 in the `V1 -> T2` edge it never estimates.
 
 It is therefore scored on the **T1–T2 edge**, a metric the manuscript already uses
-(`RecallT1`, `MRGN_v8.pdf` line 377), and carries no `correct` flag in the results — the
-same convention as GMAC, whose mediation call is likewise not a model label. Cross-tabbing
-against the five models belongs in the analysis stage.
+(`RecallT1`, `MRGN_v8.pdf` line 377). Cross-tabbing against the five models belongs in the
+analysis stage.
+
+A model label **is** produced as well, from a second MRggi call plus the four tests
+`class.vec()` needs that a single call does not supply. It is reported because MR-GGI's
+performance on it is a result about the method, not because it works — §5.2 measures it,
+and it does not.
+
+### 5.1 How the model call is built
+
+`MRGN::class.vec()` takes six binary indicators and returns a model label; `MRGN::get.adj()`
+turns the same vector into the 3 × 3 adjacency. Every one is obtainable here:
+
+| indicator | edge | source |
+| --- | --- | --- |
+| `b11` | `V1 → T1` | `lm(T1 ~ V1 + T2)`, coefficient on `V1` |
+| `b12` | `T1 → T2` | **MRggi**, `y = (T1, T2)`, `X = (V1, zeros)` |
+| `b21` | `V1 → T2` | `lm(T2 ~ V1 + T1)`, coefficient on `V1` |
+| `b22` | `T2 → T1` | **MRggi**, `y = (T2, T1)`, `X = (V1, zeros)` — the *swapped* call |
+| `V1:T1` | marginal | `cor.test(V1, T1)` |
+| `V1:T2` | marginal | `cor.test(V1, T2)` |
+
+Each is significant at `mrggi.alpha`. A test that cannot run — a constant column, an aliased
+coefficient — scores 0 rather than propagating `NA`, so `class.vec()` always receives a
+complete vector; the count is kept in `mrggi.n.tests.failed`.
+
+**The reverse direction needs a second call with the genes swapped, not `V1` added to
+`X[[2]]`.** Table 4 records what the latter does: `Bg1g2 = 0.0000, p = 1.0000`, and the same
+in reverse. Swapping the columns instead keeps the outcome uninstrumented — the §3 setup —
+with `T2` now the instrumented exposure, and returns real estimates.
+
+**`b21` is conditional on `T1`, and has to be.** The marginal alternative `lm(T2 ~ V1)` is
+exactly the `V1:T2` test already in the vector, and M2 and M4 differ *only* in that marginal
+(`MRGN_v8.pdf` Table 1). A marginal `b21` would collapse them together and cap this at four
+reachable labels.
+
+**The label is arm-invariant**, so it is computed once per trio and written as
+`mrggi.model`, not `mrggi.<arm>.model`. `b12` and `b22` are pairwise TSLS estimates that
+covariates in `y` cannot move — the property behind the arm-invariant raw-p `edge` call of
+§4 — and the four regression tests condition on the trio alone.
+
+### 5.2 Measured: the causal tests are not independent of the marginals
+
+The classifier is faithful to MR-GGI and still fails, for a reason worth stating precisely.
+
+With a **single** instrument the Wald-ratio p-value reduces to the instrument→**outcome**
+t-statistic — the exposure's first stage cancels out of the test entirely (`inference_config.R`,
+`mrggi.min.F`). So the forward call's p-value *is* the `V1 → T2` test, and the swapped
+call's p-value *is* the `V1 → T1` test. Measured over 100 trios at n = 1000, large effect:
+
+| identity | per-trio agreement |
+| --- | --- |
+| `b12` = `V1:T2` marginal | **100%** |
+| `b22` = `V1:T1` marginal | **100%** |
+
+`b22`'s p-values have zero variance across those trios: `V1 → T1` is strong in all five
+models, so the reverse test is maximally significant everywhere. The six-vector therefore
+carries four distinct tests, not six, with the two MR estimates duplicating the two
+marginals.
+
+The consequence, on the same trios — first-stage `F` median 232, **no** weak instruments, so
+this is MR-GGI's best case:
+
+| true | M1.1 | M1.2 | M4 | Other |
+| --- | --- | --- | --- | --- |
+| model0 | 0 | 0 | 1 | **19** |
+| model1 | 14 | 0 | 6 | 0 |
+| model2 | 0 | 0 | 0 | **20** |
+| model3 | 0 | 0 | **20** | 0 |
+| model4 | 0 | 7 | 13 | 0 |
+
+**Table 6. MR-GGI's model call at n = 1000, large effect.** M0 and M2 are never recovered:
+a spuriously significant `b22` on every trio breaks the pattern `class.vec()` needs for
+either, and both fall through to `Other`. model3 goes to **M4 in 20 of 20** — the §6.3
+pleiotropy result arriving in the model call, where a real `V1 → T2` path plus a spurious
+`T1 → T2` edge is exactly M4's signature.
+
+**This is a property of single-instrument MR, not of the implementation.** One instrument
+identifies one edge. The swap fixed the numerical collapse of Table 4 but could not create a
+gene–gene test independent of the instrument–gene associations, because with one instrument
+there is none to create. The columns are kept because "MR-GGI cannot classify trios" is a
+finding, and one better supported by a scored table than by an assertion.
 
 ---
 

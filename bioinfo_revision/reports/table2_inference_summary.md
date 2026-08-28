@@ -19,16 +19,16 @@ The `T1 − T2 edge` row scores the **edge-present** class: recall is the share 
 
 ## Table 2a. All available trios
 
-|  |  MRGN (True Confs.)<br>Recall | MRGN (True Confs.)<br>Prec. | MRGN (CS-q)<br>Recall | MRGN (CS-q)<br>Prec. | MRGN (CS-α)<br>Recall | MRGN (CS-α)<br>Prec. | MRPC (CS-q)<br>Recall | MRPC (CS-q)<br>Prec. | GMAC<br>Recall | GMAC<br>Prec. | MR-GGI (CS-q)<br>Recall | MR-GGI (CS-q)<br>Prec. |
+|  |  MRGN (True Confs.)<br>Recall | MRGN (True Confs.)<br>Prec. | MRGN (CS-q)<br>Recall | MRGN (CS-q)<br>Prec. | MRGN (CS-α)<br>Recall | MRGN (CS-α)<br>Prec. | MRPC (CS-q)<br>Recall | MRPC (CS-q)<br>Prec. | GMAC<br>Recall | GMAC<br>Prec. | MR-GGI<br>Recall | MR-GGI<br>Prec. |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Null Model (**M0**) | 0.713 | 0.751 | 0.360 | 0.537 | 0.357 | **0.656** | **0.500** | 0.556 | -- | -- | -- | -- |
-| Mediation (**M1**) | 0.667 | 0.529 | **0.520** | 0.354 | 0.423 | **0.398** | 0.206 | 0.389 | -- | -- | -- | -- |
-| V-structure (**M2**) | 0.397 | 0.937 | **0.343** | 0.920 | 0.253 | **0.950** | 0.244 | 0.595 | -- | -- | -- | -- |
-| Cond. Indep. (**M3**) | 0.640 | 0.932 | 0.273 | 0.845 | 0.253 | **0.950** | **0.383** | 0.885 | -- | -- | -- | -- |
-| Fully Connect. (**M4**) | 0.370 | 0.933 | **0.287** | 0.462 | 0.240 | 0.545 | 0.133 | **0.615** | -- | -- | -- | -- |
-| **T1 − T2 edge** | 0.676 | 0.974 | 0.578 | 0.704 | 0.460 | 0.780 | 0.369 | **0.957** | **0.819** | 0.674 | 0.342 | 0.627 |
+| Null Model (**M0**) | 0.713 | 0.751 | 0.360 | 0.537 | 0.357 | **0.656** | **0.500** | 0.556 | -- | -- | 0.000 | 0.000 |
+| Mediation (**M1**) | 0.667 | 0.529 | **0.520** | 0.354 | 0.423 | 0.398 | 0.206 | 0.389 | -- | -- | 0.380 | **0.504** |
+| V-structure (**M2**) | 0.397 | 0.937 | **0.343** | 0.920 | 0.253 | **0.950** | 0.244 | 0.595 | -- | -- | 0.000 | -- |
+| Cond. Indep. (**M3**) | 0.640 | 0.932 | 0.273 | 0.845 | 0.253 | **0.950** | **0.383** | 0.885 | -- | -- | 0.003 | 0.500 |
+| Fully Connect. (**M4**) | 0.370 | 0.933 | 0.287 | 0.462 | 0.240 | 0.545 | 0.133 | **0.615** | -- | -- | **0.410** | 0.337 |
+| **T1 − T2 edge** | 0.676 | 0.974 | 0.578 | 0.704 | 0.460 | 0.780 | 0.369 | **0.957** | **0.819** | 0.674 | 0.369 | 0.730 |
 
-**Trios per column:** MRGN (True Confs.) 1500; MRGN (CS-q) 1500; MRGN (CS-α) 1500; MRPC (CS-q) 900; GMAC 1500; MR-GGI (CS-q) 1500.
+**Trios per column:** MRGN (True Confs.) 1500; MRGN (CS-q) 1500; MRGN (CS-α) 1500; MRPC (CS-q) 900; GMAC 1500; MR-GGI 1500.
 
 **MRPC is scored on 900 trios against the others' 1,500.** Its n = 670 and n = 1000 groups were not run -- MRPC times out on 61% and 75% of trios there even in its cheap arm, at ~10 h per group (`inference_config.R`). Its column is therefore not strictly comparable to its neighbours here; Table 2b removes that difference.
 
@@ -36,16 +36,16 @@ The `T1 − T2 edge` row scores the **edge-present** class: recall is the share 
 
 ## Table 2b. Matched — all four methods on the same 900 trios (n ≤ 300)
 
-|  |  MRGN (True Confs.)<br>Recall | MRGN (True Confs.)<br>Prec. | MRGN (CS-q)<br>Recall | MRGN (CS-q)<br>Prec. | MRGN (CS-α)<br>Recall | MRGN (CS-α)<br>Prec. | MRPC (CS-q)<br>Recall | MRPC (CS-q)<br>Prec. | GMAC<br>Recall | GMAC<br>Prec. | MR-GGI (CS-q)<br>Recall | MR-GGI (CS-q)<br>Prec. |
+|  |  MRGN (True Confs.)<br>Recall | MRGN (True Confs.)<br>Prec. | MRGN (CS-q)<br>Recall | MRGN (CS-q)<br>Prec. | MRGN (CS-α)<br>Recall | MRGN (CS-α)<br>Prec. | MRPC (CS-q)<br>Recall | MRPC (CS-q)<br>Prec. | GMAC<br>Recall | GMAC<br>Prec. | MR-GGI<br>Recall | MR-GGI<br>Prec. |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Null Model (**M0**) | 0.622 | 0.651 | 0.322 | 0.468 | 0.261 | **0.603** | **0.500** | 0.556 | -- | -- | -- | -- |
-| Mediation (**M1**) | 0.511 | 0.447 | **0.372** | 0.284 | 0.211 | 0.342 | 0.206 | **0.389** | -- | -- | -- | -- |
-| V-structure (**M2**) | 0.261 | 0.959 | 0.178 | 0.842 | 0.072 | **1.000** | **0.244** | 0.595 | -- | -- | -- | -- |
-| Cond. Indep. (**M3**) | 0.511 | 0.893 | 0.244 | 0.830 | 0.133 | **1.000** | **0.383** | 0.885 | -- | -- | -- | -- |
-| Fully Connect. (**M4**) | 0.161 | 0.879 | 0.078 | 0.280 | 0.039 | 0.389 | **0.133** | **0.615** | -- | -- | -- | -- |
-| **T1 − T2 edge** | 0.528 | 0.990 | 0.419 | 0.698 | 0.228 | 0.866 | 0.369 | **0.957** | **0.750** | 0.681 | 0.283 | 0.635 |
+| Null Model (**M0**) | 0.622 | 0.651 | 0.322 | 0.468 | 0.261 | **0.603** | **0.500** | 0.556 | -- | -- | 0.000 | 0.000 |
+| Mediation (**M1**) | 0.511 | 0.447 | **0.372** | 0.284 | 0.211 | 0.342 | 0.206 | 0.389 | -- | -- | 0.311 | **0.403** |
+| V-structure (**M2**) | 0.261 | 0.959 | 0.178 | 0.842 | 0.072 | **1.000** | **0.244** | 0.595 | -- | -- | 0.000 | -- |
+| Cond. Indep. (**M3**) | 0.511 | 0.893 | 0.244 | 0.830 | 0.133 | **1.000** | **0.383** | 0.885 | -- | -- | 0.006 | 0.500 |
+| Fully Connect. (**M4**) | 0.161 | 0.879 | 0.078 | 0.280 | 0.039 | 0.389 | 0.133 | **0.615** | -- | -- | **0.233** | 0.263 |
+| **T1 − T2 edge** | 0.528 | 0.990 | 0.419 | 0.698 | 0.228 | 0.866 | 0.369 | **0.957** | **0.750** | 0.681 | 0.302 | 0.728 |
 
-**Trios per column:** MRGN (True Confs.) 900; MRGN (CS-q) 900; MRGN (CS-α) 900; MRPC (CS-q) 900; GMAC 900; MR-GGI (CS-q) 900.
+**Trios per column:** MRGN (True Confs.) 900; MRGN (CS-q) 900; MRGN (CS-α) 900; MRPC (CS-q) 900; GMAC 900; MR-GGI 900.
 
 Every column is now scored on identical trios, so differences between columns are differences between methods. Note this is the harder end of the sample-size range for all four -- confounder selection has no power at n = 50 -- so the absolute levels are below Table 2a for every method that lost groups.
 
@@ -53,9 +53,11 @@ Every column is now scored on identical trios, so differences between columns ar
 
 ## Notes
 
-**GMAC and MR-GGI have no model rows, and this is structural.** GMAC returns a mediation call -- Cis Mediated / Trans Mediated / No Mediation / Undirected -- and MR-GGI returns only a T1−T2 edge call. Neither names one of the five models, so neither can be scored on the model rows and both are shown as `--`. The original Table 2 treats GMAC identically: it is named in the caption and marked on the T1−T2 row, but has no column.
+**GMAC has no model rows, and this is structural.** It returns a mediation call -- Cis Mediated / Trans Mediated / No Mediation / Undirected -- which is not one of the five models, so it cannot be scored on them and is shown as `--`. The original Table 2 treats it identically: named in the caption and marked on the T1−T2 row, but with no column.
 
-**MR-GGI's arms are not confounder adjustments.** `MRggi()` has no covariate argument; its estimator is strictly pairwise, so the raw-p T1−T2 call is *identical* in all four arms and only the FDR-adjusted call varies. The `MR-GGI (CS-q)` column above is the FDR-adjusted call. The arm-invariant raw-p call -- the one directly comparable with GMAC and MRGN -- gives recall 0.374 / precision 0.632 over all trios and 0.302 / 0.634 matched.
+**MR-GGI's model rows are reported because they fail.** `mrggi.model` is built by `MRGN::class.vec()` from MR-GGI's own pairwise estimates together with the instrument-gene and marginal tests. With a single instrument the Wald-ratio p-value reduces to the instrument→outcome t-test, so the two causal tests are not independent of the two marginals: the six-vector `class.vec()` receives carries four distinct tests, and **M0 and M2 are unreachable**. Read the model row for MR-GGI as a measurement of that limit, not as a competitive score. `MRGGI_METHODS.md` §5.2.
+
+**MR-GGI's arms are not confounder adjustments.** `MRggi()` has no covariate argument; its estimator is strictly pairwise, so the raw-p T1−T2 call is *identical* in all four arms and only the FDR-adjusted call varies. The `MR-GGI (CS-q)` column above is the FDR-adjusted call. The arm-invariant raw-p call -- the one directly comparable with GMAC and MRGN -- gives recall 0.369 / precision 0.730 over all trios and 0.302 / 0.728 matched.
 
 **MRGN's oracle arm is a genuine ceiling; MRPC's is not.** For MRGN, extra covariates cost residual degrees of freedom, so the true-confounder arm bounds what selection could achieve. For MRPC the same arm is a handicap -- CS-q beats it at every sample size, because MRPC runs a PC algorithm whose cost grows with the node count whether or not the covariates are the right ones. That is why no MRPC oracle column is shown here; see `INFERENCE_PERFORMANCE.md` §3.1 and `METHODS.md` Table 12c.
 

@@ -1535,26 +1535,111 @@ mrggi.one.trio <- function(trio, covars = NULL, cor.thr = mrggi.cor.thr,
     X <- c(list(V1), rep(list(zeros), ncol(T_mat) - 1))   # adaptations 1 and 2
     names(X) <- colnames(T_mat)
 
-    res <- MRggi::MRggi(y = T_mat, X = X, cor.thr = cor.thr,
-                        p.adjust.method = p.adjust.method)
-
-    # first-stage strength of V1 for T1, the exposure
+    # first-stage strength of V1 for T1, the exposure. Computed before the screen check
+    # below, which reports it for screened trios too -- a trio can be screened out and still
+    # have a perfectly good instrument, and the two facts are worth separating.
     s <- summary(stats::lm(T_mat[, "T1"] ~ V1))
     F.T1 <- if (is.null(s$fstatistic)) NA_real_ else unname(s$fstatistic[1])
 
-    # The T1-T2 row is absent when abs(cor(T1, T2)) <= cor.thr, because the pair never
-    # enters calc.idx. At cor.thr = 0 that needs an exactly zero correlation, but the arms
-    # are meant to survive a raised threshold too, so this is handled rather than indexed
-    # past.
-    hit <- which(res$g1 == "T1" & res$g2 == "T2")
-    if (length(hit) != 1) {
-        stop("MRggi returned ", length(hit), " T1-T2 rows (cor.thr = ", cor.thr,
-             " screened the pair out?)")
+    # THE SCREEN IS CHECKED HERE, BEFORE CALLING MRggi, AND NOT ONLY AFTERWARDS.
+    #
+    # If |cor(T1, T2)| <= cor.thr the pair is screened out and there is no estimate to read.
+    # Detecting that from the returned rows is not enough, because MRggi cannot survive the
+    # case where NOTHING survives the screen: calc.idx is then empty and its main loop runs
+    #
+    #     for (k in 1:nrow(calc.idx))
+    #
+    # with nrow = 0, so `1:0` yields c(1, 0) and the body is entered with k = 1 on a
+    # zero-row frame. It dies there, safely() records it as an error, and a screened trio
+    # would be indistinguishable from a genuine failure -- which is exactly how the first
+    # run of this produced 8 all-NA rows out of 20. The `none` arm hits it every time,
+    # having only the one pair to lose.
+    #
+    # scale() does not change a correlation, so this matches MRggi's own screen exactly.
+    if (abs(stats::cor(T_mat[, "T1"], T_mat[, "T2"])) <= cor.thr) {
+        return(list(B.T1T2 = NA_real_, p.T1T2 = NA_real_, FDR.T1T2 = NA_real_,
+                    GGcor = stats::cor(T_mat[, "T1"], T_mat[, "T2"]),
+                    F.T1 = F.T1, n.covars = ncol(T_mat) - 2, n.pairs = 0L,
+                    screened.out = TRUE))
     }
 
-    list(B.T1T2 = res$Bg1g2[hit], p.T1T2 = res$pval_Bg1g2[hit],
-         FDR.T1T2 = res$FDR_Bg1g2[hit], GGcor = res$GGcor[hit],
-         F.T1 = F.T1, n.covars = ncol(T_mat) - 2, n.pairs = nrow(res))
+    # ---- ONLY T1's PAIRS ARE COMPUTED ------------------------------------------------
+    #
+    # Handing the whole T_mat to MRggi() makes it estimate every pair in the upper triangle
+    # and we then read one row. Under CS-alpha that is 4,950 pairs per trio of which 99
+    # involve T1 -- 98% of the work discarded -- and it is what made the arm 9.4 h of the
+    # 10.4 h total.
+    #
+    # Nothing outside T1's own pairs can reach the numbers this function returns. B and p
+    # for T1-T2 come from that pair alone; the estimator is strictly pairwise. And the FDR
+    # is p.adjust() over the rows sharing g1, which for T1 -- column 1, and calc.idx is the
+    # upper triangle -- is exactly T1's pairs:
+    #
+    #     for (i in g1.lv) { idx <- which(g1 == i); FDR_Bg1g2[idx] <- p.adjust(pval[idx], ...) }
+    #
+    # So computing T1 against each surviving partner, one two-column MRggi() call apiece,
+    # and applying the same correction over those p-values reproduces B, p and FDR exactly.
+    # Verified bit-identical against the full grid; ~9x faster at 22 covariates and better
+    # than that at CS-alpha's ~98, since the saving grows with the square of the pair count.
+    #
+    # p.adjust.method is passed for the day the package is fixed, but MRggi hardcodes holm
+    # via its `p.adjust.methods` typo (see inference_config.R), so holm is what is applied
+    # here -- matching the package rather than the argument, deliberately.
+    partners <- setdiff(colnames(T_mat), "T1")
+    survives <- vapply(partners, function(p)
+        abs(stats::cor(T_mat[, "T1"], T_mat[, p])) > cor.thr, logical(1))
+    partners <- partners[survives]
+
+    # .TSLS() rather than MRggi() per pair, for PRECISION not speed. MRggi() rounds its
+    # returned p-values to 3 decimals, and the FDR is computed BEFORE that rounding:
+    #
+    #     FDR_Bg1g2 <- p.adjust(pval_Bg1g2, ...)          # unrounded
+    #     df <- data.frame(..., pval_Bg1g2 = round(pval_Bg1g2, 3), FDR_Bg1g2 = round(...))
+    #
+    # Feeding the rounded p-values back into p.adjust() therefore does NOT reproduce the
+    # package's FDR -- measured drift of 0.801 vs 0.805 and 0.154 vs 0.168 on real trios,
+    # enough to flip an edge.fdr call near alpha. .TSLS() is the function MRggi's own loop
+    # calls, so taking the unrounded statistics from it and rounding exactly where MRggi
+    # rounds reproduces B, p and FDR bit for bit.
+    #
+    # This reaches into the package with :::. That is a real dependency on an internal, and
+    # it is taken deliberately: the alternative is either the 50x slower full grid or an FDR
+    # that silently disagrees with the package. MRggi is vendored and pinned, and
+    # mrggi.one.trio() is checked against the full grid whenever the package changes.
+    # unname() is required, not tidiness. .TSLS() builds its statistics from regression
+    # coefficient vectors that carry the predictor's name, so c(B = st$Bxy, ...) yields
+    # "B.X1" rather than "B" and every later pairs[, "B"] lookup fails with
+    # "subscript out of bounds" -- on exactly the trios that survive the screen.
+    one.pair <- function(p) {
+        st <- MRggi:::.TSLS(V1, zeros, T_mat[, "T1"], T_mat[, p])
+        c(B  = unname(st$Bxy),
+          p  = unname(st$Pvalue),
+          GG = unname(stats::cor(T_mat[, "T1"], T_mat[, p])))
+    }
+    pairs <- do.call(rbind, lapply(partners, one.pair))
+    rownames(pairs) <- partners
+
+    # holm on the UNROUNDED p-values, then round -- MRggi's order exactly.
+    #
+    # The names are reattached rather than relied on: with a single surviving partner --
+    # every trio in the `none` arm, which has only T2 -- `pairs` is a 1-row matrix and
+    # pairs[, "p"] drops to an unnamed scalar, so fdr[["T2"]] fails with
+    # "subscript out of bounds" on exactly the trios that pass the screen.
+    pv <- pairs[, "p"]
+    names(pv) <- rownames(pairs)
+    fdr <- round(stats::p.adjust(pv, method = "holm"), 3)
+    pairs[, "B"]  <- round(pairs[, "B"], 3)
+    pairs[, "p"]  <- round(pairs[, "p"], 3)
+    pairs[, "GG"] <- round(pairs[, "GG"], 3)
+
+    list(B.T1T2 = unname(pairs["T2", "B"]), p.T1T2 = unname(pairs["T2", "p"]),
+         FDR.T1T2 = unname(fdr[["T2"]]), GGcor = unname(pairs["T2", "GG"]),
+         F.T1 = F.T1, n.covars = ncol(T_mat) - 2,
+         # n.pairs now counts the pairs actually computed, which is also the size of the
+         # multiplicity family behind FDR.T1T2 -- the informative quantity. It is NOT the
+         # full upper triangle the earlier runs reported.
+         n.pairs = nrow(pairs),
+         screened.out = FALSE)
 }
 
 
@@ -1564,6 +1649,7 @@ mrggi.fields <- function(res, error) {
                     GGcor = NA_real_, F.T1 = NA_real_, n.covars = NA_integer_,
                     n.pairs = NA_integer_, edge = NA_character_,
                     edge.fdr = NA_character_, weak.instrument = NA,
+                    screened.out = NA,
                     time.seconds = NA_real_, error = error))
     }
     # Edge called on the cis -> trans direction only, and only when V1 is a usable
@@ -1588,15 +1674,20 @@ mrggi.fields <- function(res, error) {
     # `edge.fdr` would make MR-GGI incomparable with GMAC and MRGN, which get no such
     # correction. Both are kept, and confusion_mrggi.R asserts that `edge` really is
     # arm-invariant -- if it ever is not, X was misaligned with y.
+    # A screened-out trio was never tested, so it is neither an edge nor an absence of one.
+    # It is written as its own value rather than folded into "none", which would let a pair
+    # MR-GGI declined to look at count as a correct rejection.
+    screened <- isTRUE(res$screened.out)
     weak <- !is.na(res$F.T1) && res$F.T1 < mrggi.min.F
-    called <- !weak && !is.na(res$p.T1T2) && res$p.T1T2 < mrggi.alpha
-    called.fdr <- !weak && !is.na(res$FDR.T1T2) && res$FDR.T1T2 < mrggi.alpha
+    called <- !screened && !weak && !is.na(res$p.T1T2) && res$p.T1T2 < mrggi.alpha
+    called.fdr <- !screened && !weak && !is.na(res$FDR.T1T2) && res$FDR.T1T2 < mrggi.alpha
     list(B.T1T2 = res$B.T1T2, p.T1T2 = res$p.T1T2, FDR.T1T2 = res$FDR.T1T2,
          GGcor = res$GGcor, F.T1 = res$F.T1,
          n.covars = res$n.covars, n.pairs = res$n.pairs,
-         edge = if (called) "T1->T2" else "none",
-         edge.fdr = if (called.fdr) "T1->T2" else "none",
+         edge = if (screened) "screened" else if (called) "T1->T2" else "none",
+         edge.fdr = if (screened) "screened" else if (called.fdr) "T1->T2" else "none",
          weak.instrument = weak,
+         screened.out = screened,
          time.seconds = res$time.seconds, error = error)
 }
 
@@ -1622,8 +1713,118 @@ mrggi.arm.covars <- function(arm, dat, sel, i, K_n, index) {
 # One trio, every arm, from a SLIM payload: the bare trio and one covariate frame per arm.
 # This is the only function that crosses to a cluster worker, and the payload shape is the
 # reason -- see the note in run.mrggi.group().
+# ---------------------------------------------------------------------------------------
+# MR-GGI as a model classifier
+# ---------------------------------------------------------------------------------------
+#
+# MRggi returns only gene-gene edges, so on its own it resolves the T1-T2 edge and nothing
+# else -- five generating models collapse to three answers (MRGGI_METHODS.md Table 5). But
+# the four indicators MRGN::class.vec() needs are all obtainable here, so a full M0-M4 label
+# is constructible:
+#
+#   b11   V1 -> T1    regression of T1 on V1 and T2
+#   b12   T1 -> T2    MRggi, y = (T1, T2), V1 instrumenting T1
+#   b21   V1 -> T2    regression of T2 on V1 and T1
+#   b22   T2 -> T1    MRggi, y = (T2, T1), V1 instrumenting T2   <- the SWAPPED call
+#   V1:T1, V1:T2      marginal correlation tests
+#
+# THE REVERSE DIRECTION NEEDS A SECOND CALL WITH THE GENES SWAPPED, not V1 added to X[[2]].
+# .TSLS() residualises the outcome on its OWN instrument --
+#
+#     y2.resid <- resid(lm(y2 ~ X2)); Bzy <- coef(lm(y2.resid ~ X1))
+#
+# -- which is right when each gene has its own cis-SNP, the setting MRggi was written for.
+# Pass the same V1 as both X1 and X2 and it strips V1 out of T2 and then asks what V1
+# explains in the remainder: zero by construction. Measured on real trios, every estimate
+# collapsed to B = 0.000 at p = 1.000 in BOTH directions. Swapping the columns instead keeps
+# the zero-instrument convention for the outcome and returns real estimates.
+#
+# b21 IS CONDITIONAL ON T1, and must be. The marginal alternative, lm(T2 ~ V1), is exactly
+# the V1:T2 test already in the vector, and M2 and M4 differ ONLY in that marginal
+# (MRGN_v8.pdf Table 1) -- so a marginal b21 would collapse them back together and cap this
+# at four reachable models.
+#
+# ARM-INVARIANT, so it is computed once per trio rather than once per arm. b12 and b22 are
+# pairwise TSLS estimates that covariates in `y` cannot move -- the same property that makes
+# the raw-p `edge` call identical across arms -- and the four regression tests condition on
+# the trio alone. Hence `mrggi.model`, not `mrggi.<arm>.model`.
+mrggi.model.call <- function(trio, alpha = mrggi.alpha) {
+    v  <- trio[[1]]; t1 <- trio[[2]]; t2 <- trio[[3]]
+    V1 <- as.matrix(trio[, 1, drop = FALSE])
+    zeros <- matrix(0, nrow(trio), 1)
+
+    # one MRggi call on a two-gene matrix; `nm` fixes which gene is the instrumented exposure
+    ggi <- function(a, b, nm) {
+        y <- as.matrix(data.frame(a, b)); colnames(y) <- nm
+        X <- list(V1, zeros); names(X) <- nm
+        r <- suppressMessages(MRggi::MRggi(y = y, X = X, cor.thr = 0))
+        hit <- which(r$g1 == nm[1] & r$g2 == nm[2])
+        if (length(hit) != 1) {
+            stop("mrggi.model.call(): MRggi returned ", length(hit), " rows for ",
+                 paste(nm, collapse = "-"))
+        }
+        list(B = r$Bg1g2[hit], p = r$pval_Bg1g2[hit])
+    }
+    fwd <- ggi(t1, t2, c("T1", "T2"))     # b12
+    rev <- ggi(t2, t1, c("T2", "T1"))     # b22
+
+    pv <- function(fit, term) {
+        cf <- summary(fit)$coefficients
+        if (!term %in% rownames(cf)) NA_real_ else cf[term, 4]
+    }
+    p.b11 <- pv(stats::lm(t1 ~ v + t2), "v")
+    p.b21 <- pv(stats::lm(t2 ~ v + t1), "v")
+    p.m1  <- suppressWarnings(stats::cor.test(v, t1)$p.value)
+    p.m2  <- suppressWarnings(stats::cor.test(v, t2)$p.value)
+
+    # An NA p-value is a test that could not be run -- a constant column, an aliased
+    # coefficient -- and is scored as "no edge" rather than propagated, so class.vec() always
+    # receives a complete vector. The count is reported so a trio resting on failed tests is
+    # identifiable.
+    ps <- c(p.b11, fwd$p, p.b21, rev$p, p.m1, p.m2)
+    n.na <- sum(is.na(ps))
+    ind  <- as.numeric(!is.na(ps) & ps < alpha)
+    names(ind) <- c("b11", "b12", "b21", "b22", "V1:T1", "V1:T2")
+
+    s <- summary(stats::lm(t1 ~ v))
+    F.T1 <- if (is.null(s$fstatistic)) NA_real_ else unname(s$fstatistic[1])
+
+    list(model = as.character(MRGN::class.vec(ind)),
+         indicators = ind, p.values = ps, n.tests.failed = n.na,
+         B.T1T2 = fwd$B, p.T1T2 = fwd$p, B.T2T1 = rev$B, p.T2T1 = rev$p,
+         p.b11 = p.b11, p.b21 = p.b21, p.marg.V1T1 = p.m1, p.marg.V1T2 = p.m2,
+         F.T1 = F.T1, weak.instrument = !is.na(F.T1) && F.T1 < mrggi.min.F)
+}
+
+mrggi.model.fields <- function(res, error) {
+    if (is.null(res)) {
+        return(list(model = NA_character_, b11 = NA_real_, b12 = NA_real_, b21 = NA_real_,
+                    b22 = NA_real_, marg.V1T1 = NA_real_, marg.V1T2 = NA_real_,
+                    p.b11 = NA_real_, p.b12 = NA_real_, p.b21 = NA_real_, p.b22 = NA_real_,
+                    p.marg.V1T1 = NA_real_, p.marg.V1T2 = NA_real_,
+                    B.T1T2 = NA_real_, B.T2T1 = NA_real_, F.T1 = NA_real_,
+                    weak.instrument = NA, n.tests.failed = NA_integer_,
+                    model.error = error))
+    }
+    list(model = res$model,
+         b11 = unname(res$indicators[["b11"]]), b12 = unname(res$indicators[["b12"]]),
+         b21 = unname(res$indicators[["b21"]]), b22 = unname(res$indicators[["b22"]]),
+         marg.V1T1 = unname(res$indicators[["V1:T1"]]),
+         marg.V1T2 = unname(res$indicators[["V1:T2"]]),
+         p.b11 = res$p.b11, p.b12 = res$p.T1T2, p.b21 = res$p.b21, p.b22 = res$p.T2T1,
+         p.marg.V1T1 = res$p.marg.V1T1, p.marg.V1T2 = res$p.marg.V1T2,
+         B.T1T2 = res$B.T1T2, B.T2T1 = res$B.T2T1, F.T1 = res$F.T1,
+         weak.instrument = res$weak.instrument, n.tests.failed = res$n.tests.failed,
+         model.error = error)
+}
+
+
 mrggi.run.arms <- function(task, arms = mrggi.arms) {
-    fields <- list()
+    # The model call first, once: it is arm-invariant (see mrggi.model.call), so it is
+    # prefixed `mrggi.` rather than `mrggi.<arm>.` and computed outside the arm loop.
+    mc <- safely(suppressMessages(mrggi.model.call(task$trio)))
+    fields <- prefixed(mrggi.model.fields(mc$value, mc$error), "mrggi")
+
     for (arm in arms) {
         t0 <- Sys.time()
         r <- safely(suppressMessages(

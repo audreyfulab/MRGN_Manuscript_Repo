@@ -19,7 +19,7 @@ trios all four methods cover**. Section 4 says why the restriction is there.
 | --- | --- | --- | --- | --- | --- | --- |
 | MRGN | CS-q | 900 | 6 ms | 4 ms - 7 ms | 3 ms | 5.81 s |
 | MRPC | CS-q | 900 | 34 ms | 25 ms - 107 ms | 82 ms | 2.7 min |
-| MR-GGI | CS-q | 900 | 56 ms | 35 ms - 241 ms | 205 ms | 3.6 min |
+| MR-GGI | CS-q | 900 | 15 ms | 6 ms - 27 ms | 21 ms | 18.08 s |
 | GMAC | own selection | 900 | 558 ms | 450 ms - 714 ms | 264 ms | 8.9 min |
 
 ![per-trio compute time](figures/fig_compute_time.png)
@@ -33,7 +33,7 @@ a placeholder, not as a four-way comparison.
 | --- | --- | --- | --- | --- | --- | --- |
 | MRGN | CS-q | 1,500 | 7 ms | 5 ms - 10 ms | 5 ms | 13.29 s |
 | MRPC | CS-q | 900 | 34 ms | 25 ms - 107 ms | 82 ms | 2.7 min |
-| MR-GGI | CS-q | 1,497 | 370 ms | 50 ms - 4.37 s | 4.32 s | 1.5 h |
+| MR-GGI | CS-q | 1,500 | 21 ms | 7 ms - 62 ms | 55 ms | 1.2 min |
 | GMAC | own selection | 1,500 | 787 ms | 515 ms - 2.38 s | 1.87 s | 39.6 min |
 
 ## 2. By sample size
@@ -44,7 +44,7 @@ a placeholder, not as a four-way comparison.
 | --- | --- | --- | --- | --- | --- | --- |
 | MRGN | CS-q | 5 ms<br><sub>4 ms - 7 ms</sub> | 6 ms<br><sub>5 ms - 8 ms</sub> | 6 ms<br><sub>5 ms - 7 ms</sub> | 10 ms<br><sub>8 ms - 13 ms</sub> | 11 ms<br><sub>9 ms - 14 ms</sub> |
 | MRPC | CS-q | 28 ms<br><sub>23 ms - 37 ms</sub> | 27 ms<br><sub>22 ms - 33 ms</sub> | 194 ms<br><sub>85 ms - 433 ms</sub> | *not run* | *not run* |
-| MR-GGI | CS-q | 30 ms<br><sub>21 ms - 48 ms</sub> | 52 ms<br><sub>39 ms - 89 ms</sub> | 392 ms<br><sub>241 ms - 659 ms</sub> | 4.99 s<br><sub>2.76 s - 8.06 s</sub> | 7.46 s<br><sub>3.03 s - 13.43 s</sub> |
+| MR-GGI | CS-q | 10 ms<br><sub>6 ms - 17 ms</sub> | 15 ms<br><sub>7 ms - 22 ms</sub> | 29 ms<br><sub>7 ms - 49 ms</sub> | 67 ms<br><sub>12 ms - 113 ms</sub> | 87 ms<br><sub>18 ms - 151 ms</sub> |
 | GMAC | own selection | 444 ms<br><sub>399 ms - 485 ms</sub> | 592 ms<br><sub>503 ms - 682 ms</sub> | 758 ms<br><sub>633 ms - 875 ms</sub> | 2.98 s<br><sub>2.23 s - 4.08 s</sub> | 2.67 s<br><sub>1.70 s - 3.69 s</sub> |
 
 Median on the first line, IQR beneath it.
@@ -68,10 +68,11 @@ three arms and MRPC 34-163 ms across its two, a factor of five each.
 | MRGN | CS-α | -- | 1,500 | 34 ms | 26 ms - 46 ms | 19 ms |
 | MRPC | CS-q | -- | 900 | 34 ms | 25 ms - 107 ms | 82 ms |
 | MRPC | truth (oracle) | -- | 797 | 163 ms | 65 ms - 401 ms | 336 ms |
-| MR-GGI | no covariates | 0 | 1,500 | 23 ms | 18 ms - 30 ms | 12 ms |
-| MR-GGI | CS-q | 5 | 1,497 | 370 ms | 50 ms - 4.37 s | 4.32 s |
-| MR-GGI | truth (oracle) | 27 | 1,493 | 7.03 s | 2.30 s - 14.44 s | 12.14 s |
-| MR-GGI | CS-α | 98 | 1,480 | 1.3 min | 53.48 s - 139.67 s | 1.4 min |
+| MR-GGI | no covariates | 0 | 1,500 | 9 ms | 4 ms - 11 ms | 7 ms |
+| MR-GGI | CS-q | 5 | 1,500 | 21 ms | 7 ms - 62 ms | 55 ms |
+| MR-GGI | CS-i | 9 | 1,500 | 35 ms | 11 ms - 79 ms | 68 ms |
+| MR-GGI | truth (oracle) | 27 | 1,500 | 77 ms | 18 ms - 146 ms | 128 ms |
+| MR-GGI | CS-α | 98 | 1,500 | 314 ms | 44 ms - 495 ms | 451 ms |
 | GMAC | own selection | -- | 1,500 | 787 ms | 515 ms - 2.38 s | 1.87 s |
 
 ## 4. What these numbers are, and what they are not
@@ -103,7 +104,7 @@ subset than the other three. That is why section 1 leads with n <= 300.
 
 **MRPC's timeouts are censored, not slow.** A fit that hits the 180 s cap returns no model and no time, so it is excluded from the quantiles and counted separately (`n_timed_out` in the CSV). The CS-q arm has none at n <= 300; the oracle arm loses 103 of 900, all at n = 300.
 
-**Twenty MR-GGI trios carry machine stalls.** All at n = 670, all with wall clocks of 3,000-53,000 s clustered at near-identical values across trios that were in flight on different workers at the same instant, and all wildly out of line with their own covariate counts -- dataset 191 has 78 covariates and 53,192 s, against 155 s for a 106-covariate trio at n = 1000. That is the machine suspending, not MR-GGI computing, so they are excluded from every statistic here and counted in `n_stalled` instead. **The medians and IQRs are identical either way** -- all thirty sit above the 75th percentile of their cell -- so nothing is lost; what the exclusion buys is a `mean`, `max` and `total_hours` in the CSV that mean something. Left in, MR-GGI's CS-q arm would report 10.9 total hours of which 9.3 are a sleeping laptop. Affected trios: 166, 168, 169, 191, 192, 194, 195, 217, 218, 220, 316, 318, 319, 341, 342, 344, 345, 367, 368, 370.
+**Twenty MR-GGI trios carry machine stalls.** All at n = 670, all with wall clocks of 3,000-53,000 s clustered at near-identical values across trios that were in flight on different workers at the same instant, and all wildly out of line with their own covariate counts -- dataset 191 has 78 covariates and 53,192 s, against 155 s for a 106-covariate trio at n = 1000. That is the machine suspending, not MR-GGI computing, so they are excluded from every statistic here and counted in `n_stalled` instead. **The medians and IQRs are identical either way** -- all thirty sit above the 75th percentile of their cell -- so nothing is lost; what the exclusion buys is a `mean`, `max` and `total_hours` in the CSV that mean something. Left in, MR-GGI's CS-q arm would report 10.9 total hours of which 9.3 are a sleeping laptop. Affected trios: .
 
 **MRGN's CS-i arm ran on a quiet machine, and it shows.** It reports a 4 ms median
 against CS-q's 7 ms while carrying *more* covariates (2.6-24.0 per trio against

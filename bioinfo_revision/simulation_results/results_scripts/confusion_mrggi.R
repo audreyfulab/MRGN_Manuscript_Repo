@@ -187,6 +187,38 @@ build.mrggi.confusion <- function(results = load.method("mrggi")) {
         }
     }
 
+    # ---- level 1b: the model call, tabulated ONCE ----
+    # mrggi.model is arm-invariant by construction (see mrggi.model.call() in
+    # inference_utils.R) so it carries no arm prefix and is reported under "mrggi", like the
+    # raw-p edge above. Scored against the same M-labels MRGN uses, because it comes from
+    # MRGN::class.vec() and returns exactly that label set.
+    #
+    # IT IS REPORTED BECAUSE IT FAILS, not because it works. MR-GGI's two causal tests are
+    # not independent of the instrument-gene marginals -- with a single instrument the
+    # Wald-ratio p reduces to the instrument->outcome t-test -- so the six-vector
+    # class.vec() receives carries four distinct tests, not six, and M0 and M2 are
+    # unreachable. See MRGGI_METHODS.md section 5.2.
+    if ("mrggi.model" %in% names(results)) {
+        cat("\n  --- model call (arm-invariant; see MRGGI_METHODS.md 5.2) ---\n")
+        for (size in SAMPLE.SIZES) {
+            rows <- results[results$sample.size == size, , drop = FALSE]
+            if (nrow(rows) == 0) next
+            m <- confusion(rows$truth.model, rows$mrggi.model, MRGN.LEVELS)
+            long[[length(long) + 1]] <-
+                confusion.long(m, "mrggi", "mrggi", size, "all", "model")
+            correct <- sum(diag(m[, TRUTH.LEVELS, drop = FALSE]))
+            cat(sprintf("  n=%-4d  %4d trios | model accuracy %5.1f%% | %4.1f%% Other\n",
+                        size, sum(m), 100 * correct / sum(m),
+                        100 * sum(m[, "Other"]) / sum(m)))
+            for (eff in EFFECT.SIZES) {
+                sub <- rows[rows$effect_size == eff, , drop = FALSE]
+                me <- confusion(sub$truth.model, sub$mrggi.model, MRGN.LEVELS)
+                long[[length(long) + 1]] <-
+                    confusion.long(me, "mrggi", "mrggi", size, eff, "model")
+            }
+        }
+    }
+
     # ---- level 2: the FDR-adjusted call, per arm ----
     # The only level on which the arms can differ. Reported at level "edge.fdr" so it never
     # gets mixed into a comparison with GMAC or MRGN, neither of which is corrected.

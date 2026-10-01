@@ -29,6 +29,7 @@ present.
 | `make_structure_report.R` | **driver** — writes `../../reports/CONFOUNDER_STRUCTURE.md`: which of `W`/`Z` damages MRGN, and which generating models it hits. Needs the three `data_structures/` runs |
 | `make_table2.R` | **driver** — writes `../../reports/table2_inference_summary.md`, the four methods side by side in the layout of Table 2 of `MRGN_v8.pdf` |
 | `make_matrix_workbooks.R` | **driver** — writes one `.xlsx` per method-arm-group under `../tables/<method>/`, each matrix in three formats. Run `make_all_tables.R` first |
+| `make_aggregated_confusion_workbook.R` | **driver** — writes `../../Final_tables/Aggregated_confusion_matrices.xlsx`: the MRGN (CS-q) and MRPC (CS-q) matrices *pooled* over every sample size and effect size, in the same three formats, plus an MRGN block restricted to n ≤ 300 so it is comparable with MRPC. Run `make_all_tables.R` first |
 | `compute_time.R` | **standalone** — median and IQR of per-trio compute time for all four methods. Writes `../tables/compute_time{,_long}.csv`, three PNGs, and `../../reports/COMPUTE_TIME.md`. Needs ggplot2 |
 | `make_edge_pr_figure.R` | **standalone** — edge precision/recall for all four methods in a sample-size × effect-treatment grid, bootstrapped. Writes `../../reports/figures/fig_edge_pr_grid.png` (embedded in `INFERENCE_PERFORMANCE.md` §2) and `../tables/edge_pr_grid.csv`. Run `make_all_tables.R` first; needs ggplot2 |
 

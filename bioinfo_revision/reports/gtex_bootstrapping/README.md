@@ -56,6 +56,30 @@ after as covariates, so the frames go in unmodified.
 | `chunks/chunk_NNNN.RData` | per-chunk checkpoints; safe to delete once combined |
 | `progress.log` | one line per trio, written live by the workers |
 
+## The summary table
+
+[`../../gtex_bootstrapping/summarise_gtex_bootstrap.R`](../../gtex_bootstrapping/summarise_gtex_bootstrap.R)
+reads `gtex_mrgn_bootstrap.csv` and writes
+[`../../Final_tables/GTEx_bootstrap_summary.xlsx`](../../Final_tables/) — run shape,
+per-model call counts, the point-call × bootstrap-call cross-tab and its off-diagonal,
+per-edge support, and the distribution of the per-trio confidence floor. It scores nothing:
+there is no truth axis here, so what the cross-tab reports on its diagonal is **stability**
+under resampling, not accuracy.
+
+Two properties of the columns above that the summary has to work around, and that anyone
+reading the CSV directly should know:
+
+- **`boot.p.T1T2` and `boot.p.T2T1` are the same number.** `infer.trio()` returns `b12` and
+  `b22` as one indicator for T1–T2 *adjacency*, not two orientation-specific ones — they are
+  identical in all 3,248 trios, and in every resample behind them. Orientation of T1–T2 comes
+  from the two interaction terms. The summary reports the edge once.
+- **`boot.min.edge.prob` is not always an edge probability.** `boostrap_edge_probabilities()`
+  builds it as the smallest mean among *all six* supported indicators, and the last two are
+  the `V1:T1` and `V1:T2` interaction terms, which are not edges. In 891 of 3,248 trios the
+  minimum is one of those two — including 21 where no edge is supported at all, yet the
+  column still carries a value. The summary reports the column as recorded *and* a
+  `min.supported.edge` recomputed over the four edge indicators only.
+
 ### Watching a run
 
 `progress.log` gets a line as each trio finishes, from whichever worker ran it:

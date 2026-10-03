@@ -35,11 +35,12 @@ Run both from the **repository root**, in this order.
 | script | does | writes |
 | --- | --- | --- |
 | `rerun_gtex_no_known_covs.R` | MRGN (both arms) and GMAC (cis + trans) without the covariates; aligns GMAC to the master table by trio IDs; appends the new columns to the master table; old-vs-new summaries | `updated_results/*`, new columns in `TableS3_GTEx_all_trios_master_updatedOct1.csv` |
-| `make_gtex_fig_no_known_covs.R` | Rebuilds Figure 4 (style from `Manuscript/scripts/create_GTEx_figs.R`, panel order of the v10 manuscript figure) and prints the counts quoted in the text | `updated_figures/fig4_gtex_noKC.{pdf,png}` |
+| `make_gtex_fig_no_known_covs.R` | Rebuilds the GTEx figure (style from `Manuscript/scripts/create_GTEx_figs.R`, panel order of the v10 manuscript figure) for one MRGN confounder set, chosen with `--arm=CSq` (default) or `--arm=CSalpha`, and prints the counts quoted in the text | `updated_figures/fig_gtex_noKC_MRGN_<arm>.{pdf,png}` |
 
 ```
 Rscript bioinfo_revision/gtex_rerun/rerun_gtex_no_known_covs.R --cores=4
-Rscript bioinfo_revision/gtex_rerun/make_gtex_fig_no_known_covs.R
+Rscript bioinfo_revision/gtex_rerun/make_gtex_fig_no_known_covs.R --arm=CSq
+Rscript bioinfo_revision/gtex_rerun/make_gtex_fig_no_known_covs.R --arm=CSalpha
 ```
 
 `--cores` sets the size of the parallel cluster (default 4). The trio lists take several GB
@@ -86,4 +87,11 @@ Mediation`, built as in `GTEx/scripts/make_mrgn_triotables.R`.
 
 | file | contents |
 | --- | --- |
-| `fig4_gtex_noKC.pdf` / `.png` | Figure 4 rebuilt: (A) selected PCs per trio, CS-q; (B) inferred models, MRGN vs MRPC; (C) T1–T2 edge, all three methods; (D) cis- vs trans-gene mediation. MRGN and GMAC are the rerun without covariates; MRPC is the original run |
+| `fig_gtex_noKC_MRGN_CSq.pdf` / `.png` | Manuscript Figure 4 rebuilt, MRGN on CS-q confounders |
+| `fig_gtex_noKC_MRGN_CSalpha.pdf` / `.png` | The same figure with MRGN on CS-α confounders (cf. Supplementary Figure 9) |
+
+Both figures have the same panels: (A) selected PCs per trio for that MRGN confounder set; (B)
+inferred models, MRGN vs MRPC; (C) T1–T2 edge, all three methods; (D) cis- vs trans-gene
+mediation, MRGN vs MRPC. MRGN and GMAC come from the rerun without covariates, and MRPC
+from the original run, so the GMAC and MRPC bars are identical in the two figures. Panel
+C's MRGN indicators come from the same run as its model labels.

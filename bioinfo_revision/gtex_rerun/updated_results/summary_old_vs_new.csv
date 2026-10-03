@@ -1,0 +1,29 @@
+"method","call","with.known.covs","without.known.covs"
+"MRGN CS-q","M0.1",154,152
+"MRGN CS-q","M0.2",558,563
+"MRGN CS-q","M1.1",43,43
+"MRGN CS-q","M1.2",33,36
+"MRGN CS-q","M2.2",11,9
+"MRGN CS-q","M3",2278,2268
+"MRGN CS-q","M4",152,158
+"MRGN CS-q","Other",19,19
+"MRGN CS-alpha","M0.1",347,341
+"MRGN CS-alpha","M0.2",564,570
+"MRGN CS-alpha","M1.1",70,69
+"MRGN CS-alpha","M1.2",26,27
+"MRGN CS-alpha","M2.2",10,9
+"MRGN CS-alpha","M3",2063,2060
+"MRGN CS-alpha","M4",111,119
+"MRGN CS-alpha","Other",57,53
+"GMAC qval","Cis Mediated",45,58
+"GMAC qval","No Mediation",3039,3024
+"GMAC qval","Trans Mediated",8,10
+"GMAC qval","Undirected",156,156
+"GMAC alpha01","Cis Mediated",38,33
+"GMAC alpha01","No Mediation",3004,3003
+"GMAC alpha01","Trans Mediated",20,18
+"GMAC alpha01","Undirected",186,194
+"GMAC alpha05","Cis Mediated",62,60
+"GMAC alpha05","No Mediation",2766,2765
+"GMAC alpha05","Trans Mediated",42,37
+"GMAC alpha05","Undirected",378,386

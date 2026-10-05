@@ -27,9 +27,9 @@ trios.final <- all.unq.snps.ldf.pl.only
 rm (all.unq.snps.ldf.pl.only)
 
 # load known covariates
-load(file.path(home_dir, "GTEx_MRGN/kclist_top5_tiss.RData"))
+#load(file.path(home_dir, "GTEx_MRGN/kclist_top5_tiss.RData"))
 # extract known covariates for whole blood
-kc.wb <- kc.list[[1]]
+#kc.wb <- kc.list[[1]]
 
 # load gene expression PCs
 load(file.path(home_dir, "GTEx_MRGN/PCs.matrix.WholeBlood.RData"))
@@ -42,7 +42,9 @@ rm (List.significant.asso1)
 
 # load trio inference results and find mediation trios
 mrgn.gtex <- read.delim(file.path(home_dir, "GTEx_MRGN/TableS2_GTEx_all_trios_master.csv"), header = TRUE, row.names = 1, sep = ",")
-id.m1 <- which (mrgn.gtex$MRGN.Inferred.Model.no.perm=="M1.1" | mrgn.gtex$MRGN.Inferred.Model.no.perm=="M1.2")
+m1.mrpc <- which (mrgn.gtex$MRPC.Addis.Inferred.Model=="M1.1" | mrgn.gtex$MRPC.Addis.Inferred.Model=="M1.2")
+m1.mrgn <- which (mrgn.gtex$MRGN.Inferred.Model.no.perm=="M1.1" | mrgn.gtex$MRGN.Inferred.Model.no.perm=="M1.2")
+id.m1 <- setdiff(m1.mrpc, m1.mrgn)
 
 # compile data for a specific trio
 for (i in beginIdx:endIdx) {
@@ -50,7 +52,7 @@ for (i in beginIdx:endIdx) {
   # calculate the indices for the trio in trios.final
   trio.id <- (id.m1[i]-1)*3+1:3
   # extract trio data and merge with known and identified confounders
-  trio.data <- data.frame(trios.final[,trio.id], kc.wb, PCs.matrix.WholeBlood[,trios.pc[[id.m1[i]]]])
+  trio.data <- data.frame(trios.final[,trio.id], PCs.matrix.WholeBlood[,trios.pc[[id.m1[i]]]])
   
   # generate the adj matrix for baycn
   trio.am <- matrix(0, nrow = ncol(trio.data), ncol = ncol(trio.data))
@@ -75,7 +77,7 @@ for (i in beginIdx:endIdx) {
                        thinTo = thinTo,
                        progress = TRUE)
   
-  write.table(trio.baycn@posteriorPM, file=paste0(home_dir, "/GTEx_MRGN/GTEx_wholeblood_posteriorPM_trio_", id.m1[i], ".txt"), quote = FALSE, sep="\t")
+  write.table(trio.baycn@posteriorPM, file=paste0(home_dir, "/GTEx_MRGN/GTEx_wholeblood_posteriorPM_mrpc_trio_", id.m1[i], ".txt"), quote = FALSE, sep="\t")
 }
 
 
